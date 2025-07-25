@@ -1,4 +1,9 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+?>
+
+<?php
 $conn = new mysqli("localhost", "root", "", "your_db_name");
 $sql = "SELECT * FROM sample";
 $result = $conn->query($sql);

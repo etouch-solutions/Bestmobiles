@@ -1,3 +1,8 @@
+
+<?php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+?>
 <?php
 $conn = new mysqli("localhost", "root", "", "your_db_name");
 if ($conn->connect_error) {
