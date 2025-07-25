@@ -11,7 +11,8 @@
 <a href="add_brand.html">add a brand</a>
 
 <a href="add_defect.html">add a defect</a>
-<a href="add_defect.html">add a defect</a>
+<a href="add_insurance.html">add an insurance</a>
+
     <h2>All Users</h2>
     <a href="add.php">Add New User</a>
     <table border="1" cellpadding="10">

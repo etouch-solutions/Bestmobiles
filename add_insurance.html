@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Add Insurance Plan</title>
+</head>
+<body>
+  <h2>Add Insurance Plan</h2>
+  <form action="insert_insurance.php" method="POST">
+    <label>Insurance Name:</label><br>
+    <input type="text" name="insurance_name" required><br><br>
+
+    <label>Description:</label><br>
+    <textarea name="insurance_description" required></textarea><br><br>
+
+    <label>Premium Percentage (%):</label><br>
+    <input type="number" name="premium_percentage" min="0" required><br><br>
+
+    <label>Duration (e.g., 12 Months, 2 Years):</label><br>
+    <input type="text" name="duration" required><br><br>
+
+    <label>Status:</label><br>
+    <select name="insurance_status">
+      <option value="1">Active</option>
+      <option value="0">Inactive</option>
+    </select><br><br>
+
+    <input type="submit" value="Add Insurance Plan">
+  </form>
+</body>
+</html>
