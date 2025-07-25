@@ -7,6 +7,11 @@
 <body>
 
 <a href="branch_form.php">add a branch</a>
+
+<a href="add_brand.php">add a brand</a>
+
+
+
     <h2>All Users</h2>
     <a href="add.php">Add New User</a>
     <table border="1" cellpadding="10">
