@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Add Staff</title>
+</head>
+<body>
+  <h2>Add Staff Member</h2>
+  <form action="insert_staff.php" method="POST">
+    <label>Staff Name:</label><br>
+    <input type="text" name="staff_name" required><br><br>
+
+    <label>Contact Number:</label><br>
+    <input type="number" name="staff_cno" required><br><br>
+
+    <label>Email Address:</label><br>
+    <input type="email" name="staff_email" required><br><br>
+
+    <label>Address:</label><br>
+    <textarea name="staff_address" required></textarea><br><br>
+
+    <label>Designation:</label><br>
+    <input type="text" name="staff_designation" required><br><br>
+
+    <label>Status:</label><br>
+    <select name="staff_status">
+      <option value="1">Active</option>
+      <option value="0">Inactive</option>
+    </select><br><br>
+
+    <input type="submit" value="Add Staff">
+  </form>
+</body>
+</html>
