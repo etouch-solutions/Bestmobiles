@@ -5,6 +5,8 @@
     <title>Users List</title>
 </head>
 <body>
+
+<a href="branch_form.php">add a branch</a>
     <h2>All Users</h2>
     <a href="add.php">Add New User</a>
     <table border="1" cellpadding="10">
