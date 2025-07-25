@@ -7,7 +7,7 @@
 <body>
 
 <a href="branch_form.html">add a branch</a>
-
+<a href="add_staff.html">add a staff</a>
 <a href="add_brand.html">add a brand</a>
 
 <a href="add_defect.html">add a defect</a>
