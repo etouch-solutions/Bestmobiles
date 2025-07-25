@@ -14,7 +14,7 @@
         while($row = $result->fetch_assoc()){
             echo "<tr>
                 <td>{$row['id']}</td>
-                <td>{$row['name']}</td>
+                <td>{$row['name 1`']}</td>
                 <td>{$row['email']}</td>
                 <td>{$row['phone']}</td>
                 <td>
@@ -32,7 +32,7 @@
         Photo: <input type="file" name="photo" required><br><br>
         ID Copy: <input type="file" name="id_copy" required><br><br>
         <input type="submit" name="submit" value="Upload">
-    </form>
+    </form>   
 
 <h2>Uploaded Customers</h2>
 <?php
