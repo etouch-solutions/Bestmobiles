@@ -25,6 +25,7 @@
         }
         ?>
     </table>
+
     <h2>Upload Customer Photo and ID</h2>
     <form action="sample_upload.php" method="POST" enctype="multipart/form-data">
         Name: <input type="text" name="name" required><br><br>
@@ -32,5 +33,17 @@
         ID Copy: <input type="file" name="id_copy" required><br><br>
         <input type="submit" name="submit" value="Upload">
     </form>
+
+<h2>Uploaded Customers</h2>
+<?php
+$result = $conn->query("SELECT * FROM sample");
+while($row = $result->fetch_assoc()){
+    echo "<b>Name:</b> {$row['name']}<br>";
+    echo "<b>Photo:</b><br><img src='data:image/jpeg;base64," . base64_encode($row['photo']) . "' height='100'><br>";
+    echo "<b>ID Copy:</b><br><img src='data:image/jpeg;base64," . base64_encode($row['id_copy']) . "' height='100'><br><hr>";
+}
+?>
+
+    
 </body>
 </html>
