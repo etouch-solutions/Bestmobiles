@@ -8,7 +8,7 @@
 
 <a href="branch_form.php">add a branch</a>
 
-<a href="add_brand.php">add a brand</a>
+<a href="add_brand.html">add a brand</a>
 
 
 

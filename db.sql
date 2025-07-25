@@ -1,4 +1,4 @@
--- 1. Branch_Master
+
 CREATE TABLE Branch_Master (
     Branch_Id INT AUTO_INCREMENT PRIMARY KEY,
     Branch_Name VARCHAR(50),
@@ -9,8 +9,6 @@ CREATE TABLE Branch_Master (
     Created_At DATETIME DEFAULT CURRENT_TIMESTAMP,
     Updated_At DATETIME ON UPDATE CURRENT_TIMESTAMP
 );
-
--- 2. Customer_Master
 CREATE TABLE Customer_Master (
     Cus_Id INT AUTO_INCREMENT PRIMARY KEY,
     Cus_Name VARCHAR(50),
@@ -28,7 +26,7 @@ CREATE TABLE Customer_Master (
     FOREIGN KEY (Branch_Id) REFERENCES Branch_Master(Branch_Id)
 );
 
--- 3. Staff_Master
+
 CREATE TABLE Staff_Master (
     Staff_Id INT AUTO_INCREMENT PRIMARY KEY,
     Staff_Name VARCHAR(50),
@@ -41,7 +39,7 @@ CREATE TABLE Staff_Master (
     Updated_At DATETIME ON UPDATE CURRENT_TIMESTAMP
 );
 
--- 4. Brands_Master
+
 CREATE TABLE Brands_Master (
     Brand_Id INT AUTO_INCREMENT PRIMARY KEY,
     Brand_Name VARCHAR(50),
@@ -50,7 +48,7 @@ CREATE TABLE Brands_Master (
     Updated_At DATETIME ON UPDATE CURRENT_TIMESTAMP
 );
 
--- 5. Insurance_Master
+
 CREATE TABLE Insurance_Master (
     Insurance_Id INT AUTO_INCREMENT PRIMARY KEY,
     Insurance_Name VARCHAR(50),
@@ -62,7 +60,7 @@ CREATE TABLE Insurance_Master (
     Updated_At DATETIME ON UPDATE CURRENT_TIMESTAMP
 );
 
--- 6. Insurance_Entry
+
 CREATE TABLE Insurance_Entry (
     Insurance_Entry_Id INT AUTO_INCREMENT PRIMARY KEY,
     Cus_Id INT,
@@ -89,7 +87,7 @@ CREATE TABLE Insurance_Entry (
     FOREIGN KEY (Staff_Id) REFERENCES Staff_Master(Staff_Id)
 );
 
--- 7. Defect_Master
+
 CREATE TABLE Defect_Master (
     Defect_Id INT AUTO_INCREMENT PRIMARY KEY,
     Defect_Name VARCHAR(50),
@@ -99,7 +97,7 @@ CREATE TABLE Defect_Master (
     Updated_At DATETIME ON UPDATE CURRENT_TIMESTAMP
 );
 
--- 8. Claim_Entry
+
 CREATE TABLE Claim_Entry (
     Claim_Id INT AUTO_INCREMENT PRIMARY KEY,
     Insurance_Entry_Id INT,
@@ -111,7 +109,6 @@ CREATE TABLE Claim_Entry (
     FOREIGN KEY (Staff_Id) REFERENCES Staff_Master(Staff_Id)
 );
 
--- 9. Claim_Defects (junction table for many-to-many)
 CREATE TABLE Claim_Defects (
     Claim_Id INT,
     Defect_Id INT,
@@ -121,3 +118,26 @@ CREATE TABLE Claim_Defects (
     FOREIGN KEY (Claim_Id) REFERENCES Claim_Entry(Claim_Id),
     FOREIGN KEY (Defect_Id) REFERENCES Defect_Master(Defect_Id)
 );
+
+
+
+
+-- -------------------------------------------------------------- -------------------------------------------------------------- ------------------------------------------------------------
+-- Enforce uniqueness on Branch_Master
+-- ------------------------------------------------------------
+-- WHY:
+-- To ensure that no two branches have the exact same name 
+-- and address combination, which could lead to duplication 
+-- and data inconsistency.
+--
+-- TABLE: Branch_Master
+-- COLUMNS: Branch_Name, Branch_Address
+--
+-- This ALTER TABLE statement adds a unique constraint that
+-- prevents inserting or updating rows with duplicate 
+-- (Branch_Name, Branch_Address) pairs.
+-- ------------------------------------------------------------
+
+ALTER TABLE Branch_Master
+ADD CONSTRAINT unique_branch UNIQUE (Branch_Name, Branch_Address);
+-- -------------------------------------------------------------- -------------------------------------------------------------- ------------------------------------------------------------
