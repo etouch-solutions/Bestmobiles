@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Add New Defect Type</title>
+</head>
+<body>
+  <h2>Add Defect Type (Damage Type)</h2>
+  <form action="insert_defect.php" method="POST">
+    <label>Defect Name (e.g., Screen Crack):</label><br>
+    <input type="text" name="defect_name" required><br><br>
+
+    <label>Defect Description:</label><br>
+    <textarea name="defect_description" required></textarea><br><br>
+
+    <label>Status:</label><br>
+    <select name="defect_status">
+      <option value="1">Active</option>
+      <option value="0">Inactive</option>
+    </select><br><br>
+
+    <input type="submit" value="Add Defect">
+  </form>
+</body>
+</html>
