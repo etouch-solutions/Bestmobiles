@@ -2,24 +2,26 @@
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
 
-include 'db.php';
+include 'db.php'; // Make sure db.php defines $host, $user, $pass, $db
 
 $conn = mysqli_connect($host, $user, $pass, $db);
 if (!$conn) {
     die("Connection failed: " . mysqli_connect_error());
 }
 
-// Get form data
+// Collect form data safely
 $insurance_name = trim($_POST['insurance_name']);
 $insurance_description = trim($_POST['insurance_description']);
 $premium_percentage = intval($_POST['premium_percentage']);
 $duration = trim($_POST['duration']);
 $insurance_status = $_POST['insurance_status'] ?? 1;
 
-// Validate input
+// Validate inputs
 if (
-    empty($insurance_name) || empty($insurance_description) || 
-    empty($premium_percentage) || empty($duration)
+    empty($insurance_name) ||
+    empty($insurance_description) ||
+    empty($premium_percentage) ||
+    empty($duration)
 ) {
     die("❌ All fields are required.");
 }
@@ -45,7 +47,7 @@ if (mysqli_stmt_num_rows($check_stmt) > 0) {
     if (mysqli_stmt_execute($insert_stmt)) {
         echo "✅ Insurance plan '$insurance_name' added successfully!";
     } else {
-        echo "❌ Error: " . mysqli_error($conn);
+        echo "❌ Error inserting plan: " . mysqli_error($conn);
     }
 
     mysqli_stmt_close($insert_stmt);
