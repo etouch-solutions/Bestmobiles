@@ -16,4 +16,15 @@ $result = $conn->query($sql);
     <img src="data:image/jpeg;base64,<?= base64_encode($row['photo']); ?>" height="100"><br>
     <b>ID Copy:</b><br>
     <img src="data:image/jpeg;base64,<?= base64_encode($row['id_copy']); ?>" height="100"><br><br><hr>
-<?php } ?>
+<?php }
+
+
+
+$result = $conn->query("SELECT * FROM sample");
+while($row = $result->fetch_assoc()){
+    echo "<b>Name:</b> {$row['name']}<br>";
+    echo "<b>Photo:</b><br><img src='data:image/jpeg;base64," . base64_encode($row['photo']) . "' height='100'><br>";
+    echo "<b>ID Copy:</b><br><img src='data:image/jpeg;base64," . base64_encode($row['id_copy']) . "' height='100'><br><hr>";
+}
+?>
+ 
