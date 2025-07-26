@@ -36,20 +36,20 @@
   <label for="brand_id">Select Brand</label>
 <select name="brand_id" id="brand_id" required>
   <?php
-    $res = mysqli_query($conn, "SELECT Brand_Id, Brand_Name FROM Brands_Master WHERE Brand_Status = 1");
+    $brand_res = mysqli_query($conn, "SELECT Brand_Id, Brand_Name FROM Brands_Master WHERE Brand_Status = 1");
 
-    if (!$res) {
+    if (!$brand_res) {
       echo "<option disabled>Error: " . mysqli_error($conn) . "</option>";
+    } elseif (mysqli_num_rows($brand_res) === 0) {
+      echo "<option disabled>No active brands found</option>";
     } else {
-      if (mysqli_num_rows($res) === 0) {
-        echo "<option disabled>No active brands found</option>";
-      }
-      while ($row = mysqli_fetch_assoc($res)) {
+      while ($row = mysqli_fetch_assoc($brand_res)) {
         echo "<option value='{$row['Brand_Id']}'>{$row['Brand_Name']}</option>";
       }
     }
   ?>
 </select>
+
 
 
   <label for="insurance_id">Select Insurance</label>
