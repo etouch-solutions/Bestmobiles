@@ -16,12 +16,17 @@
 <h2 style="text-align:center">Add Insurance Entry</h2>
 
 <form action="insert_insurance_entry.php" method="POST">
+  <?php
+    include 'db.php';
+    error_reporting(E_ALL);
+    ini_set('display_errors', 1);
+    $conn = mysqli_connect($host, $user, $pass, $db);
+  ?>
+
   <label for="cus_id">Select Customer</label>
-  <select name="cus_id" id="cus_id">
+  <select name="cus_id" id="cus_id" required>
     <?php
-      include 'db.php';
-      $conn = mysqli_connect($host, $user, $pass, $db);
-      $res = mysqli_query($conn, "SELECT Cus_Id, Cus_Name FROM Customer_Master WHERE Cus_Status = 1");
+      $res = mysqli_query($conn, "SELECT Cus_Id, Cus_Name FROM Customer_Master WHERE Is_Active = 1");
       while ($row = mysqli_fetch_assoc($res)) {
         echo "<option value='{$row['Cus_Id']}'>{$row['Cus_Name']}</option>";
       }
@@ -29,7 +34,7 @@
   </select>
 
   <label for="brand_id">Select Brand</label>
-  <select name="brand_id" id="brand_id">
+  <select name="brand_id" id="brand_id" required>
     <?php
       $res = mysqli_query($conn, "SELECT Brand_Id, Brand_Name FROM Brands_Master WHERE Brand_Status = 1");
       while ($row = mysqli_fetch_assoc($res)) {
@@ -39,7 +44,7 @@
   </select>
 
   <label for="insurance_id">Select Insurance</label>
-  <select name="insurance_id" id="insurance_id">
+  <select name="insurance_id" id="insurance_id" required>
     <?php
       $res = mysqli_query($conn, "SELECT Insurance_Id, Insurance_Name FROM Insurance_Master WHERE Insurance_Status = 1");
       while ($row = mysqli_fetch_assoc($res)) {
@@ -49,9 +54,9 @@
   </select>
 
   <label for="staff_id">Select Staff</label>
-  <select name="staff_id" id="staff_id">
+  <select name="staff_id" id="staff_id" required>
     <?php
-      $res = mysqli_query($conn, "SELECT Staff_Id, Staff_Name FROM Staff_Master WHERE Staff_Status = 1");
+      $res = mysqli_query($conn, "SELECT Staff_Id, Staff_Name FROM Staff_Master WHERE Is_Active = 1");
       while ($row = mysqli_fetch_assoc($res)) {
         echo "<option value='{$row['Staff_Id']}'>{$row['Staff_Name']}</option>";
       }

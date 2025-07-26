@@ -18,7 +18,7 @@ $is_active = $_POST['is_active'] ?? 1;
 
 // Validate input
 if (empty($brand_name)) {
-    die("❌ Brand name is required.");
+    die(" Brand name is required.");
 }
 
 // Check for duplicate brand name
