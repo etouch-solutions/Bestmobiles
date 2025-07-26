@@ -3,125 +3,146 @@
 <head>
   <title>Add Insurance Entry</title>
   <style>
-    body { font-family: Arial; padding: 20px; background: #f2f2f2; }
-    form { background: #fff; padding: 20px; border-radius: 10px; max-width: 600px; margin: auto; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-    input, select { width: 100%; padding: 10px; margin: 8px 0 20px; border: 1px solid #ccc; border-radius: 5px; }
-    label { font-weight: bold; }
-    button { background: #4CAF50; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; }
-    button:hover { background: #45a049; }
+    body { font-family: Arial; background: #f2f2f2; padding: 20px; }
+    .container { display: flex; justify-content: space-between; max-width: 1000px; margin: auto; }
+    form, .preview { background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px #ccc; width: 48%; }
+    label { font-weight: bold; margin-top: 10px; display: block; }
+    input, select { width: 100%; padding: 8px; margin-bottom: 15px; border-radius: 5px; border: 1px solid #ccc; }
+    button { padding: 10px 20px; background: green; color: white; border: none; border-radius: 5px; cursor: pointer; }
+    img { width: 100px; margin-top: 10px; }
   </style>
 </head>
 <body>
-
 <h2 style="text-align:center">Add Insurance Entry</h2>
+<div class="container">
+  <form action="insert_insurance_entry.php" method="POST" enctype="multipart/form-data">
+    <?php include 'db.php'; $conn = mysqli_connect($host, $user, $pass, $db); ?>
 
-<form action="insert_insurance_entry.php" method="POST">
-  <?php
-    include 'db.php';
-    error_reporting(E_ALL);
-    ini_set('display_errors', 1);
-    $conn = mysqli_connect($host, $user, $pass, $db);
-  ?>
+    <!-- Customer Dropdown -->
+    <label>Select Customer</label>
+    <select name="cus_id" id="cus_id" onchange="loadCustomerDetails(this.value)">
+      <option value="">-- Select --</option>
+      <?php
+        $res = mysqli_query($conn, "SELECT Cus_Id, Cus_Name FROM Customer_Master WHERE Is_Active = 1");
+        while ($row = mysqli_fetch_assoc($res)) {
+          echo "<option value='{$row['Cus_Id']}'>{$row['Cus_Name']}</option>";
+        }
+      ?>
+    </select>
 
-  <label for="cus_id">Select Customer</label>
-  <select name="cus_id" id="cus_id" required>
-    <?php
-      $res = mysqli_query($conn, "SELECT Cus_Id, Cus_Name FROM Customer_Master WHERE Is_Active = 1");
-      while ($row = mysqli_fetch_assoc($res)) {
-        echo "<option value='{$row['Cus_Id']}'>{$row['Cus_Name']}</option>";
-      }
-    ?>
-  </select>
-
- <label for="brand_id">Select Brand</label>
-<select name="brand_id" id="brand_id" required>
-  <?php
-    $res = mysqli_query($conn, "SELECT Brand_Id, Brand_Name FROM Brands_Master WHERE Is_Active = 1");
-
-    if (!$res) {
-      echo "<option disabled>Error: " . mysqli_error($conn) . "</option>";
-    } else {
-      if (mysqli_num_rows($res) === 0) {
-        echo "<option disabled>No active brands found</option>";
-      } else {
+    <!-- Brand -->
+    <label>Select Brand</label>
+    <select name="brand_id" required>
+      <option value="">-- Select --</option>
+      <?php
+        $res = mysqli_query($conn, "SELECT Brand_Id, Brand_Name FROM Brands_Master WHERE Is_Active = 1");
         while ($row = mysqli_fetch_assoc($res)) {
           echo "<option value='{$row['Brand_Id']}'>{$row['Brand_Name']}</option>";
         }
-      }
-    }
-  ?>
-</select>
+      ?>
+    </select>
 
+    <!-- Insurance Plan -->
+    <label>Select Insurance Plan</label>
+    <select name="insurance_id" id="insurance_id" onchange="calculatePremium()">
+      <option value="">-- Select --</option>
+      <?php
+        $res = mysqli_query($conn, "SELECT Insurance_Id, Insurance_Name, Premium_Percentage FROM Insurance_Master WHERE Insurance_Status = 1");
+        while ($row = mysqli_fetch_assoc($res)) {
+          echo "<option value='{$row['Insurance_Id']}' data-premium='{$row['Premium_Percentage']}'>{$row['Insurance_Name']}</option>";
+        }
+      ?>
+    </select>
 
+    <!-- Staff -->
+    <label>Select Staff</label>
+    <select name="staff_id" required>
+      <option value="">-- Select --</option>
+      <?php
+        $res = mysqli_query($conn, "SELECT Staff_Id, Staff_Name FROM Staff_Master WHERE Staff_Status = 1");
+        while ($row = mysqli_fetch_assoc($res)) {
+          echo "<option value='{$row['Staff_Id']}'>{$row['Staff_Name']}</option>";
+        }
+      ?>
+    </select>
 
+    <!-- Product Details -->
+    <label>Product Model Name</label>
+    <input type="text" name="product_model_name" required>
 
-  <label for="insurance_id">Select Insurance</label>
-  <select name="insurance_id" id="insurance_id" required>
-    <?php
-      $res = mysqli_query($conn, "SELECT Insurance_Id, Insurance_Name FROM Insurance_Master WHERE Insurance_Status = 1");
-      while ($row = mysqli_fetch_assoc($res)) {
-        echo "<option value='{$row['Insurance_Id']}'>{$row['Insurance_Name']}</option>";
-      }
-    ?>
-  </select>
+    <label>IMEI 1</label>
+    <input type="text" name="imei_1">
 
-<label for="staff_id">Select Staff</label>
-<select name="staff_id" id="staff_id" required>
-  <?php
-    $res = mysqli_query($conn, "SELECT Staff_Id, Staff_Name FROM Staff_Master WHERE Staff_Status = 1");
+    <label>IMEI 2</label>
+    <input type="text" name="imei_2">
 
+    <label>Product Value (₹)</label>
+    <input type="number" name="product_value" id="product_value" oninput="calculatePremium()">
 
-    if (!$res) {
-      echo "<option disabled>Error: " . mysqli_error($conn) . "</option>";
-    } elseif (mysqli_num_rows($res) === 0) {
-      echo "<option disabled>No active staff found</option>";
-    } else {
-      while ($row = mysqli_fetch_assoc($res)) {
-        echo "<option value='{$row['Staff_Id']}'>{$row['Staff_Name']}</option>";
-      }
-    }
-  ?>
-</select>
+    <label>Calculated Premium (₹)</label>
+    <input type="number" name="premium_amount" id="premium_amount" readonly>
 
+    <!-- File Uploads -->
+    <label>Upload Product Photo</label>
+    <input type="file" name="product_photo" accept="image/*">
 
-  <label>Product Model Name:</label>
-  <input type="text" name="product_model_name" required>
+    <label>Upload Bill Photo</label>
+    <input type="file" name="bill_photo" accept="image/*">
 
-  <label>IMEI 1:</label>
-  <input type="text" name="imei_1">
+    <!-- Dates -->
+    <label>Bill Date</label>
+    <input type="date" name="bill_date">
 
-  <label>IMEI 2:</label>
-  <input type="text" name="imei_2">
+    <label>Insurance Start</label>
+    <input type="date" name="insurance_start">
 
-  <label>Product Value (₹):</label>
-  <input type="number" name="product_value">
+    <label>Insurance End</label>
+    <input type="date" name="insurance_end">
 
-  <label>Bill Date:</label>
-  <input type="date" name="bill_date">
+    <label>Insurance Status</label>
+    <select name="insurance_status">
+      <option value="1">Valid</option>
+      <option value="0">Invalid</option>
+    </select>
 
-  <label>Insurance Start Date:</label>
-  <input type="date" name="insurance_start">
+    <label>Product Insurance Status</label>
+    <select name="product_ins_status">
+      <option value="1">Active</option>
+      <option value="0">Inactive</option>
+    </select>
 
-  <label>Insurance End Date:</label>
-  <input type="date" name="insurance_end">
+    <button type="submit">Submit</button>
+  </form>
 
-  <label>Premium Amount (₹):</label>
-  <input type="number" name="premium_amount">
+  <!-- Live Preview Panel -->
+  <div class="preview">
+    <h3>Customer Details</h3>
+    <div id="customerDetails">Select a customer to view details.</div>
+  </div>
+</div>
 
-  <label>Product Insurance Status:</label>
-  <select name="product_ins_status">
-    <option value="1">Active</option>
-    <option value="0">Inactive</option>
-  </select>
+<script>
+function loadCustomerDetails(cus_id) {
+  if (cus_id == "") {
+    document.getElementById('customerDetails').innerHTML = "Select a customer to view details.";
+    return;
+  }
+  fetch(`fetch_customer.php?cus_id=${cus_id}`)
+    .then(res => res.text())
+    .then(data => document.getElementById('customerDetails').innerHTML = data);
+}
 
-  <label>Insurance Validity:</label>
-  <select name="insurance_status">
-    <option value="1">Valid</option>
-    <option value="0">Invalid</option>
-  </select>
+function calculatePremium() {
+  const insurance = document.getElementById('insurance_id');
+  const selectedOption = insurance.options[insurance.selectedIndex];
+  const percentage = selectedOption.getAttribute('data-premium');
+  const productValue = parseFloat(document.getElementById('product_value').value) || 0;
 
-  <button type="submit">Submit Insurance Entry</button>
-</form>
-
+  if (percentage && productValue) {
+    const premium = (productValue * parseFloat(percentage)) / 100;
+    document.getElementById('premium_amount').value = premium.toFixed(2);
+  }
+}
+</script>
 </body>
 </html>
