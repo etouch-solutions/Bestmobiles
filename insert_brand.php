@@ -21,7 +21,7 @@ if (empty($brand_name)) {
     die(" Brand name is required.");
 }
 
-// Check for duplicate brand name
+000// Check for duplicate brand name
 $check_sql = "SELECT * FROM Brands_Master WHERE Brand_Name = ?";
 $check_stmt = mysqli_prepare($conn, $check_sql);
 mysqli_stmt_bind_param($check_stmt, "s", $brand_name);
