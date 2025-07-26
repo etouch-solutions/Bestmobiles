@@ -64,16 +64,24 @@
       }
     ?>
   </select>
+  
+<label for="staff_id">Select Staff</label>
+<select name="staff_id" id="staff_id" required>
+  <?php
+    $res = mysqli_query($conn, "SELECT Staff_Id, Staff_Name FROM Staff_Master WHERE Is_Active = 1");
 
-  <label for="staff_id">Select Staff</label>
-  <select name="staff_id" id="staff_id" required>
-    <?php
-      $res = mysqli_query($conn, "SELECT Staff_Id, Staff_Name FROM Staff_Master WHERE Is_Active = 1");
+    if (!$res) {
+      echo "<option disabled>Error: " . mysqli_error($conn) . "</option>";
+    } elseif (mysqli_num_rows($res) === 0) {
+      echo "<option disabled>No active staff found</option>";
+    } else {
       while ($row = mysqli_fetch_assoc($res)) {
         echo "<option value='{$row['Staff_Id']}'>{$row['Staff_Name']}</option>";
       }
-    ?>
-  </select>
+    }
+  ?>
+</select>
+
 
   <label>Product Model Name:</label>
   <input type="text" name="product_model_name" required>
