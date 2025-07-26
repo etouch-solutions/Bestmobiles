@@ -43,9 +43,11 @@ if (!empty($_FILES['bill_photo']['name'])) {
 }
 
 $query = "INSERT INTO Insurance_Entry (
-    Cus_Id, Brand_Id, Insurance_Id, Staff_Id, Product_Model_Name, IMEI_1, IMEI_2,
-    Product_Value, Premium_Amount, Bill_Date, Insurance_Start, Insurance_End,
-    Insurance_Status, Product_Insurance_Status, Product_Photo, Bill_Photo
+    Cus_Id, Brand_Id, Insurance_Id, Staff_Id,
+    Product_Model_Name, IMEI_1, IMEI_2, Product_Value,
+    Bill_Copy_Path, Product_Photo_Path, Bill_Date,
+    Insurance_Start_Date, Insurance_End_Date,
+    Premium_Amount, Is_Product_Covered, Is_Insurance_Active
 ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
 $stmt = mysqli_prepare($conn, $query);
