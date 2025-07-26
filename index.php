@@ -37,8 +37,8 @@
   <button type="submit">Add Entry</button>
 </form>
 
-
-
+<hr>
+<hr>
 <form action="insert_claim.php" method="POST">
   <input type="number" name="insurance_entry_id" placeholder="Insurance Entry ID" required><br>
   <input type="number" name="defect_id" placeholder="Defect ID" required><br>
