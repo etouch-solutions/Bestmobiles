@@ -11,7 +11,7 @@
 <a href="add_brand.html">add a brand</a> <br>
 <a href="add_defect.html">add a defect</a> <br>
 <a href="add_insurance.html">add an insurance</a> <br>
-<a href="Insurance_Entry.html">add a insurance</a>
+<a href="Insurance_Entry.php">add a insurance</a>
 
 <form action="insert_insurance_entry.php" method="POST">
   <input type="number" name="cus_id" placeholder="Customer ID" required><br>
