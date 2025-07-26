@@ -64,11 +64,12 @@
       }
     ?>
   </select>
-  
+
 <label for="staff_id">Select Staff</label>
 <select name="staff_id" id="staff_id" required>
   <?php
-    $res = mysqli_query($conn, "SELECT Staff_Id, Staff_Name FROM Staff_Master WHERE Is_Active = 1");
+    $res = mysqli_query($conn, "SELECT Staff_Id, Staff_Name FROM Staff_Master WHERE Staff_Status = 1");
+
 
     if (!$res) {
       echo "<option disabled>Error: " . mysqli_error($conn) . "</option>";
