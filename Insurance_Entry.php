@@ -33,22 +33,25 @@
     ?>
   </select>
 
-  <label for="brand_id">Select Brand</label>
+ <label for="brand_id">Select Brand</label>
 <select name="brand_id" id="brand_id" required>
   <?php
-    $brand_res = mysqli_query($conn, "SELECT Brand_Id, Brand_Name FROM Brands_Master WHERE Brand_Status = 1");
+    $res = mysqli_query($conn, "SELECT Brand_Id, Brand_Name FROM Brands_Master WHERE Is_Active = 1");
 
-    if (!$brand_res) {
+    if (!$res) {
       echo "<option disabled>Error: " . mysqli_error($conn) . "</option>";
-    } elseif (mysqli_num_rows($brand_res) === 0) {
-      echo "<option disabled>No active brands found</option>";
     } else {
-      while ($row = mysqli_fetch_assoc($brand_res)) {
-        echo "<option value='{$row['Brand_Id']}'>{$row['Brand_Name']}</option>";
+      if (mysqli_num_rows($res) === 0) {
+        echo "<option disabled>No active brands found</option>";
+      } else {
+        while ($row = mysqli_fetch_assoc($res)) {
+          echo "<option value='{$row['Brand_Id']}'>{$row['Brand_Name']}</option>";
+        }
       }
     }
   ?>
 </select>
+
 
 
 
