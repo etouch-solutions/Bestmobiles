@@ -23,4 +23,7 @@ if (isset($_GET['cus_id'])) {
 } else {
     echo "Invalid request.";
 }
+
+
+ 
 ?>

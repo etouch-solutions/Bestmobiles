@@ -32,7 +32,7 @@
 
     <!-- Brand -->
     <label>Select Brand</label>
-    <select name="brand_id" required>
+ <select name="brand_id" onchange="loadBrandDetails(this.value)" required>
       <option value="">-- Select --</option>
       <?php
         $res = mysqli_query($conn, "SELECT Brand_Id, Brand_Name FROM Brands_Master WHERE Is_Active = 1");
@@ -44,7 +44,8 @@
 
     <!-- Insurance Plan -->
     <label>Select Insurance Plan</label>
-    <select name="insurance_id" id="insurance_id" required>
+    <select name="insurance_id" id="insurance_id" onchange="calculatePremiumAndEndDate(); loadInsuranceDetails(this.value)" required>
+
       <option value="">-- Select --</option>
       <?php
         $res = mysqli_query($conn, "SELECT Insurance_Id, Insurance_Name, Premium_Percentage, Duration_Months FROM Insurance_Master WHERE Insurance_Status = 1");
@@ -118,10 +119,38 @@
   <div class="preview">
     <h3>Customer Details</h3>
     <div id="customerDetails">Select a customer to view details.</div>
+    <div id="brandDetails">Select a brand to view details.</div>
+<div id="insuranceDetails">Select a plan to view details.</div>
+ 
   </div>
 </div>
 
 <script>
+
+function loadBrandDetails(brand_id) {
+  if (!brand_id) return document.getElementById('brandDetails').innerText = "Select a brand to view details.";
+  fetch(`fetch_brand.php?brand_id=${brand_id}`)
+    .then(res => res.text())
+    .then(data => document.getElementById('brandDetails').innerHTML = data);
+}
+
+function loadInsuranceDetails(ins_id) {
+  if (!ins_id) return document.getElementById('insuranceDetails').innerText = "Select a plan to view details.";
+  fetch(`fetch_insurance.php?insurance_id=${ins_id}`)
+    .then(res => res.text())
+    .then(data => document.getElementById('insuranceDetails').innerHTML = data);
+}
+
+function loadStaffDetails(staff_id) {
+  if (!staff_id) return document.getElementById('staffDetails').innerText = "Select staff to view details.";
+  fetch(`fetch_staff.php?staff_id=${staff_id}`)
+    .then(res => res.text())
+    .then(data => document.getElementById('staffDetails').innerHTML = data);
+}
+
+
+
+
 function loadCustomerDetails(cus_id) {
   if (cus_id == "") {
     document.getElementById('customerDetails').innerHTML = "Select a customer to view details.";
