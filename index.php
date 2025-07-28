@@ -5,10 +5,10 @@
     <title>Users List</title>
 </head>
 <body>
-<a href="bran"></a>
+  
 <a href="branch.php">add a branch</a> <br>
 <a href="add_staff.html">add a staff</a> <br>
-<a href="brand_master.php">add a brand</a> <br>
+<a href="brand.php">add a brand</a> <br>
 <a href="add_defect.html">add a defect</a> <br>
 <a href="add_insurance.html">add an insurance type</a> <br>
 <a href="Customer_Master.php">add a customer</a><br>
