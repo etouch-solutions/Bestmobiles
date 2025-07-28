@@ -8,7 +8,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['brand_name'])) {
     $name = mysqli_real_escape_string($conn, $_POST['brand_name']);
     $status = $_POST['is_active'];
     mysqli_query($conn, "INSERT INTO Brands_Master (Brand_Name, Is_Active) VALUES ('$name', '$status')");
-    header("Location: brand_master.php");
+    header("Location: brand.php");
     exit();
 }
 ?>

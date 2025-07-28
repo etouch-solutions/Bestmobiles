@@ -59,7 +59,7 @@
         $status = $_POST['branch_status'];
 
         mysqli_query($conn, "INSERT INTO Branch_Master (Branch_Name, Branch_Head_Name, Branch_Address, Branch_CNo, Branch_Status) VALUES ('$bname', '$head', '$addr', '$cno', '$status')");
-        header("Location: branch_master.php");
+        header("Location: branch.php");
         exit();
       }
 
