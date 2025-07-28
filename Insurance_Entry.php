@@ -69,48 +69,48 @@
 
     <!-- Product Details -->
     <label>Product Model Name</label>
-    <input type="text" name="product_model_name" required>
+    <input type="text" name="product_model_name" oninput="updatePreview('model', this)" required>
 
     <label>IMEI 1</label>
-    <input type="text" name="imei_1" required>
+ 
+<input type="text" name="imei_1" oninput="updatePreview('imei1', this)" required>
 
     <label>IMEI 2</label>
-    <input type="text" name="imei_2">
+  <input type="text" name="imei_2" oninput="updatePreview('imei2', this)">
 
     <label>Product Value (₹)</label>
-    <input type="number" name="product_value" id="product_value" required>
+  <input type="number" name="product_value" id="product_value" oninput="calculatePremiumAndEndDate(); updatePreview('value', this)" required>
 
     <label>Calculated Premium (₹)</label>
     <input type="number" name="premium_amount" id="premium_amount" readonly>
 
     <!-- File Uploads -->
     <label>Upload Product Photo</label>
-    <input type="file" name="product_photo" accept="image/*">
+ <input type="file" name="product_photo" accept="image/*" onchange="previewImage(this, 'previewProductPhoto')">
 
     <label>Upload Bill Photo</label>
-    <input type="file" name="bill_photo" accept="image/*">
+    <input type="file" name="bill_photo" accept="image/*" onchange="previewImage(this, 'previewBillPhoto')">
 
     <!-- Dates -->
     <label>Bill Date</label>
-    <input type="date" name="bill_date" required>
+    <input type="date" name="bill_date" onchange="updatePreview('bill', this)" required>
 
     <label>Insurance Start</label>
-    <input type="date" name="insurance_start" id="insurance_start" required>
+    <input type="date" name="insurance_start" id="insurance_start" onchange="calculatePremiumAndEndDate(); updatePreview('start', this)" required>
 
     <label>Insurance End</label>
-    <input type="date" name="insurance_end" id="insurance_end" readonly>
-
+   <input type="date" name="insurance_end" id="insurance_end" readonly>
     <label>Insurance Status</label>
-    <select name="insurance_status">
-      <option value="1">Valid</option>
-      <option value="0">Invalid</option>
-    </select>
+    <select name="insurance_status" onchange="updatePreview('insStatus', this)">
+  <option value="1">Valid</option>
+  <option value="0">Invalid</option>
+</select>
 
     <label>Product Insurance Status</label>
-    <select name="product_ins_status">
-      <option value="1">Active</option>
-      <option value="0">Inactive</option>
-    </select>
+    <select name="product_ins_status" onchange="updatePreview('prodStatus', this)">
+  <option value="1">Active</option>
+  <option value="0">Inactive</option>
+</select>
 
     <button type="submit">Submit</button>
   </form>
@@ -121,11 +121,98 @@
     <div id="customerDetails">Select a customer to view details.</div>
     <div id="brandDetails">Select a brand to view details.</div>
 <div id="insuranceDetails">Select a plan to view details.</div>
+<h3>Live Preview</h3>
+<div id="previewModel">Model: -</div>
+<div id="previewIMEI1">IMEI 1: -</div>
+<div id="previewIMEI2">IMEI 2: -</div>
+<div id="previewValue">Product Value: -</div>
+<div id="previewPremium">Premium: -</div>
+<div id="previewBillDate">Bill Date: -</div>
+<div id="previewStart">Start Date: -</div>
+<div id="previewEnd">End Date: -</div>
+<div id="previewInsStatus">Insurance Status: -</div>
+<div id="previewProdStatus">Product Insurance Status: -</div>
+<div>
+  Product Photo: <br><img id="previewProductPhoto" width="120" />
+</div>
+<div>
+  Bill Photo: <br><img id="previewBillPhoto" width="120" />
+</div>
  
   </div>
 </div>
 
 <script>
+
+function updatePreview(type, el) {
+  const val = el.value || '-';
+  const map = {
+    model: 'previewModel',
+    imei1: 'previewIMEI1',
+    imei2: 'previewIMEI2',
+    value: 'previewValue',
+    bill: 'previewBillDate',
+    start: 'previewStart',
+    insStatus: 'previewInsStatus',
+    prodStatus: 'previewProdStatus'
+  };
+
+  if (type === 'insStatus' || type === 'prodStatus') {
+    const text = el.options[el.selectedIndex].text;
+    document.getElementById(map[type]).innerText = text;
+  } else if (map[type]) {
+    document.getElementById(map[type]).innerText = val;
+  }
+}
+
+function previewImage(input, previewId) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function (e) {
+    document.getElementById(previewId).src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+// Premium + End Date is already handled by your calculatePremiumAndEndDate()
+document.getElementById('insurance_id').addEventListener('change', calculatePremiumAndEndDate);
+document.getElementById('product_value').addEventListener('input', calculatePremiumAndEndDate);
+document.getElementById('insurance_start').addEventListener('change', calculatePremiumAndEndDate);
+
+
+
+function calculatePremiumAndEndDate() {
+  const insurance = document.getElementById('insurance_id');
+  const selectedOption = insurance.options[insurance.selectedIndex];
+  const percentage = selectedOption.getAttribute('data-premium');
+  const durationMonths = selectedOption.getAttribute('data-duration');
+  const productValue = parseFloat(document.getElementById('product_value').value) || 0;
+
+  // Calculate premium
+  if (percentage && productValue) {
+    const premium = (productValue * parseFloat(percentage)) / 100;
+    document.getElementById('premium_amount').value = premium.toFixed(2);
+    document.getElementById('previewPremium').innerText = `₹${premium.toFixed(2)}`;
+  }
+
+  // Set End Date
+  const startInput = document.getElementById('insurance_start');
+  const startDate = new Date(startInput.value);
+  if (!isNaN(startDate) && durationMonths) {
+    const endDate = new Date(startDate);
+    endDate.setMonth(endDate.getMonth() + parseInt(durationMonths));
+    const isoEndDate = endDate.toISOString().split('T')[0];
+    document.getElementById('insurance_end').value = isoEndDate;
+    document.getElementById('previewEnd').innerText = isoEndDate;
+  }
+}
+
+
+
+
+
+
 
 function loadBrandDetails(brand_id) {
   if (!brand_id) return document.getElementById('brandDetails').innerText = "Select a brand to view details.";
