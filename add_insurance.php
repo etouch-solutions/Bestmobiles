@@ -64,7 +64,9 @@ $plans = $conn->query("SELECT * FROM Insurance_Master $searchSql ORDER BY Insura
       $name = addslashes($row['Insurance_Name']);
       $desc = addslashes($row['Insurance_Description']);
       $percent = $row['Premium_Percentage'];
-      $duration = $row['Duration'];
+      $duration = $row['Duration'] ?? 'N/A';
+
+
       $status = $row['Insurance_Status'];
     ?>
     <div class="plan-item"
