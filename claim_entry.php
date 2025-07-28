@@ -4,77 +4,71 @@
 <head>
   <title>Claim Entry</title>
   <style>
-    body { font-family: Arial; background: #f5f5f5; padding: 30px; }
-    .container { max-width: 600px; background: white; padding: 20px; margin: auto; border-radius: 10px; box-shadow: 0 0 10px #ccc; }
-    input, select { width: 100%; padding: 8px; margin-bottom: 15px; }
-    button { padding: 10px 20px; background: green; color: white; border: none; border-radius: 5px; }
+    body { font-family: Arial; background: #f5f5f5; padding: 50px; }
+    .container { max-width: 600px; margin: auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 0 10px #ccc; }
+    input, select, textarea { width: 100%; padding: 10px; margin-top: 10px; margin-bottom: 20px; border: 1px solid #ccc; border-radius: 5px; }
+    button { background: green; color: white; padding: 10px 20px; border: none; border-radius: 5px; }
+    .result-box { background: #f0f0f0; padding: 10px; margin-bottom: 20px; }
   </style>
 </head>
 <body>
-  <div class="container">
-    <h2 style="text-align:center;">Claim Entry</h2>
+<div class="container">
+  <h2 style="text-align:center;">Claim Entry</h2>
 
-    <label>Search Customer (Name or IMEI)</label>
-    <input type="text" id="searchBox" oninput="searchCustomer(this.value)" placeholder="Start typing to search...">
-    <div id="searchResults"></div>
+  <label>Search Customer (Name or IMEI)</label>
+  <input type="text" id="search" placeholder="Start typing...">
+  <div id="resultBox" class="result-box"></div>
 
-    <form id="claimForm" action="insert_claim_entry.php" method="POST" enctype="multipart/form-data" style="display:none;">
-      <input type="hidden" name="insurance_entry_id" id="insurance_entry_id">
+  <form action="insert_claim_entry.php" method="POST" enctype="multipart/form-data" style="display:none;" id="claimForm">
+    <input type="hidden" name="insurance_entry_id" id="insurance_entry_id">
 
-      <label>Select Defect</label>
-      <select name="defect_id" required>
-        <option value="">-- Select Defect --</option>
-        <?php
-          $res = mysqli_query($conn, "SELECT Defect_Id, Defect_Name FROM Claim_Defects WHERE Status = 1");
-          while ($row = mysqli_fetch_assoc($res)) {
-            echo "<option value='{$row['Defect_Id']}'>{$row['Defect_Name']}</option>";
-          }
-        ?>
-      </select>
+    <label>Select Defect</label>
+    <select name="defect_id" required>
+      <option value="">-- Select Defect --</option>
+      <?php
+        $res = mysqli_query($conn, "SELECT Defect_Id, Defect_Name FROM Claim_Defects");
+        while ($row = mysqli_fetch_assoc($res)) {
+          echo "<option value='{$row['Defect_Id']}'>{$row['Defect_Name']}</option>";
+        }
+      ?>
+    </select>
 
-      <label>Remarks</label>
-      <textarea name="remarks"></textarea>
+    <label>Remarks (optional)</label>
+    <textarea name="remarks"></textarea>
 
-      <label>Upload Image (Optional)</label>
-      <input type="file" name="claim_image" accept="image/*">
+    <label>Upload Product Image</label>
+    <input type="file" name="claim_image" accept="image/*" required>
 
-      <button type="submit">Submit Claim</button>
-    </form>
-  </div>
+    <button type="submit">Submit Claim</button>
+  </form>
+</div>
 
 <script>
-function searchCustomer(query) {
-  if (query.length < 2) {
-    document.getElementById("searchResults").innerHTML = "";
-    return;
-  }
+document.getElementById('search').addEventListener('input', function () {
+  const query = this.value;
+  if (query.length < 2) return;
 
-  fetch("search_insurance_entry.php?q=" + encodeURIComponent(query))
+  fetch(`search_insurance_entry.php?q=${query}`)
     .then(res => res.json())
     .then(data => {
-      const resDiv = document.getElementById("searchResults");
-      resDiv.innerHTML = "";
-
-      if (data.length === 0) {
-        resDiv.innerHTML = "<p>No matching customers found.</p>";
-        return;
+      const box = document.getElementById('resultBox');
+      box.innerHTML = '';
+      if (data.length > 0) {
+        data.forEach(item => {
+          const btn = document.createElement('button');
+          btn.innerText = `${item.name} - ${item.model} - IMEI: ${item.imei1}`;
+          btn.onclick = () => {
+            document.getElementById('insurance_entry_id').value = item.insurance_entry_id;
+            document.getElementById('claimForm').style.display = 'block';
+            box.innerHTML = `<b>Selected:</b> ${item.name} (${item.model})`;
+          };
+          box.appendChild(btn);
+        });
+      } else {
+        box.innerText = "No matching customers found.";
       }
-
-      data.forEach(entry => {
-        const div = document.createElement("div");
-        div.textContent = `${entry.Cus_Name} (${entry.Product_Model_Name} - IMEI: ${entry.IMEI_1})`;
-        div.style.cursor = "pointer";
-        div.style.padding = "5px";
-        div.style.borderBottom = "1px solid #ccc";
-        div.onclick = function() {
-          document.getElementById("insurance_entry_id").value = entry.Insurance_Entry_Id;
-          document.getElementById("claimForm").style.display = "block";
-          resDiv.innerHTML = `<p>Selected: ${entry.Cus_Name} (${entry.Product_Model_Name})</p>`;
-        };
-        resDiv.appendChild(div);
-      });
     });
-}
+});
 </script>
 </body>
 </html>
