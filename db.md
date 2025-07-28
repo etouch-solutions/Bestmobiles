@@ -98,7 +98,7 @@ CREATE TABLE Defect_Master (
 );
 
 
-CREATE TABLE Claim_Entry (
+## CREATE TABLE Claim_Entry (
     Claim_Id INT AUTO_INCREMENT PRIMARY KEY,
     Insurance_Entry_Id INT,
     Staff_Id INT,
@@ -121,10 +121,15 @@ CREATE TABLE Claim_Defects (
 
 
 
+| Left columns  | Right columns |
+| ------------- |:-------------:|
+| left foo      | right foo     |
+| left bar      | right bar     |
+| left baz      | right baz     |
 
 -- -------------------------------------------------------------- -------------------------------------------------------------- ------------------------------------------------------------
 -- Enforce uniqueness on Branch_Master
--- ------------------------------------------------------------
+-- -----------------------------------------------------------
 -- WHY:
 -- To ensure that no two branches have the exact same name 
 -- and address combination, which could lead to duplication 
