@@ -6,7 +6,7 @@
 </head>
 <body>
 
-<a href="branch_form.html">add a branch</a> <br>
+<a href="branch_form.php">add a branch</a> <br>
 <a href="add_staff.html">add a staff</a> <br>
 <a href="brand_master.php">add a brand</a> <br>
 <a href="add_defect.html">add a defect</a> <br>
