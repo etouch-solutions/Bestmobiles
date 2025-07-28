@@ -2,16 +2,36 @@
 include 'db.php';
 $conn = mysqli_connect($host, $user, $pass, $db);
 
-$sql = "INSERT INTO Claim_Entry 
-(Insurance_Entry_Id, Defect_Id, Defect_Value, Defect_Description, Claim_Date, Created_At)
-VALUES (?, ?, ?, ?, ?, NOW())";
+if (!$conn) {
+  die("Connection failed: " . mysqli_connect_error());
+}
 
-$stmt = mysqli_prepare($conn, $sql);
-mysqli_stmt_bind_param($stmt, "iiiss",
-    $_POST['insurance_entry_id'], $_POST['defect_id'],
-    $_POST['defect_value'], $_POST['defect_description'], $_POST['claim_date']
-);
+$insurance_id = $_POST['insurance_entry_id'];
+$defect_id = $_POST['defect_id'];
+$claim_date = $_POST['claim_date'];
+$remarks = mysqli_real_escape_string($conn, $_POST['remarks']);
+$created_at = date('Y-m-d H:i:s');
 
-mysqli_stmt_execute($stmt);
-echo "✅ Claim entry added!";
+$image_path = "";
+if (isset($_FILES['claim_image']) && $_FILES['claim_image']['error'] === UPLOAD_ERR_OK) {
+  $uploadDir = "uploads/";
+  $fileName = time() . "_" . basename($_FILES['claim_image']['name']);
+  $targetPath = $uploadDir . $fileName;
+
+  if (move_uploaded_file($_FILES['claim_image']['tmp_name'], $targetPath)) {
+    $image_path = $targetPath;
+  }
+}
+
+// Insert into database
+$sql = "INSERT INTO Claim_Entry (Insurance_Entry_Id, Defect_Id, Claim_Date, Remarks, Uploaded_Image_Path, Created_At)
+        VALUES ('$insurance_id', '$defect_id', '$claim_date', '$remarks', '$image_path', '$created_at')";
+
+if (mysqli_query($conn, $sql)) {
+  echo "<script>alert('Claim Submitted Successfully'); window.location.href='claim_entry.php';</script>";
+} else {
+  echo "Error: " . $sql . "<br>" . mysqli_error($conn);
+}
+
+mysqli_close($conn);
 ?>
