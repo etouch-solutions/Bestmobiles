@@ -1,4 +1,11 @@
 <?php
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+?>
+
+
+
+<?php
 // Connect DB
 $conn = new mysqli("localhost", "root", "", "your_db_name");
 if ($conn->connect_error) die("Connection failed: " . $conn->connect_error);
@@ -61,18 +68,29 @@ $staffs = $conn->query("SELECT * FROM Staff_Master $searchSql ORDER BY Staff_Id 
     <input type="text" name="search" placeholder="Search staff..." value="<?= htmlspecialchars($search) ?>">
   </form>
   <hr>
-  <?php while ($row = $staffs->fetch_assoc()): ?>
-    <div class="staff-item" onclick='showPreview({
-      name: "<?= addslashes($row['Staff_Name']) ?>",
-      cno: "<?= $row['Staff_CNo'] ?>",
-      email: "<?= $row['Staff_Email'] ?>",
-      address: "<?= addslashes($row['Staff_Address']) ?>",
-      designation: "<?= addslashes($row['Staff_Designation']) ?>",
-      status: "<?= $row['Staff_Status'] ?>"
-    })'>
-      <?= $row['Staff_Name'] ?>
-    </div>
-  <?php endwhile; ?>
+<?php while ($row = $staffs->fetch_assoc()): ?>
+  <?php
+    // Safely prepare data
+    $name = addslashes($row['Staff_Name']);
+    $cno = $row['Staff_CNo'];
+    $email = addslashes($row['Staff_Email']);
+    $address = addslashes($row['Staff_Address']);
+    $designation = addslashes($row['Staff_Designation']);
+    $status = $row['Staff_Status'];
+  ?>
+  <div class="staff-item"
+       onclick='showPreview({
+         name: "<?php echo $name; ?>",
+         cno: "<?php echo $cno; ?>",
+         email: "<?php echo $email; ?>",
+         address: "<?php echo $address; ?>",
+         designation: "<?php echo $designation; ?>",
+         status: "<?php echo $status; ?>"
+       })'>
+    <?= htmlspecialchars($row['Staff_Name']) ?>
+  </div>
+<?php endwhile; ?>
+
 </div>
 
 <!-- Main Form -->
