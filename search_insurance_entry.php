@@ -1,4 +1,5 @@
 <?php
+<?php
 include 'db.php';
 
 $conn = mysqli_connect($host, $user, $pass, $db);
@@ -15,9 +16,15 @@ $query = "
 $result = mysqli_query($conn, $query);
 if (mysqli_num_rows($result) > 0) {
   while ($row = mysqli_fetch_assoc($result)) {
-    echo "<div onclick=\"selectInsuranceEntry({$row['Insurance_Entry_Id']}, '{$row['Cus_Name']} ({$row['IMEI_1']})')\" 
+    $entryId = (int)$row['Insurance_Entry_Id'];
+    $cusName = htmlspecialchars($row['Cus_Name'], ENT_QUOTES, 'UTF-8');
+    $imei1 = htmlspecialchars($row['IMEI_1'], ENT_QUOTES, 'UTF-8');
+    $display = $cusName . " (" . $imei1 . ")";
+    // Escape for JS single quotes
+    $jsDisplay = addslashes($display);
+    echo "<div onclick=\"selectInsuranceEntry('$entryId', '$jsDisplay')\" 
             style='cursor:pointer;padding:5px;border-bottom:1px solid #ccc;'>
-            {$row['Cus_Name']} ({$row['IMEI_1']})
+            $display
           </div>";
   }
 } else {
