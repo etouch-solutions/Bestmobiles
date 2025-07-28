@@ -11,11 +11,9 @@
 <a href="add_brand.html">add a brand</a> <br>
 <a href="add_defect.html">add a defect</a> <br>
 <a href="add_insurance.html">add an insurance type</a> <br>
-
 <a href="Customer_Master.php">add a customer</a><br>
 <a href="Insurance_Entry.php">add a insurance for device</a> <br>
- 
- 
+ <a href="Claim_Entry.php">add a claim for device</a>
 
     
 </body>
