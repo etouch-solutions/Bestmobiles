@@ -1,28 +1,28 @@
 <?php
 include 'db.php';
 
-$conn = mysqli_connect($host, $user, $pass, $db);
-
-$insurance_entry_id = $_POST['insurance_entry_id'];
+$insurance_id = $_POST['insurance_entry_id'];
 $defect_id = $_POST['defect_id'];
-$remarks = mysqli_real_escape_string($conn, $_POST['remarks'] ?? '');
-$claim_date = date('Y-m-d');
-$upload_path = '';
+$remarks = $_POST['remarks'];
+$date = date('Y-m-d');
 
-if (isset($_FILES['claim_image']) && $_FILES['claim_image']['error'] === 0) {
-  $targetDir = "uploads/";
-  $fileName = basename($_FILES["claim_image"]["name"]);
-  $targetFilePath = $targetDir . time() . '_' . $fileName;
-  if (move_uploaded_file($_FILES["claim_image"]["tmp_name"], $targetFilePath)) {
-    $upload_path = $targetFilePath;
-  }
+$image_path = '';
+if ($_FILES['claim_image']['error'] === UPLOAD_ERR_OK) {
+  $tmp = $_FILES['claim_image']['tmp_name'];
+  $name = basename($_FILES['claim_image']['name']);
+  $path = "uploads/claims/" . time() . "_" . $name;
+  move_uploaded_file($tmp, $path);
+  $image_path = $path;
 }
 
-$sql = "INSERT INTO Claim_Entry (Insurance_Entry_Id, Defect_Id, Claim_Date, Remarks, Uploaded_Image_Path)
-        VALUES (?, ?, ?, ?, ?)";
-$stmt = $conn->prepare($sql);
-$stmt->bind_param("iisss", $insurance_entry_id, $defect_id, $claim_date, $remarks, $upload_path);
-$stmt->execute();
+$sql = "
+  INSERT INTO Claim_Entry (Insurance_Entry_Id, Defect_Id, Claim_Date, Remarks, Uploaded_Image_Path)
+  VALUES ('$insurance_id', '$defect_id', '$date', '$remarks', '$image_path')
+";
 
-echo "<script>alert('Claim submitted successfully!'); window.location.href='claim_entry.php';</script>";
+if (mysqli_query($conn, $sql)) {
+  echo "Claim submitted successfully.";
+} else {
+  echo "Error: " . mysqli_error($conn);
+}
 ?>
