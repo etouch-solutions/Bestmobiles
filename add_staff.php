@@ -1,16 +1,9 @@
 <?php
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
-?>
 
-<?php include 'db.php'; ?>
-
- 
-
-<?php
-// Connect DB
-$conn = new mysqli("localhost", "root", "", "your_db_name");
-if ($conn->connect_error) die("Connection failed: " . $conn->connect_error);
+// Use this to connect
+include 'db.php';
 
 // Insert logic
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
