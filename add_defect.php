@@ -7,9 +7,9 @@ include 'db.php'; // db.php must contain a valid mysqli connection variable $con
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   $name = $_POST['defect_name'];
   $desc = $_POST['defect_description'];
-  $status = $_POST['defect_status'];
+  $status = $_POST['defect_status']; // This will be mapped to Is_Active
 
-  $stmt = $conn->prepare("INSERT INTO Claim_Defects (Defect_Name, Defect_Description, Defect_Status) VALUES (?, ?, ?)");
+  $stmt = $conn->prepare("INSERT INTO Defect_Master (Defect_Name, Defect_Description, Is_Active) VALUES (?, ?, ?)");
   $stmt->bind_param("ssi", $name, $desc, $status);
   $stmt->execute();
   $stmt->close();
@@ -19,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 // Fetch Defects
 $search = $_GET['search'] ?? '';
 $searchSql = $search ? "WHERE Defect_Name LIKE '%$search%' OR Defect_Description LIKE '%$search%'" : "";
-$defects = $conn->query("SELECT * FROM Claim_Defects $searchSql ORDER BY Defect_Id DESC");
+$defects = $conn->query("SELECT * FROM Defect_Master $searchSql ORDER BY Defect_Id DESC");
 ?>
 
 <!DOCTYPE html>
