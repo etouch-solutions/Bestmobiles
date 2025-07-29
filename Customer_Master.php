@@ -1,47 +1,42 @@
 <?php
+include 'db.php';
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
-include 'db.php';
 
-$conn = mysqli_connect($host, $user, $pass, $db);
+$uploadDir = 'uploads/';
+if (!file_exists($uploadDir)) mkdir($uploadDir, 0777, true);
 
-// Handle Insert or Update
+// Insert / Update logic
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $cus_id = $_POST['cus_id'] ?? null;
-    $cus_name = $_POST['cus_name'];
-    $cus_cno = $_POST['cus_cno'];
-    $cus_address = $_POST['cus_address'];
-    $cus_email = $_POST['cus_email'];
-    $cus_ref = $_POST['cus_ref'];
-    $cus_ref_cno = $_POST['cus_ref_cno'];
-    $branch_id = $_POST['branch_id'];
+    $id = $_POST['cus_id'] ?? null;
+    $name = $_POST['cus_name'];
+    $cno = $_POST['cus_cno'];
+    $address = $_POST['cus_address'];
+    $email = $_POST['cus_email'];
+    $refName = $_POST['cus_ref'];
+    $refCno = $_POST['cus_ref_cno'];
+    $branchId = $_POST['branch_id'];
     $status = $_POST['cus_status'];
 
-    $cus_photo_path = '';
-    $cus_id_copy_path = '';
-
-    // Upload Photo
-    if ($_FILES['cus_photo']['name']) {
-        $targetDir = "uploads/customers/";
-        $cus_photo_path = $targetDir . time() . '_' . basename($_FILES["cus_photo"]["name"]);
-        move_uploaded_file($_FILES["cus_photo"]["tmp_name"], $cus_photo_path);
+    // File Uploads
+    $photoPath = $_POST['existing_photo'] ?? '';
+    if (!empty($_FILES['cus_photo']['name'])) {
+        $photoPath = $uploadDir . time() . '_' . $_FILES['cus_photo']['name'];
+        move_uploaded_file($_FILES['cus_photo']['tmp_name'], $photoPath);
     }
 
-    // Upload ID Copy
-    if ($_FILES['cus_id_copy']['name']) {
-        $targetDir = "uploads/ids/";
-        $cus_id_copy_path = $targetDir . time() . '_' . basename($_FILES["cus_id_copy"]["name"]);
-        move_uploaded_file($_FILES["cus_id_copy"]["tmp_name"], $cus_id_copy_path);
+    $idCopyPath = $_POST['existing_id_copy'] ?? '';
+    if (!empty($_FILES['cus_id_copy']['name'])) {
+        $idCopyPath = $uploadDir . time() . '_' . $_FILES['cus_id_copy']['name'];
+        move_uploaded_file($_FILES['cus_id_copy']['tmp_name'], $idCopyPath);
     }
 
-    if ($cus_id) {
-        // Update
-        $stmt = $conn->prepare("UPDATE Customer_Master SET Cus_Name=?, Cus_CNo=?, Cus_Address=?, Cus_Email=?, Cus_Ref=?, Cus_Ref_CNo=?, Branch_Id=?, Customer_Status=? WHERE Cus_Id=?");
-        $stmt->bind_param("sisssiiii", $cus_name, $cus_cno, $cus_address, $cus_email, $cus_ref, $cus_ref_cno, $branch_id, $status, $cus_id);
+    if ($id) {
+        $stmt = $conn->prepare("UPDATE Customer_Master SET Cus_Name=?, Cus_CNo=?, Cus_Address=?, Cus_Email=?, Cus_Ref_Name=?, Cus_Ref_CNo=?, Branch_Id=?, Cus_Photo_Path=?, Cus_Id_Copy_Path=?, Is_Active=? WHERE Cus_Id=?");
+        $stmt->bind_param("sisssisssii", $name, $cno, $address, $email, $refName, $refCno, $branchId, $photoPath, $idCopyPath, $status, $id);
     } else {
-        // Insert
-        $stmt = $conn->prepare("INSERT INTO Customer_Master (Cus_Name, Cus_CNo, Cus_Address, Cus_Email, Cus_Ref, Cus_Ref_CNo, Branch_Id, Customer_Status, Cus_Photo, Cus_Id_Copy) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-        $stmt->bind_param("sisssiiiss", $cus_name, $cus_cno, $cus_address, $cus_email, $cus_ref, $cus_ref_cno, $branch_id, $status, $cus_photo_path, $cus_id_copy_path);
+        $stmt = $conn->prepare("INSERT INTO Customer_Master (Cus_Name, Cus_CNo, Cus_Address, Cus_Email, Cus_Ref_Name, Cus_Ref_CNo, Branch_Id, Cus_Photo_Path, Cus_Id_Copy_Path, Is_Active) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt->bind_param("sisssisssi", $name, $cno, $address, $email, $refName, $refCno, $branchId, $photoPath, $idCopyPath, $status);
     }
 
     $stmt->execute();
@@ -50,7 +45,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     exit;
 }
 
-// Handle Delete
+// Delete
 if (isset($_GET['delete'])) {
     $id = intval($_GET['delete']);
     $conn->query("DELETE FROM Customer_Master WHERE Cus_Id = $id");
@@ -58,145 +53,147 @@ if (isset($_GET['delete'])) {
     exit;
 }
 
-// Fetch one for editing
+// Edit fetch
 $editData = null;
 if (isset($_GET['edit'])) {
-    $editId = intval($_GET['edit']);
-    $res = $conn->query("SELECT * FROM Customer_Master WHERE Cus_Id = $editId");
-    if ($res->num_rows > 0) {
-        $editData = $res->fetch_assoc();
-    }
+    $res = $conn->query("SELECT * FROM Customer_Master WHERE Cus_Id = " . intval($_GET['edit']));
+    if ($res && $res->num_rows > 0) $editData = $res->fetch_assoc();
 }
 
-// Fetch Branches
-$branches = $conn->query("SELECT * FROM Branch_Master WHERE Branch_Status = 1");
-
-// Fetch All Customers (with optional search)
+// Search
 $search = $_GET['search'] ?? '';
 $searchSql = $search ? "WHERE Cus_Name LIKE '%$search%' OR Cus_CNo LIKE '%$search%'" : "";
 $customers = $conn->query("SELECT c.*, b.Branch_Name FROM Customer_Master c LEFT JOIN Branch_Master b ON c.Branch_Id = b.Branch_Id $searchSql ORDER BY Cus_Id DESC");
+
+// Branches
+$branches = $conn->query("SELECT * FROM Branch_Master WHERE Branch_Status = 1");
 ?>
 
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Customer Master</title>
-  <style>
-    body { display: flex; font-family: sans-serif; margin: 0; background: #f4f4f4; }
-    .sidebar { width: 25%; background: #fff; padding: 20px; border-right: 1px solid #ccc; height: 100vh; overflow-y: auto; }
-    .main { flex: 1; padding: 20px; background: #fff; }
-    .preview { width: 25%; background: #f7f7f7; padding: 20px; border-left: 1px solid #ccc; }
-    input, select, textarea { width: 100%; padding: 6px; margin-bottom: 12px; }
-    .item { padding: 8px; border-bottom: 1px solid #eee; cursor: pointer; }
-    .item:hover { background: #efefef; }
-    .actions a { margin-right: 10px; text-decoration: none; color: blue; font-size: 13px; }
-    .actions a.delete { color: red; }
-  </style>
-  <script>
-    function showPreview(data) {
-      document.getElementById('preview').innerHTML = `
-        <h3>Customer Details</h3>
-        <b>Name:</b> ${data.name}<br>
-        <b>Contact:</b> ${data.cno}<br>
-        <b>Address:</b> ${data.address}<br>
-        <b>Email:</b> ${data.email}<br>
-        <b>Reference:</b> ${data.ref} (${data.ref_cno})<br>
-        <b>Branch:</b> ${data.branch}<br>
-        <b>Status:</b> ${data.status == 1 ? 'Active' : 'Inactive'}<br>
-      `;
-    }
-
-    function confirmDelete(id) {
-      if (confirm("Are you sure you want to delete this customer?")) {
-        window.location.href = "?delete=" + id;
-      }
-    }
-  </script>
+    <title>Customer Master</title>
+    <style>
+        body { font-family: Arial; display: flex; margin: 0; }
+        .sidebar, .preview { width: 25%; padding: 20px; background: #fafafa; height: 100vh; overflow-y: auto; border-right: 1px solid #ccc; }
+        .main { flex: 1; padding: 20px; }
+        input, textarea, select { width: 100%; padding: 8px; margin-bottom: 10px; }
+        .item { padding: 10px; border-bottom: 1px solid #eee; cursor: pointer; }
+        .item:hover { background: #f0f0f0; }
+        .actions a { margin-right: 10px; color: blue; text-decoration: none; }
+        .actions a.delete { color: red; }
+        img.preview-img { width: 100px; height: auto; margin-top: 10px; }
+    </style>
+    <script>
+        function showPreview(data) {
+            document.getElementById('preview').innerHTML = `
+                <h3>Customer Details</h3>
+                <b>Name:</b> ${data.name}<br>
+                <b>Contact:</b> ${data.cno}<br>
+                <b>Email:</b> ${data.email}<br>
+                <b>Address:</b> ${data.address}<br>
+                <b>Reference:</b> ${data.ref}<br>
+                <b>Ref CNo:</b> ${data.ref_cno}<br>
+                <b>Branch:</b> ${data.branch}<br>
+                <b>Status:</b> ${data.status == 1 ? 'Active' : 'Inactive'}<br>
+                ${data.photo ? `<b>Photo:</b><br><img class="preview-img" src="${data.photo}"><br>` : ''}
+                ${data.id_copy ? `<b>ID Copy:</b><br><img class="preview-img" src="${data.id_copy}"><br>` : ''}
+            `;
+        }
+        function confirmDelete(id) {
+            if (confirm("Delete this customer?")) window.location.href = "?delete=" + id;
+        }
+    </script>
 </head>
 <body>
 
 <!-- Sidebar -->
 <div class="sidebar">
-  <h3>Customer List</h3>
-  <form method="GET">
-    <input type="text" name="search" placeholder="Search customer..." value="<?= htmlspecialchars($search) ?>">
-  </form>
-  <hr>
-  <?php while ($row = $customers->fetch_assoc()): ?>
-    <div class="item" onclick='showPreview({
-      name: "<?= addslashes($row['Cus_Name']) ?>",
-      cno: "<?= $row['Cus_CNo'] ?>",
-      email: "<?= addslashes($row['Cus_Email']) ?>",
-      address: "<?= addslashes($row['Cus_Address']) ?>",
-      ref: "<?= addslashes($row['Cus_Ref']) ?>",
-      ref_cno: "<?= $row['Cus_Ref_CNo'] ?>",
-      branch: "<?= addslashes($row['Branch_Name']) ?>",
-      status: "<?= $row['Customer_Status'] ?>"
-    })'>
-      <b><?= htmlspecialchars($row['Cus_Name']) ?></b><br>
-      <div class="actions">
-        <a href="?edit=<?= $row['Cus_Id'] ?>">Edit</a>
-        <a href="javascript:void(0);" class="delete" onclick="confirmDelete(<?= $row['Cus_Id'] ?>)">Delete</a>
-      </div>
-    </div>
-  <?php endwhile; ?>
+    <h3>Customers</h3>
+    <form method="get">
+        <input type="text" name="search" placeholder="Search..." value="<?= htmlspecialchars($search) ?>">
+    </form>
+    <hr>
+    <?php while ($row = $customers->fetch_assoc()): ?>
+        <div class="item" onclick='showPreview({
+            name: "<?= addslashes($row["Cus_Name"]) ?>",
+            cno: "<?= $row["Cus_CNo"] ?>",
+            email: "<?= addslashes($row["Cus_Email"]) ?>",
+            address: "<?= addslashes($row["Cus_Address"]) ?>",
+            ref: "<?= addslashes($row["Cus_Ref_Name"]) ?>",
+            ref_cno: "<?= $row["Cus_Ref_CNo"] ?>",
+            status: "<?= $row["Is_Active"] ?>",
+            branch: "<?= addslashes($row["Branch_Name"]) ?>",
+            photo: "<?= $row["Cus_Photo_Path"] ?>",
+            id_copy: "<?= $row["Cus_Id_Copy_Path"] ?>"
+        })'>
+            <?= htmlspecialchars($row['Cus_Name']) ?>
+            <div class="actions">
+                <a href="?edit=<?= $row['Cus_Id'] ?>">Edit</a>
+                <a href="javascript:void(0)" class="delete" onclick="confirmDelete(<?= $row['Cus_Id'] ?>)">Delete</a>
+            </div>
+        </div>
+    <?php endwhile; ?>
 </div>
 
-<!-- Main Form -->
+<!-- Main -->
 <div class="main">
-  <h2><?= $editData ? 'Edit Customer' : 'Add Customer' ?></h2>
-  <form method="POST" enctype="multipart/form-data">
-    <?php if ($editData): ?>
-      <input type="hidden" name="cus_id" value="<?= $editData['Cus_Id'] ?>">
-    <?php endif; ?>
-    <label>Name:</label>
-    <input type="text" name="cus_name" required value="<?= $editData['Cus_Name'] ?? '' ?>">
+    <h2><?= $editData ? "Edit Customer" : "Add Customer" ?></h2>
+    <form method="POST" enctype="multipart/form-data">
+        <?php if ($editData): ?>
+            <input type="hidden" name="cus_id" value="<?= $editData['Cus_Id'] ?>">
+            <input type="hidden" name="existing_photo" value="<?= $editData['Cus_Photo_Path'] ?>">
+            <input type="hidden" name="existing_id_copy" value="<?= $editData['Cus_Id_Copy_Path'] ?>">
+        <?php endif; ?>
 
-    <label>Contact Number:</label>
-    <input type="number" name="cus_cno" required value="<?= $editData['Cus_CNo'] ?? '' ?>">
+        <label>Name:</label>
+        <input type="text" name="cus_name" required value="<?= $editData['Cus_Name'] ?? '' ?>">
 
-    <label>Address:</label>
-    <textarea name="cus_address" required><?= $editData['Cus_Address'] ?? '' ?></textarea>
+        <label>Contact No:</label>
+        <input type="number" name="cus_cno" required value="<?= $editData['Cus_CNo'] ?? '' ?>">
 
-    <label>Email:</label>
-    <input type="email" name="cus_email" value="<?= $editData['Cus_Email'] ?? '' ?>">
+        <label>Address:</label>
+        <textarea name="cus_address" required><?= $editData['Cus_Address'] ?? '' ?></textarea>
 
-    <label>Reference Name:</label>
-    <input type="text" name="cus_ref" value="<?= $editData['Cus_Ref'] ?? '' ?>">
+        <label>Email:</label>
+        <input type="email" name="cus_email" value="<?= $editData['Cus_Email'] ?? '' ?>">
 
-    <label>Reference Contact No:</label>
-    <input type="number" name="cus_ref_cno" value="<?= $editData['Cus_Ref_CNo'] ?? '' ?>">
+        <label>Reference Name:</label>
+        <input type="text" name="cus_ref" value="<?= $editData['Cus_Ref_Name'] ?? '' ?>">
 
-    <label>Branch:</label>
-    <select name="branch_id" required>
-      <option value="">-- Select Branch --</option>
-      <?php while ($b = $branches->fetch_assoc()): ?>
-        <option value="<?= $b['Branch_Id'] ?>" <?= isset($editData['Branch_Id']) && $editData['Branch_Id'] == $b['Branch_Id'] ? 'selected' : '' ?>>
-          <?= $b['Branch_Name'] ?>
-        </option>
-      <?php endwhile; ?>
-    </select>
+        <label>Reference Contact No:</label>
+        <input type="number" name="cus_ref_cno" value="<?= $editData['Cus_Ref_CNo'] ?? '' ?>">
 
-    <label>Status:</label>
-    <select name="cus_status">
-      <option value="1" <?= (isset($editData['Customer_Status']) && $editData['Customer_Status'] == 1) ? 'selected' : '' ?>>Active</option>
-      <option value="0" <?= (isset($editData['Customer_Status']) && $editData['Customer_Status'] == 0) ? 'selected' : '' ?>>Inactive</option>
-    </select>
+        <label>Branch:</label>
+        <select name="branch_id" required>
+            <option value="">-- Select Branch --</option>
+            <?php while ($b = $branches->fetch_assoc()): ?>
+                <option value="<?= $b['Branch_Id'] ?>" <?= (isset($editData['Branch_Id']) && $editData['Branch_Id'] == $b['Branch_Id']) ? 'selected' : '' ?>>
+                    <?= htmlspecialchars($b['Branch_Name']) ?>
+                </option>
+            <?php endwhile; ?>
+        </select>
 
-    <label>Customer Photo:</label>
-    <input type="file" name="cus_photo" accept="image/*">
+        <label>Customer Photo:</label>
+        <input type="file" name="cus_photo" accept="image/*">
 
-    <label>ID Copy:</label>
-    <input type="file" name="cus_id_copy" accept="image/*">
+        <label>ID Copy:</label>
+        <input type="file" name="cus_id_copy" accept="image/*">
 
-    <button type="submit"><?= $editData ? 'Update' : 'Add' ?> Customer</button>
-  </form>
+        <label>Status:</label>
+        <select name="cus_status">
+            <option value="1" <?= (isset($editData['Is_Active']) && $editData['Is_Active'] == 1) ? 'selected' : '' ?>>Active</option>
+            <option value="0" <?= (isset($editData['Is_Active']) && $editData['Is_Active'] == 0) ? 'selected' : '' ?>>Inactive</option>
+        </select>
+
+        <button type="submit"><?= $editData ? 'Update' : 'Add' ?> Customer</button>
+    </form>
 </div>
 
-<!-- Preview Panel -->
+<!-- Preview -->
 <div class="preview" id="preview">
-  <h3>Customer Details</h3>
-  <p>Select a customer to preview</p>
+    <h3>Customer Details</h3>
+    <p>Select a customer to preview.</p>
 </div>
 
 </body>
