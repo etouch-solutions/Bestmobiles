@@ -9,16 +9,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $name = $_POST['insurance_name'];
     $desc = $_POST['insurance_description'];
     $percent = $_POST['premium_percentage'];
-    $duration = $_POST['duration'];
+    $duration = $_POST['duration']; // This maps to Duration_Months
     $status = $_POST['insurance_status'];
 
     if ($id) {
         // Update
-        $stmt = $conn->prepare("UPDATE Insurance_Master SET Insurance_Name=?, Insurance_Description=?, Premium_Percentage=?, Duration=?, Insurance_Status=? WHERE Insurance_Id=?");
+        $stmt = $conn->prepare("UPDATE Insurance_Master SET Insurance_Name=?, Insurance_Description=?, Premium_Percentage=?, Duration_Months=?, Insurance_Status=? WHERE Insurance_Id=?");
         $stmt->bind_param("ssiiii", $name, $desc, $percent, $duration, $status, $id);
     } else {
         // Insert
-        $stmt = $conn->prepare("INSERT INTO Insurance_Master (Insurance_Name, Insurance_Description, Premium_Percentage, Duration, Insurance_Status) VALUES (?, ?, ?, ?, ?)");
+        $stmt = $conn->prepare("INSERT INTO Insurance_Master (Insurance_Name, Insurance_Description, Premium_Percentage, Duration_Months, Insurance_Status) VALUES (?, ?, ?, ?, ?)");
         $stmt->bind_param("ssiii", $name, $desc, $percent, $duration, $status);
     }
 
@@ -102,7 +102,7 @@ $plans = $conn->query("SELECT * FROM Insurance_Master $searchSql ORDER BY Insura
       $name = htmlspecialchars($row['Insurance_Name'], ENT_QUOTES);
       $desc = htmlspecialchars($row['Insurance_Description'], ENT_QUOTES);
       $percent = $row['Premium_Percentage'];
-      $duration = $row['Duration'];
+      $duration = $row['Duration_Months'] ?? 'N/A';
       $status = $row['Insurance_Status'];
     ?>
     <div class="plan-item"
@@ -143,7 +143,7 @@ $plans = $conn->query("SELECT * FROM Insurance_Master $searchSql ORDER BY Insura
     <select name="duration" required>
       <option value="">-- Select Duration --</option>
       <?php for ($i = 1; $i <= 24; $i++): ?>
-        <option value="<?= $i ?>" <?= (isset($editData['Duration']) && $editData['Duration'] == $i) ? 'selected' : '' ?>>
+        <option value="<?= $i ?>" <?= (isset($editData['Duration_Months']) && $editData['Duration_Months'] == $i) ? 'selected' : '' ?>>
           <?= $i ?> Month<?= $i > 1 ? 's' : '' ?>
         </option>
       <?php endfor; ?>
