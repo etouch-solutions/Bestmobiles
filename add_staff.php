@@ -1,11 +1,12 @@
 <?php
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
-
-// Use this to connect
 include 'db.php';
 
-// Insert logic
+// Get branches for dropdown
+$branches = $conn->query("SELECT Branch_Id, Branch_Name FROM Branch_Master");
+
+// Insert staff logic
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   $name = $_POST['staff_name'];
   $cno = $_POST['staff_cno'];
@@ -13,9 +14,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   $address = $_POST['staff_address'];
   $designation = $_POST['staff_designation'];
   $status = $_POST['staff_status'];
+  $branch_id = $_POST['branch_id'];
 
-  $stmt = $conn->prepare("INSERT INTO Staff_Master (Staff_Name, Staff_CNo, Staff_Email, Staff_Address, Staff_Designation, Staff_Status) VALUES (?, ?, ?, ?, ?, ?)");
-  $stmt->bind_param("sisssi", $name, $cno, $email, $address, $designation, $status);
+  $stmt = $conn->prepare("INSERT INTO Staff_Master (Staff_Name, Staff_CNo, Staff_Email, Staff_Address, Staff_Designation, Staff_Status, Branch_Id) VALUES (?, ?, ?, ?, ?, ?, ?)");
+  $stmt->bind_param("sisssii", $name, $cno, $email, $address, $designation, $status, $branch_id);
   $stmt->execute();
   $stmt->close();
   echo "<script>location.href='?added=1'</script>";
@@ -23,14 +25,22 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
 // Search logic
 $search = $_GET['search'] ?? '';
-$searchSql = $search ? "WHERE Staff_Name LIKE '%$search%' OR Staff_CNo LIKE '%$search%'" : "";
-$staffs = $conn->query("SELECT * FROM Staff_Master $searchSql ORDER BY Staff_Id DESC");
+$searchSql = $search ? "WHERE s.Staff_Name LIKE '%$search%' OR s.Staff_CNo LIKE '%$search%'" : "";
+
+// Fetch staff with branch name
+$staffs = $conn->query("
+  SELECT s.*, b.Branch_Name 
+  FROM Staff_Master s 
+  LEFT JOIN Branch_Master b ON s.Branch_Id = b.Branch_Id 
+  $searchSql 
+  ORDER BY s.Staff_Id DESC
+");
 ?>
 
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Staff Master</title>
+  <title>Staff Master with Branch</title>
   <style>
     body { font-family: Arial; display: flex; background: #f7f7f7; }
     .sidebar { width: 20%; background: #fff; padding: 20px; border-right: 1px solid #ccc; height: 100vh; overflow-y: auto; }
@@ -49,6 +59,7 @@ $staffs = $conn->query("SELECT * FROM Staff_Master $searchSql ORDER BY Staff_Id 
         <b>Email:</b> ${data.email}<br>
         <b>Address:</b> ${data.address}<br>
         <b>Designation:</b> ${data.designation}<br>
+        <b>Branch:</b> ${data.branch}<br>
         <b>Status:</b> ${data.status == 1 ? 'Active' : 'Inactive'}
       `;
     }
@@ -63,29 +74,28 @@ $staffs = $conn->query("SELECT * FROM Staff_Master $searchSql ORDER BY Staff_Id 
     <input type="text" name="search" placeholder="Search staff..." value="<?= htmlspecialchars($search) ?>">
   </form>
   <hr>
-<?php while ($row = $staffs->fetch_assoc()): ?>
-  <?php
-    // Safely prepare data
-    $name = addslashes($row['Staff_Name']);
-    $cno = $row['Staff_CNo'];
-    $email = addslashes($row['Staff_Email']);
-    $address = addslashes($row['Staff_Address']);
-    $designation = addslashes($row['Staff_Designation']);
-    $status = $row['Staff_Status'];
-  ?>
-  <div class="staff-item"
-       onclick='showPreview({
-         name: "<?php echo $name; ?>",
-         cno: "<?php echo $cno; ?>",
-         email: "<?php echo $email; ?>",
-         address: "<?php echo $address; ?>",
-         designation: "<?php echo $designation; ?>",
-         status: "<?php echo $status; ?>"
-       })'>
-    <?= htmlspecialchars($row['Staff_Name']) ?>
-  </div>
-<?php endwhile; ?>
-
+  <?php while ($row = $staffs->fetch_assoc()): ?>
+    <?php
+      $name = addslashes($row['Staff_Name']);
+      $cno = $row['Staff_CNo'];
+      $email = addslashes($row['Staff_Email']);
+      $address = addslashes($row['Staff_Address']);
+      $designation = addslashes($row['Staff_Designation']);
+      $status = $row['Staff_Status'];
+      $branch = addslashes($row['Branch_Name'] ?? 'Not Assigned');
+    ?>
+    <div class="staff-item" onclick='showPreview({
+      name: "<?= $name ?>",
+      cno: "<?= $cno ?>",
+      email: "<?= $email ?>",
+      address: "<?= $address ?>",
+      designation: "<?= $designation ?>",
+      status: "<?= $status ?>",
+      branch: "<?= $branch ?>"
+    })'>
+      <?= htmlspecialchars($row['Staff_Name']) ?>
+    </div>
+  <?php endwhile; ?>
 </div>
 
 <!-- Main Form -->
@@ -106,6 +116,14 @@ $staffs = $conn->query("SELECT * FROM Staff_Master $searchSql ORDER BY Staff_Id 
 
     <label>Designation:</label>
     <input type="text" name="staff_designation" required>
+
+    <label>Branch:</label>
+    <select name="branch_id" required>
+      <option value="">-- Select Branch --</option>
+      <?php while ($b = $branches->fetch_assoc()): ?>
+        <option value="<?= $b['Branch_Id'] ?>"><?= htmlspecialchars($b['Branch_Name']) ?></option>
+      <?php endwhile; ?>
+    </select>
 
     <label>Status:</label>
     <select name="staff_status">
