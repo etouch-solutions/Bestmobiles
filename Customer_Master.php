@@ -1,94 +1,80 @@
 <?php
-include 'db.php';
-$conn = mysqli_connect($host, $user, $pass, $db);
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
+include 'db.php';
+
+$conn = mysqli_connect($host, $user, $pass, $db);
 
 // Handle Insert or Update
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $id = $_POST['cus_id'] ?? null;
-    $name = $_POST['cus_name'];
-    $cno = $_POST['cus_cno'];
-    $email = $_POST['cus_email'];
-    $address = $_POST['cus_address'];
-    $ref = $_POST['cus_ref'];
-    $ref_cno = $_POST['cus_ref_cno'];
+    $cus_id = $_POST['cus_id'] ?? null;
+    $cus_name = $_POST['cus_name'];
+    $cus_cno = $_POST['cus_cno'];
+    $cus_address = $_POST['cus_address'];
+    $cus_email = $_POST['cus_email'];
+    $cus_ref = $_POST['cus_ref'];
+    $cus_ref_cno = $_POST['cus_ref_cno'];
     $branch_id = $_POST['branch_id'];
     $status = $_POST['cus_status'];
 
-    // File uploads
-    $photo = $_FILES['cus_photo']['name'] ?? '';
-    $id_copy = $_FILES['cus_id_copy']['name'] ?? '';
+    $cus_photo_path = '';
+    $cus_id_copy_path = '';
 
-    $photoPath = '';
-    $idPath = '';
-
-    if ($photo) {
-        $photoPath = 'uploads/' . time() . '_' . basename($photo);
-        move_uploaded_file($_FILES['cus_photo']['tmp_name'], $photoPath);
+    // Upload Photo
+    if ($_FILES['cus_photo']['name']) {
+        $targetDir = "uploads/customers/";
+        $cus_photo_path = $targetDir . time() . '_' . basename($_FILES["cus_photo"]["name"]);
+        move_uploaded_file($_FILES["cus_photo"]["tmp_name"], $cus_photo_path);
     }
 
-    if ($id_copy) {
-        $idPath = 'uploads/' . time() . '_' . basename($id_copy);
-        move_uploaded_file($_FILES['cus_id_copy']['tmp_name'], $idPath);
+    // Upload ID Copy
+    if ($_FILES['cus_id_copy']['name']) {
+        $targetDir = "uploads/ids/";
+        $cus_id_copy_path = $targetDir . time() . '_' . basename($_FILES["cus_id_copy"]["name"]);
+        move_uploaded_file($_FILES["cus_id_copy"]["tmp_name"], $cus_id_copy_path);
     }
 
-    if ($id) {
-        // UPDATE
-        $query = "UPDATE Customer_Master SET 
-            Cus_Name=?, Cus_CNo=?, Cus_Email=?, Cus_Address=?, 
-            Cus_Ref_Name=?, Cus_Ref_CNo=?, Branch_Id=?, Cus_Status=?";
-        if ($photoPath) $query .= ", Cus_Photo=?";
-        if ($idPath) $query .= ", Cus_Id_Copy=?";
-        $query .= " WHERE Cus_Id=?";
-
-        $stmt = $conn->prepare($query);
-        if ($photoPath && $idPath) {
-            $stmt->bind_param("sisssiiissi", $name, $cno, $email, $address, $ref, $ref_cno, $branch_id, $status, $photoPath, $idPath, $id);
-        } elseif ($photoPath) {
-            $stmt->bind_param("sisssiiisi", $name, $cno, $email, $address, $ref, $ref_cno, $branch_id, $status, $photoPath, $id);
-        } elseif ($idPath) {
-            $stmt->bind_param("sisssiiisi", $name, $cno, $email, $address, $ref, $ref_cno, $branch_id, $status, $idPath, $id);
-        } else {
-            $stmt->bind_param("sisssiii", $name, $cno, $email, $address, $ref, $ref_cno, $branch_id, $status, $id);
-        }
+    if ($cus_id) {
+        // Update
+        $stmt = $conn->prepare("UPDATE Customer_Master SET Cus_Name=?, Cus_CNo=?, Cus_Address=?, Cus_Email=?, Cus_Ref=?, Cus_Ref_CNo=?, Branch_Id=?, Customer_Status=? WHERE Cus_Id=?");
+        $stmt->bind_param("sisssiiii", $cus_name, $cus_cno, $cus_address, $cus_email, $cus_ref, $cus_ref_cno, $branch_id, $status, $cus_id);
     } else {
-        // INSERT
-        $stmt = $conn->prepare("INSERT INTO Customer_Master 
-            (Cus_Name, Cus_CNo, Cus_Email, Cus_Address, Cus_Ref_Name, Cus_Ref_CNo, Branch_Id, Cus_Photo, Cus_Id_Copy, Cus_Status) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
-        $stmt->bind_param("sisssisssi", $name, $cno, $email, $address, $ref, $ref_cno, $branch_id, $photoPath, $idPath, $status);
+        // Insert
+        $stmt = $conn->prepare("INSERT INTO Customer_Master (Cus_Name, Cus_CNo, Cus_Address, Cus_Email, Cus_Ref, Cus_Ref_CNo, Branch_Id, Customer_Status, Cus_Photo, Cus_Id_Copy) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+        $stmt->bind_param("sisssiiiss", $cus_name, $cus_cno, $cus_address, $cus_email, $cus_ref, $cus_ref_cno, $branch_id, $status, $cus_photo_path, $cus_id_copy_path);
     }
 
     $stmt->execute();
     $stmt->close();
-    header("Location: customer_master.php");
+    header("Location: Customer_Master.php?saved=1");
     exit;
 }
 
 // Handle Delete
 if (isset($_GET['delete'])) {
-    $delId = intval($_GET['delete']);
-    mysqli_query($conn, "DELETE FROM Customer_Master WHERE Cus_Id=$delId");
-    header("Location: customer_master.php");
+    $id = intval($_GET['delete']);
+    $conn->query("DELETE FROM Customer_Master WHERE Cus_Id = $id");
+    header("Location: Customer_Master.php?deleted=1");
     exit;
 }
 
-// Fetch for edit
-$edit = null;
+// Fetch one for editing
+$editData = null;
 if (isset($_GET['edit'])) {
-    $eid = intval($_GET['edit']);
-    $res = mysqli_query($conn, "SELECT * FROM Customer_Master WHERE Cus_Id=$eid");
-    $edit = mysqli_fetch_assoc($res);
+    $editId = intval($_GET['edit']);
+    $res = $conn->query("SELECT * FROM Customer_Master WHERE Cus_Id = $editId");
+    if ($res->num_rows > 0) {
+        $editData = $res->fetch_assoc();
+    }
 }
 
-// Fetch branches
-$branches = mysqli_query($conn, "SELECT * FROM Branch_Master WHERE Branch_Status = 1");
+// Fetch Branches
+$branches = $conn->query("SELECT * FROM Branch_Master WHERE Branch_Status = 1");
 
-// Search and customer list
+// Fetch All Customers (with optional search)
 $search = $_GET['search'] ?? '';
-$condition = $search ? "WHERE Cus_Name LIKE '%$search%' OR Cus_CNo LIKE '%$search%'" : '';
-$customers = mysqli_query($conn, "SELECT * FROM Customer_Master $condition ORDER BY Cus_Id DESC");
+$searchSql = $search ? "WHERE Cus_Name LIKE '%$search%' OR Cus_CNo LIKE '%$search%'" : "";
+$customers = $conn->query("SELECT c.*, b.Branch_Name FROM Customer_Master c LEFT JOIN Branch_Master b ON c.Branch_Id = b.Branch_Id $searchSql ORDER BY Cus_Id DESC");
 ?>
 
 <!DOCTYPE html>
@@ -96,131 +82,121 @@ $customers = mysqli_query($conn, "SELECT * FROM Customer_Master $condition ORDER
 <head>
   <title>Customer Master</title>
   <style>
-    body { font-family: Arial; background: #f2f2f2; display: flex; padding: 20px; gap: 20px; }
-    .form-box, .list-box, .preview-box {
-      background: white; padding: 20px; border-radius: 10px;
-      box-shadow: 0 0 5px rgba(0,0,0,0.1);
-    }
-    .form-box { width: 35%; }
-    .list-box { width: 30%; overflow-y: auto; height: 90vh; }
-    .preview-box { width: 30%; }
-    input, select, textarea { width: 100%; padding: 8px; margin-bottom: 10px; }
-    .item { padding: 8px; border-bottom: 1px solid #ddd; cursor: pointer; }
-    .item:hover { background: #f9f9f9; }
-    .actions a { margin-right: 10px; color: blue; text-decoration: none; }
+    body { display: flex; font-family: sans-serif; margin: 0; background: #f4f4f4; }
+    .sidebar { width: 25%; background: #fff; padding: 20px; border-right: 1px solid #ccc; height: 100vh; overflow-y: auto; }
+    .main { flex: 1; padding: 20px; background: #fff; }
+    .preview { width: 25%; background: #f7f7f7; padding: 20px; border-left: 1px solid #ccc; }
+    input, select, textarea { width: 100%; padding: 6px; margin-bottom: 12px; }
+    .item { padding: 8px; border-bottom: 1px solid #eee; cursor: pointer; }
+    .item:hover { background: #efefef; }
+    .actions a { margin-right: 10px; text-decoration: none; color: blue; font-size: 13px; }
     .actions a.delete { color: red; }
   </style>
   <script>
     function showPreview(data) {
       document.getElementById('preview').innerHTML = `
-        <h3>Customer Preview</h3>
-        <p><b>Name:</b> ${data.name}</p>
-        <p><b>Contact:</b> ${data.cno}</p>
-        <p><b>Email:</b> ${data.email}</p>
-        <p><b>Address:</b> ${data.address}</p>
-        <p><b>Ref:</b> ${data.ref} (${data.ref_cno})</p>
-        <p><b>Branch:</b> ${data.branch}</p>
-        <p><b>Status:</b> ${data.status == 1 ? 'Active' : 'Inactive'}</p>
-        ${data.photo ? `<p><b>Photo:</b><br><img src='${data.photo}' width='100'></p>` : ''}
-        ${data.id_copy ? `<p><b>ID Copy:</b><br><img src='${data.id_copy}' width='100'></p>` : ''}
+        <h3>Customer Details</h3>
+        <b>Name:</b> ${data.name}<br>
+        <b>Contact:</b> ${data.cno}<br>
+        <b>Address:</b> ${data.address}<br>
+        <b>Email:</b> ${data.email}<br>
+        <b>Reference:</b> ${data.ref} (${data.ref_cno})<br>
+        <b>Branch:</b> ${data.branch}<br>
+        <b>Status:</b> ${data.status == 1 ? 'Active' : 'Inactive'}<br>
       `;
     }
 
     function confirmDelete(id) {
-      if (confirm("Delete this customer?")) {
-        location.href = "?delete=" + id;
+      if (confirm("Are you sure you want to delete this customer?")) {
+        window.location.href = "?delete=" + id;
       }
     }
   </script>
 </head>
 <body>
 
-<!-- Customer Form -->
-<div class="form-box">
-  <h3><?= $edit ? 'Edit' : 'Add' ?> Customer</h3>
-  <form method="POST" enctype="multipart/form-data">
-    <?php if ($edit): ?>
-      <input type="hidden" name="cus_id" value="<?= $edit['Cus_Id'] ?>">
-    <?php endif; ?>
-    <label>Name</label>
-    <input type="text" name="cus_name" required value="<?= $edit['Cus_Name'] ?? '' ?>">
-    
-    <label>Contact No</label>
-    <input type="number" name="cus_cno" required value="<?= $edit['Cus_CNo'] ?? '' ?>">
-
-    <label>Email</label>
-    <input type="email" name="cus_email" value="<?= $edit['Cus_Email'] ?? '' ?>">
-
-    <label>Address</label>
-    <textarea name="cus_address"><?= $edit['Cus_Address'] ?? '' ?></textarea>
-
-    <label>Reference Name</label>
-    <input type="text" name="cus_ref" value="<?= $edit['Cus_Ref_Name'] ?? '' ?>">
-
-    <label>Reference Contact</label>
-    <input type="number" name="cus_ref_cno" value="<?= $edit['Cus_Ref_CNo'] ?? '' ?>">
-
-    <label>Branch</label>
-    <select name="branch_id" required>
-      <option value="">-- Select Branch --</option>
-      <?php while ($b = mysqli_fetch_assoc($branches)): ?>
-        <option value="<?= $b['Branch_Id'] ?>" <?= (isset($edit['Branch_Id']) && $edit['Branch_Id'] == $b['Branch_Id']) ? 'selected' : '' ?>>
-          <?= $b['Branch_Name'] ?>
-        </option>
-      <?php endwhile; ?>
-    </select>
-
-    <label>Photo <?= $edit ? '(Leave blank to keep existing)' : '' ?></label>
-    <input type="file" name="cus_photo" accept="image/*">
-
-    <label>ID Copy <?= $edit ? '(Leave blank to keep existing)' : '' ?></label>
-    <input type="file" name="cus_id_copy" accept="image/*">
-
-    <label>Status</label>
-    <select name="cus_status">
-      <option value="1" <?= (isset($edit['Cus_Status']) && $edit['Cus_Status'] == 1) ? 'selected' : '' ?>>Active</option>
-      <option value="0" <?= (isset($edit['Cus_Status']) && $edit['Cus_Status'] == 0) ? 'selected' : '' ?>>Inactive</option>
-    </select>
-
-    <button type="submit"><?= $edit ? 'Update' : 'Add' ?> Customer</button>
-  </form>
-</div>
-
-<!-- Customer List -->
-<div class="list-box">
-  <h3>Customers</h3>
+<!-- Sidebar -->
+<div class="sidebar">
+  <h3>Customer List</h3>
   <form method="GET">
-    <input type="text" name="search" placeholder="Search..." value="<?= htmlspecialchars($search) ?>">
+    <input type="text" name="search" placeholder="Search customer..." value="<?= htmlspecialchars($search) ?>">
   </form>
   <hr>
-  <?php while ($c = mysqli_fetch_assoc($customers)):
-    $safeName = htmlspecialchars($c['Cus_Name'], ENT_QUOTES);
-  ?>
+  <?php while ($row = $customers->fetch_assoc()): ?>
     <div class="item" onclick='showPreview({
-      name: "<?= $safeName ?>",
-      cno: "<?= $c['Cus_CNo'] ?>",
-      email: "<?= $c['Cus_Email'] ?>",
-      address: "<?= $c['Cus_Address'] ?>",
-      ref: "<?= $c['Cus_Ref_Name'] ?>",
-      ref_cno: "<?= $c['Cus_Ref_CNo'] ?>",
-      branch: "<?= $c['Branch_Id'] ?>",
-      status: "<?= $c['Cus_Status'] ?>",
-      photo: "<?= $c['Cus_Photo'] ?>",
-      id_copy: "<?= $c['Cus_Id_Copy'] ?>"
+      name: "<?= addslashes($row['Cus_Name']) ?>",
+      cno: "<?= $row['Cus_CNo'] ?>",
+      email: "<?= addslashes($row['Cus_Email']) ?>",
+      address: "<?= addslashes($row['Cus_Address']) ?>",
+      ref: "<?= addslashes($row['Cus_Ref']) ?>",
+      ref_cno: "<?= $row['Cus_Ref_CNo'] ?>",
+      branch: "<?= addslashes($row['Branch_Name']) ?>",
+      status: "<?= $row['Customer_Status'] ?>"
     })'>
-      <b><?= $c['Cus_Name'] ?></b>
+      <b><?= htmlspecialchars($row['Cus_Name']) ?></b><br>
       <div class="actions">
-        <a href="?edit=<?= $c['Cus_Id'] ?>">Edit</a>
-        <a href="javascript:void(0)" class="delete" onclick="confirmDelete(<?= $c['Cus_Id'] ?>)">Delete</a>
+        <a href="?edit=<?= $row['Cus_Id'] ?>">Edit</a>
+        <a href="javascript:void(0);" class="delete" onclick="confirmDelete(<?= $row['Cus_Id'] ?>)">Delete</a>
       </div>
     </div>
   <?php endwhile; ?>
 </div>
 
+<!-- Main Form -->
+<div class="main">
+  <h2><?= $editData ? 'Edit Customer' : 'Add Customer' ?></h2>
+  <form method="POST" enctype="multipart/form-data">
+    <?php if ($editData): ?>
+      <input type="hidden" name="cus_id" value="<?= $editData['Cus_Id'] ?>">
+    <?php endif; ?>
+    <label>Name:</label>
+    <input type="text" name="cus_name" required value="<?= $editData['Cus_Name'] ?? '' ?>">
+
+    <label>Contact Number:</label>
+    <input type="number" name="cus_cno" required value="<?= $editData['Cus_CNo'] ?? '' ?>">
+
+    <label>Address:</label>
+    <textarea name="cus_address" required><?= $editData['Cus_Address'] ?? '' ?></textarea>
+
+    <label>Email:</label>
+    <input type="email" name="cus_email" value="<?= $editData['Cus_Email'] ?? '' ?>">
+
+    <label>Reference Name:</label>
+    <input type="text" name="cus_ref" value="<?= $editData['Cus_Ref'] ?? '' ?>">
+
+    <label>Reference Contact No:</label>
+    <input type="number" name="cus_ref_cno" value="<?= $editData['Cus_Ref_CNo'] ?? '' ?>">
+
+    <label>Branch:</label>
+    <select name="branch_id" required>
+      <option value="">-- Select Branch --</option>
+      <?php while ($b = $branches->fetch_assoc()): ?>
+        <option value="<?= $b['Branch_Id'] ?>" <?= isset($editData['Branch_Id']) && $editData['Branch_Id'] == $b['Branch_Id'] ? 'selected' : '' ?>>
+          <?= $b['Branch_Name'] ?>
+        </option>
+      <?php endwhile; ?>
+    </select>
+
+    <label>Status:</label>
+    <select name="cus_status">
+      <option value="1" <?= (isset($editData['Customer_Status']) && $editData['Customer_Status'] == 1) ? 'selected' : '' ?>>Active</option>
+      <option value="0" <?= (isset($editData['Customer_Status']) && $editData['Customer_Status'] == 0) ? 'selected' : '' ?>>Inactive</option>
+    </select>
+
+    <label>Customer Photo:</label>
+    <input type="file" name="cus_photo" accept="image/*">
+
+    <label>ID Copy:</label>
+    <input type="file" name="cus_id_copy" accept="image/*">
+
+    <button type="submit"><?= $editData ? 'Update' : 'Add' ?> Customer</button>
+  </form>
+</div>
+
 <!-- Preview Panel -->
-<div class="preview-box" id="preview">
-  <h3>Customer Preview</h3>
-  <p>Select a customer to view details.</p>
+<div class="preview" id="preview">
+  <h3>Customer Details</h3>
+  <p>Select a customer to preview</p>
 </div>
 
 </body>
