@@ -66,7 +66,7 @@ $defects = $conn->query("SELECT * FROM Defect_Master $searchSql ORDER BY Defect_
     <?php
       $name = htmlspecialchars($row['Defect_Name'], ENT_QUOTES);
       $desc = htmlspecialchars($row['Defect_Description'], ENT_QUOTES);
-      $status = $row['Defect_Status'];
+      $status = $row['defect_status'];
     ?>
     <div class="item" onclick='showPreview({
       name: "<?= $name ?>",
