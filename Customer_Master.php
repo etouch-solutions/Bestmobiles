@@ -50,17 +50,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     exit;
 }
 
-// Delete
 if (isset($_GET['delete'])) {
-    $id = intval($_GET['delete']);
+    $deleteId = intval($_GET['delete']);
 
-    // Try to delete, handle foreign key constraint error
-    if (!$conn->query("DELETE FROM Customer_Master WHERE Cus_Id = $id")) {
-        echo "<script>alert('Cannot delete customer. Linked insurance entries exist.');</script>";
-    } else {
-        header("Location: Customer_Master.php?deleted=1");
+    // Check if this customer is linked in Insurance_Entry
+    $check = $conn->query("SELECT * FROM Insurance_Entry WHERE Cus_Id = $deleteId");
+    if ($check->num_rows > 0) {
+        echo "<script>alert('Cannot delete: Customer is linked with insurance entries.'); window.location.href='Customer_Master.php';</script>";
         exit;
     }
+
+    // Safe to delete
+    $conn->query("DELETE FROM Customer_Master WHERE Cus_Id = $deleteId");
+    echo "<script>alert('Customer deleted successfully'); window.location.href='Customer_Master.php';</script>";
+    exit;
 }
 
 // Fetch edit data
