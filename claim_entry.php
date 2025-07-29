@@ -1,36 +1,4 @@
-<?php
-include 'db.php';
-
-$q = $_GET['q'] ?? '';
-$result = [];
-
-if ($q) {
-  $stmt = $conn->prepare("
-    SELECT ie.Insurance_Entry_Id, cm.Cus_Name, ie.Product_Model_Name, ie.IMEI_1 
-    FROM Insurance_Entry ie
-    JOIN Customer_Master cm ON ie.Cus_Id = cm.Cus_Id
-    WHERE cm.Cus_Name LIKE CONCAT('%', ?, '%') OR ie.IMEI_1 LIKE CONCAT('%', ?, '%')
-    LIMIT 10
-  ");
-  $stmt->bind_param("ss", $q, $q);
-  $stmt->execute();
-  $res = $stmt->get_result();
-
-  while ($row = $res->fetch_assoc()) {
-    $result[] = [
-      'insurance_entry_id' => $row['Insurance_Entry_Id'],
-      'name' => $row['Cus_Name'],
-      'model' => $row['Product_Model_Name'],
-      'imei1' => $row['IMEI_1'],
-    ];
-  }
-}
-
-header('Content-Type: application/json');
-echo json_encode($result);
-?>
-
-
+<?php include 'db.php'; ?>
 <!DOCTYPE html>
 <html>
 <head>
