@@ -1,22 +1,50 @@
 <?php
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
-include 'db.php'; // db.php must contain a valid mysqli connection variable $conn
+include 'db.php'; // $conn should be your mysqli connection
 
-// Insert Logic
+// INSERT or UPDATE
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-  $name = $_POST['defect_name'];
-  $desc = $_POST['defect_description'];
-  $status = $_POST['defect_status']; // This will be mapped to Is_Active
+    $id = $_POST['defect_id'] ?? null;
+    $name = $_POST['defect_name'] ?? '';
+    $desc = $_POST['defect_description'] ?? '';
+    $status = $_POST['defect_status'] ?? 1;
 
-  $stmt = $conn->prepare("INSERT INTO Defect_Master (Defect_Name, Defect_Description, Is_Active) VALUES (?, ?, ?)");
-  $stmt->bind_param("ssi", $name, $desc, $status);
-  $stmt->execute();
-  $stmt->close();
-  echo "<script>location.href='?added=1'</script>";
+    if ($id) {
+        // UPDATE
+        $stmt = $conn->prepare("UPDATE Defect_Master SET Defect_Name=?, Defect_Description=?, Is_Active=?, Updated_At=NOW() WHERE Defect_Id=?");
+        $stmt->bind_param("ssii", $name, $desc, $status, $id);
+    } else {
+        // INSERT
+        $stmt = $conn->prepare("INSERT INTO Defect_Master (Defect_Name, Defect_Description, Is_Active) VALUES (?, ?, ?)");
+        $stmt->bind_param("ssi", $name, $desc, $status);
+    }
+
+    $stmt->execute();
+    $stmt->close();
+    header("Location: add_defect.php?added=1");
+    exit;
 }
 
-// Fetch Defects
+// DELETE
+if (isset($_GET['delete'])) {
+    $id = intval($_GET['delete']);
+    $conn->query("DELETE FROM Defect_Master WHERE Defect_Id = $id");
+    header("Location: add_defect.php?deleted=1");
+    exit;
+}
+
+// GET for edit
+$editData = null;
+if (isset($_GET['edit'])) {
+    $editId = intval($_GET['edit']);
+    $res = $conn->query("SELECT * FROM Defect_Master WHERE Defect_Id = $editId");
+    if ($res && $res->num_rows > 0) {
+        $editData = $res->fetch_assoc();
+    }
+}
+
+// FETCH ALL
 $search = $_GET['search'] ?? '';
 $searchSql = $search ? "WHERE Defect_Name LIKE '%$search%' OR Defect_Description LIKE '%$search%'" : "";
 $defects = $conn->query("SELECT * FROM Defect_Master $searchSql ORDER BY Defect_Id DESC");
@@ -40,7 +68,8 @@ $defects = $conn->query("SELECT * FROM Defect_Master $searchSql ORDER BY Defect_
       border-bottom: 1px solid #eee;
     }
     .item:hover { background: #e0e0e0; }
-    h2, h3 { margin-top: 0; }
+    .actions a { margin-right: 10px; color: blue; text-decoration: none; }
+    .actions a.delete { color: red; }
   </style>
   <script>
     function showPreview(data) {
@@ -50,6 +79,11 @@ $defects = $conn->query("SELECT * FROM Defect_Master $searchSql ORDER BY Defect_
         <p><strong>Description:</strong> ${data.desc}</p>
         <p><strong>Status:</strong> ${data.status == 1 ? 'Active' : 'Inactive'}</p>
       `;
+    }
+    function confirmDelete(id) {
+      if (confirm("Are you sure you want to delete this defect?")) {
+        window.location.href = "?delete=" + id;
+      }
     }
   </script>
 </head>
@@ -64,38 +98,42 @@ $defects = $conn->query("SELECT * FROM Defect_Master $searchSql ORDER BY Defect_
   <hr>
   <?php while ($row = $defects->fetch_assoc()): ?>
     <?php
+      $id = $row['Defect_Id'];
       $name = htmlspecialchars($row['Defect_Name'], ENT_QUOTES);
       $desc = htmlspecialchars($row['Defect_Description'], ENT_QUOTES);
-      $status = $row['defect_status'];
+      $status = $row['Is_Active'];
     ?>
-    <div class="item" onclick='showPreview({
-      name: "<?= $name ?>",
-      desc: "<?= $desc ?>",
-      status: "<?= $status ?>"
-    })'>
-      <?= $name ?>
+    <div class="item" onclick='showPreview({ name: "<?= $name ?>", desc: "<?= $desc ?>", status: <?= $status ?> })'>
+      <b><?= $name ?></b><br>
+      <div class="actions">
+        <a href="?edit=<?= $id ?>">Edit</a>
+        <a href="javascript:void(0)" class="delete" onclick="confirmDelete(<?= $id ?>)">Delete</a>
+      </div>
     </div>
   <?php endwhile; ?>
 </div>
 
 <!-- Form -->
 <div class="main">
-  <h2>Add Defect Type</h2>
+  <h2><?= $editData ? "Edit Defect" : "Add Defect Type" ?></h2>
   <form method="POST">
+    <?php if ($editData): ?>
+      <input type="hidden" name="defect_id" value="<?= $editData['Defect_Id'] ?>">
+    <?php endif; ?>
+
     <label>Defect Name:</label>
-    <input type="text" name="defect_name" required>
+    <input type="text" name="defect_name" required value="<?= $editData['Defect_Name'] ?? '' ?>">
 
     <label>Defect Description:</label>
-    <textarea name="defect_description" required></textarea>
+    <textarea name="defect_description" required><?= $editData['Defect_Description'] ?? '' ?></textarea>
 
-    
     <label>Status:</label>
-<select name="defect_status" required>
-  <option value="1">Active</option>
-  <option value="0">Inactive</option>
-</select>
+    <select name="defect_status" required>
+      <option value="1" <?= (isset($editData['Is_Active']) && $editData['Is_Active'] == 1) ? 'selected' : '' ?>>Active</option>
+      <option value="0" <?= (isset($editData['Is_Active']) && $editData['Is_Active'] == 0) ? 'selected' : '' ?>>Inactive</option>
+    </select>
 
-    <input type="submit" value="Add Defect">
+    <input type="submit" value="<?= $editData ? 'Update Defect' : 'Add Defect' ?>">
   </form>
 </div>
 
