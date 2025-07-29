@@ -56,7 +56,7 @@ if (isset($_GET['delete'])) {
     // Check if this customer is linked in Insurance_Entry
     $check = $conn->query("SELECT * FROM Insurance_Entry WHERE Cus_Id = $deleteId");
     if ($check->num_rows > 0) {
-        echo "<script>alert('Cannot delete: Customer is linked with insurance entries.'); window.location.href='Customer_Master.php';</script>";
+        echo "<script>alert('Cannot delete: Customer have a  insurance .'); window.location.href='Customer_Master.php';</script>";
         exit;
     }
 
