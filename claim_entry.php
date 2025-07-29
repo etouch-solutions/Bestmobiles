@@ -1,31 +1,35 @@
 <?php
 include 'db.php';
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
 
-// Insert logic
-if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['insurance_entry_id'])) {
-    $insurance_id = $_POST['insurance_entry_id'];
-    $defect_id = $_POST['defect_id'];
-    $remarks = $_POST['remarks'];
-    $img_name = $_FILES['claim_image']['name'];
-    $tmp_name = $_FILES['claim_image']['tmp_name'];
+$q = $_GET['q'] ?? '';
+$result = [];
 
-    $upload_path = "uploads/claims/";
-    if (!file_exists($upload_path)) {
-        mkdir($upload_path, 0777, true);
-    }
-    $file_path = $upload_path . time() . '_' . basename($img_name);
-    move_uploaded_file($tmp_name, $file_path);
+if ($q) {
+  $stmt = $conn->prepare("
+    SELECT ie.Insurance_Entry_Id, cm.Cus_Name, ie.Product_Model_Name, ie.IMEI_1 
+    FROM Insurance_Entry ie
+    JOIN Customer_Master cm ON ie.Cus_Id = cm.Cus_Id
+    WHERE cm.Cus_Name LIKE CONCAT('%', ?, '%') OR ie.IMEI_1 LIKE CONCAT('%', ?, '%')
+    LIMIT 10
+  ");
+  $stmt->bind_param("ss", $q, $q);
+  $stmt->execute();
+  $res = $stmt->get_result();
 
-    $stmt = $conn->prepare("INSERT INTO Claim_Entry (Insurance_Entry_Id, Defect_Id, Remarks, Claim_Image_Path) VALUES (?, ?, ?, ?)");
-    $stmt->bind_param("iiss", $insurance_id, $defect_id, $remarks, $file_path);
-    $stmt->execute();
-    $stmt->close();
-    header("Location: Claim_Entry.php?success=1");
-    exit();
+  while ($row = $res->fetch_assoc()) {
+    $result[] = [
+      'insurance_entry_id' => $row['Insurance_Entry_Id'],
+      'name' => $row['Cus_Name'],
+      'model' => $row['Product_Model_Name'],
+      'imei1' => $row['IMEI_1'],
+    ];
+  }
 }
+
+header('Content-Type: application/json');
+echo json_encode($result);
 ?>
+
 
 <!DOCTYPE html>
 <html>
@@ -36,9 +40,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['insurance_entry_id']))
     .container { max-width: 800px; margin: auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 0 10px #ccc; }
     input, select, textarea { width: 100%; padding: 10px; margin-top: 10px; margin-bottom: 20px; border: 1px solid #ccc; border-radius: 5px; }
     button { background: green; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; }
-    .result-box { background: #f0f0f0; padding: 10px; margin-bottom: 20px; }
+    .result-box button { display: block; width: 100%; margin-bottom: 10px; padding: 10px; background: #eee; border: 1px solid #ccc; cursor: pointer; text-align: left; }
+    .result-box button:hover { background: #ddd; }
     .claim-list { margin-top: 40px; }
-    .claim-item { background: #f9f9f9; border-left: 4px solid #007BFF; padding: 10px; margin-bottom: 10px; }
+    .claim-item { padding: 10px; border-bottom: 1px solid #ddd; }
+    .claim-item img { max-width: 100px; margin-top: 10px; }
   </style>
 </head>
 <body>
@@ -49,7 +55,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['insurance_entry_id']))
   <input type="text" id="search" placeholder="Start typing...">
   <div id="resultBox" class="result-box"></div>
 
-  <form method="POST" enctype="multipart/form-data" style="display:none;" id="claimForm">
+  <!-- Claim Entry Form -->
+  <form action="insert_claim_entry.php" method="POST" enctype="multipart/form-data" style="display:none;" id="claimForm">
     <input type="hidden" name="insurance_entry_id" id="insurance_entry_id">
 
     <label>Select Defect</label>
@@ -72,26 +79,29 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['insurance_entry_id']))
     <button type="submit">Submit Claim</button>
   </form>
 
+  <!-- Show All Claims -->
   <div class="claim-list">
-    <h3>All Claims</h3>
+    <h3>All Claim Entries</h3>
     <?php
-      $claims = mysqli_query($conn, "
-        SELECT c.*, d.Defect_Name, i.Product_Model_Name, cu.Cus_Name 
-        FROM Claim_Entry c
-        JOIN Claim_Defects d ON c.Defect_Id = d.Defect_Id
-        JOIN Insurance_Entry i ON i.Insurance_Entry_Id = c.Insurance_Entry_Id
-        JOIN Customer_Master cu ON cu.Cus_Id = i.Cus_Id
-        ORDER BY c.Claim_Id DESC
-      ");
-      while ($claim = mysqli_fetch_assoc($claims)) {
+      $query = "
+        SELECT ce.*, cm.Cus_Name, ie.Product_Model_Name, cd.Defect_Name
+        FROM Claim_Entry ce
+        JOIN Insurance_Entry ie ON ce.Insurance_Entry_Id = ie.Insurance_Entry_Id
+        JOIN Customer_Master cm ON ie.Cus_Id = cm.Cus_Id
+        JOIN Claim_Defects cd ON ce.Defect_Id = cd.Defect_Id
+        ORDER BY ce.Claim_Entry_Id DESC
+      ";
+      $claims = mysqli_query($conn, $query);
+      while ($c = mysqli_fetch_assoc($claims)) {
         echo "<div class='claim-item'>
-          <strong>Customer:</strong> {$claim['Cus_Name']}<br>
-          <strong>Model:</strong> {$claim['Product_Model_Name']}<br>
-          <strong>Defect:</strong> {$claim['Defect_Name']}<br>
-          <strong>Remarks:</strong> {$claim['Remarks']}<br>
-          <strong>Date:</strong> {$claim['Created_At']}<br>
-          <img src='{$claim['Claim_Image_Path']}' width='100' style='margin-top:10px; border-radius:5px;'>
-        </div>";
+          <b>{$c['Cus_Name']}</b> - {$c['Product_Model_Name']}<br>
+          <b>Defect:</b> {$c['Defect_Name']}<br>
+          <b>Remarks:</b> {$c['Remarks']}<br>
+          <b>Date:</b> {$c['Created_At']}<br>";
+        if (!empty($c['Claim_Image_Path'])) {
+          echo "<img src='{$c['Claim_Image_Path']}' alt='Claim Image'>";
+        }
+        echo "</div>";
       }
     ?>
   </div>
