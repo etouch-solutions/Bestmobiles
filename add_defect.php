@@ -88,11 +88,12 @@ $defects = $conn->query("SELECT * FROM Defect_Master $searchSql ORDER BY Defect_
     <label>Defect Description:</label>
     <textarea name="defect_description" required></textarea>
 
+    
     <label>Status:</label>
-    <select name="defect_status">
-      <option value="1">Active</option>
-      <option value="0">Inactive</option>
-    </select>
+<select name="defect_status" required>
+  <option value="1">Active</option>
+  <option value="0">Inactive</option>
+</select>
 
     <input type="submit" value="Add Defect">
   </form>
