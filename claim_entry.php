@@ -4,7 +4,7 @@ include 'db.php';
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Claim Entry</title>
+  <title>Claim Entr</title>
   <style>
     body { font-family: Arial; background: #f5f5f5; padding: 50px; }
     .container { max-width: 700px; margin: auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 0 10px #ccc; }
