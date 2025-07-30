@@ -1,8 +1,38 @@
-<?php 
-include 'db.php'; 
+<?php
+include 'db.php';
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $insurance_id = $_POST['insurance_entry_id'];
+    $defect_id = $_POST['defect_id'];
+    $claim_date = date('Y-m-d');
+    $created_at = date('Y-m-d H:i:s');
+
+    // Upload directory
+    $uploadDir = 'uploads/claims/';
+    if (!is_dir($uploadDir)) {
+        mkdir($uploadDir, 0755, true);
+    }
+
+    $filename = time() . '_' . basename($_FILES['claim_image']['name']);
+    $targetPath = $uploadDir . $filename;
+
+    if (move_uploaded_file($_FILES['claim_image']['tmp_name'], $targetPath)) {
+        $stmt = "INSERT INTO Claim_Entry (Insurance_Entry_Id, Defect_Id, Claim_Status, Claim_Date, Claim_Image_Path, Created_At)
+                 VALUES ('$insurance_id', '$defect_id', 'Pending', '$claim_date', '$targetPath', '$created_at')";
+
+        if (mysqli_query($conn, $stmt)) {
+            echo "Claim submitted successfully.";
+        } else {
+            echo "Database error: " . mysqli_error($conn);
+        }
+    } else {
+        echo "Failed to upload image.";
+    }
+}
 ?>
+
 <!DOCTYPE html>
 <html>
 <head>
