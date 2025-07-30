@@ -27,14 +27,15 @@
 
     <label>Select Defect</label>
     <select name="defect_id" required>
-      <option value="">-- Select Defect --</option>
-      <?php
-        $res = mysqli_query($conn, "SELECT Defect_Id, Defect_Description FROM Claim_Defects");
-        while ($row = mysqli_fetch_assoc($res)) {
-          echo "<option value='{$row['Defect_Id']}'>{$row['Defect_Description']}</option>";
-        }
-      ?>
-    </select>
+  <option value="">-- Select Defect --</option>
+  <?php
+    $res = mysqli_query($conn, "SELECT Defect_Id, Defect_Name FROM Claim_Defects");
+    while ($row = mysqli_fetch_assoc($res)) {
+      echo "<option value='{$row['Defect_Id']}'>{$row['Defect_Name']}</option>";
+    }
+  ?>
+</select>
+
 
     <label>Remarks (optional)</label>
     <textarea name="remarks"></textarea>
@@ -55,37 +56,30 @@ document.getElementById('search').addEventListener('input', function () {
     .then(res => res.json())
     .then(data => {
       const box = document.getElementById('resultBox');
-      const historyBox = document.getElementById('claimHistory');
       box.innerHTML = '';
-      historyBox.innerHTML = '';
-      document.getElementById('claimForm').style.display = 'none';
-
       if (data.length > 0) {
         data.forEach(item => {
           const btn = document.createElement('button');
-          btn.style.display = "block";
-          btn.style.marginBottom = "10px";
-          btn.innerText = `${item.name} | ${item.model} | IMEI: ${item.imei1}`;
+          btn.innerText = `${item.name} - ${item.model} - IMEI: ${item.imei1}`;
           btn.onclick = () => {
             document.getElementById('insurance_entry_id').value = item.insurance_entry_id;
             document.getElementById('claimForm').style.display = 'block';
-
-            historyBox.style.display = 'block';
-            historyBox.innerHTML = `
+            box.innerHTML = `
               <b>Selected:</b> ${item.name} (${item.model})<br>
               <b>Insurance Value:</b> ₹${item.product_value}<br>
               <b>Premium:</b> ₹${item.premium_amount}<br>
-              <b>Total Claims:</b> ${item.total_claims} | <b>Total Claimed Value:</b> ₹${item.total_claimed}<br>
-              <hr>
+              <b>Total Claims:</b> ${item.total_claims} |
+              <b>Total Claimed Value:</b> ₹${item.total_claimed}<hr>
             `;
           };
           box.appendChild(btn);
         });
       } else {
-        box.innerText = "No matching customer found.";
+        box.innerText = "No matching customers found.";
       }
     });
 });
 </script>
+
 </body>
 </html>
