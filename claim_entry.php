@@ -106,37 +106,38 @@ echo json_encode($data);
   </div>
 
   <script>
-    document.getElementById('search').addEventListener('input', function () {
-      const query = this.value.trim();
-      const resultBox = document.getElementById('resultBox');
-      if (query.length < 2) {
-        resultBox.innerHTML = '';
-        return;
-      }
+  document.getElementById('search').addEventListener('input', function () {
+    const query = this.value.trim();
+    const resultBox = document.getElementById('resultBox');
+    if (query.length < 2) {
+      resultBox.innerHTML = '';
+      return;
+    }
 
-      fetch(`search_insurance_entry.php?q=${encodeURIComponent(query)}`)
-        .then(res => res.json())
-        .then(data => {
-          resultBox.innerHTML = '';
-          if (data.length > 0) {
-            data.forEach(item => {
-              const btn = document.createElement('button');
-              btn.innerText = `${item.name} - ${item.model} - IMEI: ${item.imei1}`;
-              btn.onclick = () => {
-                document.getElementById('insurance_entry_id').value = item.insurance_entry_id;
-               document.getElementById('claimForm').style.display = 'none';
-                resultBox.innerHTML = `<strong>Selected:</strong> ${item.name} - ${item.model}`;
-              };
-              resultBox.appendChild(btn);
-            });
-          } else {
-            resultBox.innerHTML = "<p>No matching customers found.</p>";
-          }
-        })
-        .catch(err => {
-          resultBox.innerHTML = "<p>Error fetching data.</p>";
-        });
-    });
-  </script>
+    fetch(`search_insurance_entry.php?q=${encodeURIComponent(query)}`)
+      .then(res => res.json())
+      .then(data => {
+        resultBox.innerHTML = '';
+        if (data.length > 0) {
+          data.forEach(item => {
+            const btn = document.createElement('button');
+            btn.innerText = `${item.name} - ${item.model} - IMEI: ${item.imei1}`;
+            btn.onclick = () => {
+              document.getElementById('insurance_entry_id').value = item.insurance_entry_id;
+              document.getElementById('claimForm').style.display = 'block'; // ✅ Fixed here
+              resultBox.innerHTML = `<strong>Selected:</strong> ${item.name} - ${item.model}`;
+            };
+            resultBox.appendChild(btn);
+          });
+        } else {
+          resultBox.innerHTML = "<p>No matching customers found.</p>";
+        }
+      })
+      .catch(err => {
+        resultBox.innerHTML = "<p>Error fetching data.</p>";
+      });
+  });
+</script>
+
 </body>
 </html>
