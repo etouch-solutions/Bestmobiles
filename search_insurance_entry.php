@@ -13,6 +13,7 @@ if ($q !== '') {
                OR c.Cus_CNo LIKE '%$q%' 
                OR i.IMEI_1 LIKE '%$q%'
             LIMIT 10";
+
     $result = mysqli_query($conn, $sql);
 
     while ($row = mysqli_fetch_assoc($result)) {

@@ -105,5 +105,41 @@
         });
     });
   </script>
+  <script>
+  document.getElementById('search').addEventListener('input', function () {
+    const query = this.value.trim();
+    const resultBox = document.getElementById('resultBox');
+    if (query.length < 2) {
+      resultBox.innerHTML = '';
+      return;
+    }
+
+    fetch(`search_insurance_entry.php?q=${encodeURIComponent(query)}`)
+      .then(res => res.json())
+      .then(data => {
+        console.log("DATA RECEIVED:", data); // 👈 Check this in browser dev tools
+        resultBox.innerHTML = '';
+        if (data.length > 0) {
+          data.forEach(item => {
+            const btn = document.createElement('button');
+            btn.innerText = `${item.name} - ${item.model} - IMEI: ${item.imei1}`;
+            btn.onclick = () => {
+              document.getElementById('insurance_entry_id').value = item.insurance_entry_id;
+              document.getElementById('claimForm').style.display = 'block';
+              resultBox.innerHTML = `<strong>Selected:</strong> ${item.name} - ${item.model}`;
+            };
+            resultBox.appendChild(btn);
+          });
+        } else {
+          resultBox.innerHTML = "<p>No matching customers found.</p>";
+        }
+      })
+      .catch(err => {
+        console.error("FETCH ERROR:", err);
+        resultBox.innerHTML = "<p>Error fetching data.</p>";
+      });
+  });
+</script>
+
 </body>
 </html>
