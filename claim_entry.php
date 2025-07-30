@@ -58,20 +58,11 @@ if (isset($_GET['q'])) {
 
     <div id="infoBox" class="info-box"></div>
 
-    label>Select Defect</label>
-<select name="defect_id" required>
-  <option value="">-- Select Defect --</option>
-  <?php
-    $res = mysqli_query($conn, "SELECT Defect_Id, Defect_Name FROM Defect_Master WHERE Is_Active = 1");
-    if ($res && mysqli_num_rows($res) > 0) {
-      while ($row = mysqli_fetch_assoc($res)) {
-        echo "<option value='{$row['Defect_Id']}'>{$row['Defect_Name']}</option>";
-      }
-    } else {
-      echo "<option disabled>No defects found</option>";
-    }
-  ?>
-</select>
+    <label>Select Defect</label>
+    <select name="defect_id" id="defectSelect" required>
+      <option value="">-- Select Defect --</option>
+    </select>
+
     <label>Remarks (optional)</label>
     <textarea name="remarks"></textarea>
 
@@ -101,7 +92,7 @@ document.getElementById('search').addEventListener('input', function () {
           btn.style.display = 'block';
           btn.style.marginBottom = '10px';
           btn.onclick = () => {
-            document.getElementById('insurance_entry_id').value = item.insurance_entry_id;
+            document.getElementById('insurance_entry_id').value = item.Insurance_Entry_Id;
             document.getElementById('claimForm').style.display = 'block';
             document.getElementById('infoBox').innerHTML = `
               <b>Selected:</b> ${item.name} (${item.imei1})<br>
@@ -111,6 +102,7 @@ document.getElementById('search').addEventListener('input', function () {
               <b>Total Claimed Value:</b> ₹${item.total_claimed}
             `;
             box.innerHTML = `<b>Selected:</b> ${item.name} (${item.model})`;
+            loadDefects();
           };
           box.appendChild(btn);
         });
@@ -119,6 +111,21 @@ document.getElementById('search').addEventListener('input', function () {
       }
     });
 });
+
+function loadDefects() {
+  fetch('get_defects.php')
+    .then(res => res.json())
+    .then(defects => {
+      const select = document.getElementById('defectSelect');
+      select.innerHTML = '<option value="">-- Select Defect --</option>';
+      defects.forEach(def => {
+        const opt = document.createElement('option');
+        opt.value = def.Defect_Id;
+        opt.text = def.Defect_Name;
+        select.appendChild(opt);
+      });
+    });
+}
 </script>
 </body>
 </html>
