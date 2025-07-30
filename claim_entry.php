@@ -58,17 +58,20 @@ if (isset($_GET['q'])) {
 
     <div id="infoBox" class="info-box"></div>
 
-    <label>Select Defect</label>
-    <select name="defect_id" required>
-      <option value="">-- Select Defect --</option>
-      <?php
-        $res = mysqli_query($conn, "SELECT Defect_Id, Defect_Name FROM Claim_Defects");
-        while ($row = mysqli_fetch_assoc($res)) {
-          echo "<option value='{$row['Defect_Id']}'>{$row['Defect_Name']}</option>";
-        }
-      ?>
-    </select>
-
+    label>Select Defect</label>
+<select name="defect_id" required>
+  <option value="">-- Select Defect --</option>
+  <?php
+    $res = mysqli_query($conn, "SELECT Defect_Id, Defect_Name FROM Defect_Master WHERE Is_Active = 1");
+    if ($res && mysqli_num_rows($res) > 0) {
+      while ($row = mysqli_fetch_assoc($res)) {
+        echo "<option value='{$row['Defect_Id']}'>{$row['Defect_Name']}</option>";
+      }
+    } else {
+      echo "<option disabled>No defects found</option>";
+    }
+  ?>
+</select>
     <label>Remarks (optional)</label>
     <textarea name="remarks"></textarea>
 
