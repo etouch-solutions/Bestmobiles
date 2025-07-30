@@ -1,5 +1,7 @@
 <?php
 include 'db.php';
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
 
 $insurance_id = $_POST['insurance_entry_id'];
 $defect_id = $_POST['defect_id'];
