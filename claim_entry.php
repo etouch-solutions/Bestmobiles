@@ -4,7 +4,7 @@ error_reporting(E_ALL);
 include 'db.php';
 header('Content-Type: application/json');
 ?>
-<?php include 'db.php'; ?>
+
 <!DOCTYPE html>
 <html>
 <head>
