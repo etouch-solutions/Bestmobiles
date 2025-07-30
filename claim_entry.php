@@ -1,36 +1,6 @@
 <?php
 include 'db.php';
-header('Content-Type: application/json');
-
-$q = mysqli_real_escape_string($conn, $_GET['q'] ?? '');
-
-$data = [];
-
-if ($q !== '') {
-    $sql = "SELECT i.Insurance_Entry_Id, c.Cus_Name, i.Product_Model_Name, i.IMEI_1 
-            FROM Insurance_Entry i
-            JOIN Customer_Master c ON c.Cus_Id = i.Cus_Id
-            WHERE c.Cus_Name LIKE '%$q%' 
-               OR c.Cus_CNo LIKE '%$q%' 
-               OR i.IMEI_1 LIKE '%$q%'
-            LIMIT 10";
-
-    $result = mysqli_query($conn, $sql);
-
-    while ($row = mysqli_fetch_assoc($result)) {
-        $data[] = [
-            'insurance_entry_id' => $row['Insurance_Entry_Id'],
-            'name' => $row['Cus_Name'],
-            'model' => $row['Product_Model_Name'],
-            'imei1' => $row['IMEI_1']
-        ];
-    }
-}
-
-echo json_encode($data);
 ?>
-
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -51,8 +21,8 @@ echo json_encode($data);
     <h2 style="text-align:center;">Claim Entry</h2>
 
     <!-- Search -->
-    <label>Search Customer (Name or IMEI)</label>
-    <input type="text" id="search" placeholder="Start typing customer name or IMEI...">
+    <label>Search Customer (Name, Phone or IMEI)</label>
+    <input type="text" id="search" placeholder="Type customer name, contact, or IMEI...">
     <div id="resultBox" class="result-box"></div>
 
     <!-- Claim Form -->
@@ -79,7 +49,7 @@ echo json_encode($data);
       <button type="submit">Submit Claim</button>
     </form>
 
-    <!-- Show Previous Claims -->
+    <!-- Claim List -->
     <div class="claim-list">
       <h3>Previous Claims</h3>
       <?php
@@ -112,38 +82,37 @@ echo json_encode($data);
   </div>
 
   <script>
-  document.getElementById('search').addEventListener('input', function () {
-    const query = this.value.trim();
-    const resultBox = document.getElementById('resultBox');
-    if (query.length < 2) {
-      resultBox.innerHTML = '';
-      return;
-    }
-
-    fetch(`search_insurance_entry.php?q=${encodeURIComponent(query)}`)
-      .then(res => res.json())
-      .then(data => {
+    document.getElementById('search').addEventListener('input', function () {
+      const query = this.value.trim();
+      const resultBox = document.getElementById('resultBox');
+      if (query.length < 2) {
         resultBox.innerHTML = '';
-        if (data.length > 0) {
-          data.forEach(item => {
-            const btn = document.createElement('button');
-            btn.innerText = `${item.name} - ${item.model} - IMEI: ${item.imei1}`;
-            btn.onclick = () => {
-              document.getElementById('insurance_entry_id').value = item.insurance_entry_id;
-              document.getElementById('claimForm').style.display = 'block'; // ✅ Fixed here
-              resultBox.innerHTML = `<strong>Selected:</strong> ${item.name} - ${item.model}`;
-            };
-            resultBox.appendChild(btn);
-          });
-        } else {
-          resultBox.innerHTML = "<p>No matching customers found.</p>";
-        }
-      })
-      .catch(err => {
-        resultBox.innerHTML = "<p>Error fetching data.</p>";
-      });
-  });
-</script>
+        return;
+      }
 
+      fetch(`search_insurance_entry.php?q=${encodeURIComponent(query)}`)
+        .then(res => res.json())
+        .then(data => {
+          resultBox.innerHTML = '';
+          if (data.length > 0) {
+            data.forEach(item => {
+              const btn = document.createElement('button');
+              btn.innerText = `${item.name} - ${item.model} - IMEI: ${item.imei1}`;
+              btn.onclick = () => {
+                document.getElementById('insurance_entry_id').value = item.insurance_entry_id;
+                document.getElementById('claimForm').style.display = 'block';
+                resultBox.innerHTML = `<strong>Selected:</strong> ${item.name} - ${item.model}`;
+              };
+              resultBox.appendChild(btn);
+            });
+          } else {
+            resultBox.innerHTML = "<p>No matching customers found.</p>";
+          }
+        })
+        .catch(() => {
+          resultBox.innerHTML = "<p>Error fetching data.</p>";
+        });
+    });
+  </script>
 </body>
 </html>
