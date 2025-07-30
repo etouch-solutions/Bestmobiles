@@ -55,14 +55,14 @@ error_reporting(E_ALL);
     <div class="claim-list">
       <h3>Previous Claims</h3>
       <?php
-        $query = "
-          SELECT ce.*, cm.Cus_Name, ie.Product_Model_Name, cd.Defect_Name
-          FROM Claim_Entry ce
-          JOIN Insurance_Entry ie ON ce.Insurance_Entry_Id = ie.Insurance_Entry_Id
-          JOIN Customer_Master cm ON ie.Cus_Id = cm.Cus_Id
-          LEFT JOIN Claim_Defects cd ON ce.Defect_Id = cd.Defect_Id
-          ORDER BY ce.Claim_Entry_Id DESC
-        ";
+       $query = "
+  SELECT ce.*, cm.Cus_Name, ie.Product_Model_Name, cd.Defect_Name
+  FROM Claim_Entry ce
+  JOIN Insurance_Entry ie ON ce.Insurance_Entry_Id = ie.Insurance_Entry_Id
+  JOIN Customer_Master cm ON ie.Cus_Id = cm.Cus_Id
+  LEFT JOIN Claim_Defects cd ON ce.Defect_Id = cd.Defect_Id
+  ORDER BY ce.Claim_Id DESC
+";
 
         $claims = mysqli_query($conn, $query);
         if (mysqli_num_rows($claims) > 0) {
