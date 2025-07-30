@@ -1,6 +1,4 @@
-<?php
-include 'db.php';
-?>
+<?php include 'db.php'; ?>
 <!DOCTYPE html>
 <html>
 <head>
@@ -20,9 +18,8 @@ include 'db.php';
   <div class="container">
     <h2 style="text-align:center;">Claim Entry</h2>
 
-    <!-- Search -->
     <label>Search Customer (Name, Phone or IMEI)</label>
-    <input type="text" id="search" placeholder="Type customer name, contact, or IMEI...">
+    <input type="text" id="search" placeholder="Type to search...">
     <div id="resultBox" class="result-box"></div>
 
     <!-- Claim Form -->
@@ -33,14 +30,14 @@ include 'db.php';
       <select name="defect_id" required>
         <option value="">-- Select Defect --</option>
         <?php
-          $res = mysqli_query($conn, "SELECT Defect_Id, Defect_Name FROM Claim_Defects");
-          while ($row = mysqli_fetch_assoc($res)) {
-            echo "<option value='{$row['Defect_Id']}'>{$row['Defect_Name']}</option>";
-          }
+        $res = mysqli_query($conn, "SELECT Defect_Id, Defect_Name FROM Claim_Defects");
+        while ($row = mysqli_fetch_assoc($res)) {
+          echo "<option value='{$row['Defect_Id']}'>{$row['Defect_Name']}</option>";
+        }
         ?>
       </select>
 
-      <label>Remarks (Optional)</label>
+      <label>Remarks</label>
       <textarea name="remarks" rows="3"></textarea>
 
       <label>Upload Product Image</label>
@@ -49,34 +46,28 @@ include 'db.php';
       <button type="submit">Submit Claim</button>
     </form>
 
-    <!-- Claim List -->
+    <!-- Previous Claims -->
     <div class="claim-list">
       <h3>Previous Claims</h3>
       <?php
-        $query = "
-          SELECT ce.*, cm.Cus_Name, ie.Product_Model_Name, cd.Defect_Name
-          FROM Claim_Entry ce
-          JOIN Insurance_Entry ie ON ce.Insurance_Entry_Id = ie.Insurance_Entry_Id
-          JOIN Customer_Master cm ON ie.Cus_Id = cm.Cus_Id
-          JOIN Claim_Defects cd ON ce.Defect_Id = cd.Defect_Id
-          ORDER BY ce.Claim_Entry_Id DESC
-        ";
-        $claims = mysqli_query($conn, $query);
-        if (mysqli_num_rows($claims) > 0) {
-          while ($c = mysqli_fetch_assoc($claims)) {
-            echo "<div class='claim-item'>
-              <strong>{$c['Cus_Name']}</strong> - {$c['Product_Model_Name']}<br>
-              <strong>Defect:</strong> {$c['Defect_Name']}<br>
-              <strong>Remarks:</strong> " . (!empty($c['Remarks']) ? $c['Remarks'] : "N/A") . "<br>
-              <strong>Date:</strong> {$c['Created_At']}<br>";
-              if (!empty($c['Claim_Image_Path'])) {
-                echo "<img src='{$c['Claim_Image_Path']}' alt='Claim Image'>";
-              }
-            echo "</div>";
-          }
-        } else {
-          echo "<p>No claims found.</p>";
+      $query = "SELECT ce.*, cm.Cus_Name, ie.Product_Model_Name, cd.Defect_Name
+                FROM Claim_Entry ce
+                JOIN Insurance_Entry ie ON ce.Insurance_Entry_Id = ie.Insurance_Entry_Id
+                JOIN Customer_Master cm ON ie.Cus_Id = cm.Cus_Id
+                JOIN Claim_Defects cd ON ce.Defect_Id = cd.Defect_Id
+                ORDER BY ce.Claim_Entry_Id DESC";
+      $claims = mysqli_query($conn, $query);
+      while ($c = mysqli_fetch_assoc($claims)) {
+        echo "<div class='claim-item'>
+                <strong>{$c['Cus_Name']}</strong> - {$c['Product_Model_Name']}<br>
+                <strong>Defect:</strong> {$c['Defect_Name']}<br>
+                <strong>Remarks:</strong> " . (!empty($c['Remarks']) ? $c['Remarks'] : "N/A") . "<br>
+                <strong>Date:</strong> {$c['Created_At']}<br>";
+        if (!empty($c['Claim_Image_Path'])) {
+          echo "<img src='{$c['Claim_Image_Path']}' alt='Claim Image'>";
         }
+        echo "</div>";
+      }
       ?>
     </div>
   </div>
@@ -109,7 +100,7 @@ include 'db.php';
             resultBox.innerHTML = "<p>No matching customers found.</p>";
           }
         })
-        .catch(() => {
+        .catch(err => {
           resultBox.innerHTML = "<p>Error fetching data.</p>";
         });
     });
