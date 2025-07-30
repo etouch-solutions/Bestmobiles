@@ -1,6 +1,17 @@
 <?php
 include 'db.php';
 
+
+$res = mysqli_query($conn, "SELECT Defect_Id, Defect_Name FROM Claim_Defects");
+$data = [];
+
+while ($row = mysqli_fetch_assoc($res)) {
+    $data[] = $row;
+}
+
+header('Content-Type: application/json');
+echo json_encode($data);
+
 // Handle AJAX search
 if (isset($_GET['q'])) {
   $q = $_GET['q'];
