@@ -1,6 +1,8 @@
 <?php
 include 'db.php';
 
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 // Validate Insurance_Entry_Id
 if (!isset($_POST['insurance_entry_id']) || !is_numeric($_POST['insurance_entry_id'])) {
     die("Invalid Insurance Entry ID.");
