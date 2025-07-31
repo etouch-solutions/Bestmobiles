@@ -93,7 +93,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       echo "<option disabled>No defects found</option>";
     }
   ?>
-</select>t>
+</select> 
 
       <label>Remarks (optional)</label>
       <textarea name="remarks" rows="3"></textarea>

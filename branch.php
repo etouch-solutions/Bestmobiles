@@ -57,7 +57,10 @@ if (isset($_GET['edit'])) {
     <h1> Best Mobile Insurance Software</h1>
     <div class="hamburger" onclick="toggleSidebar()">☰</div>
   </div>
-<div class="container">
+
+  
+ <main class="main-content">
+      <div class="content-area">
   <!-- Form Box -->
   <div class="form-box">
     <h3><?= $editBranch ? 'Edit Branch' : 'Add Branch' ?></h3>
@@ -108,8 +111,8 @@ if (isset($_GET['edit'])) {
       ?>
     </div>
     <div id="branchDetails"></div>
-  </div>
 </div>
+    </main>
 
 <script>
 function filterBranches(query) {
