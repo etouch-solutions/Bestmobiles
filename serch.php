@@ -1,10 +1,9 @@
 <?php
 include 'db.php';
 
-// Handle AJAX search request for insurance + claim history
-if (isset($_GET['q'])) {
-  $q = $_GET['q'];
-  $data = [];
+function fetch_insurance_entries($conn, $q = '') {
+  $q = mysqli_real_escape_string($conn, $q);
+  $where = $q ? "WHERE c.Cus_Name LIKE '%$q%' OR c.Cus_CNo LIKE '%$q%' OR i.IMEI_1 LIKE '%$q%'" : '';
 
   $res = mysqli_query($conn, "
     SELECT 
@@ -22,19 +21,25 @@ if (isset($_GET['q'])) {
       ) AS claim_count
     FROM Insurance_Entry i
     JOIN Customer_Master c ON c.Cus_Id = i.Cus_Id
-    WHERE c.Cus_Name LIKE '%$q%' OR c.Cus_CNo LIKE '%$q%' OR i.IMEI_1 LIKE '%$q%'
+    $where
+    ORDER BY i.Insurance_Entry_Id DESC
   ");
 
+  $data = [];
+  $today = date('Y-m-d');
   while ($row = mysqli_fetch_assoc($res)) {
-    $today = date('Y-m-d');
     $row['status'] = ($today > $row['Insurance_End_Date']) ? 'expired' : ($row['claim_count'] > 0 ? 'claimed' : 'not_claimed');
     $data[] = $row;
   }
+  return $data;
+}
 
+if (isset($_GET['q'])) {
   header('Content-Type: application/json');
-  echo json_encode($data);
+  echo json_encode(fetch_insurance_entries($conn, $_GET['q']));
   exit;
 }
+$allData = fetch_insurance_entries($conn);
 ?>
 <!DOCTYPE html>
 <html>
@@ -46,7 +51,7 @@ if (isset($_GET['q'])) {
     input { width: 100%; padding: 10px; margin-bottom: 20px; border: 1px solid #ccc; border-radius: 5px; }
     .card { border-radius: 10px; padding: 15px; margin-bottom: 15px; color: white; }
     .green { background-color: #28a745; }
-    .yellow { background-color: #ffc107; }
+    .yellow { background-color: #ffc107; color: black; }
     .red { background-color: #dc3545; }
     .card-buttons button { margin-right: 10px; padding: 5px 15px; }
   </style>
@@ -55,13 +60,25 @@ if (isset($_GET['q'])) {
 <div class="container">
   <h2>Insurance & Claim History</h2>
   <input type="text" id="search" placeholder="Search by Name / Phone / IMEI">
-  <div id="results"></div>
+  <div id="results">
+    <?php foreach ($allData as $item): ?>
+      <div class="card <?= $item['status'] === 'expired' ? 'red' : ($item['status'] === 'claimed' ? 'yellow' : 'green') ?>">
+        <b>Name:</b> <?= $item['name'] ?> | <b>Phone:</b> <?= $item['phone'] ?><br>
+        <b>Model:</b> <?= $item['model'] ?> | <b>IMEI:</b> <?= $item['imei'] ?><br>
+        <b>Start:</b> <?= $item['Insurance_Start_Date'] ?> | <b>End:</b> <?= $item['Insurance_End_Date'] ?><br>
+        <b>Claims:</b> <?= $item['claim_count'] ?>
+        <div class="card-buttons">
+          <button onclick="location.href='view_insurance.php?id=<?= $item['Insurance_Entry_Id'] ?>'">View</button>
+          <button onclick="location.href='claim_entry.php?insurance_id=<?= $item['Insurance_Entry_Id'] ?>'">Claim</button>
+        </div>
+      </div>
+    <?php endforeach; ?>
+  </div>
 </div>
 
 <script>
 document.getElementById('search').addEventListener('input', function () {
-  const query = this.value;
-  if (query.length < 2) return;
+  const query = this.value.trim();
 
   fetch('?q=' + encodeURIComponent(query))
     .then(res => res.json())
@@ -70,11 +87,11 @@ document.getElementById('search').addEventListener('input', function () {
       container.innerHTML = '';
 
       data.forEach(item => {
-        const card = document.createElement('div');
         let color = item.status === 'expired' ? 'red' : item.status === 'claimed' ? 'yellow' : 'green';
 
-        card.className = 'card ' + color;
-        card.innerHTML = `
+        const div = document.createElement('div');
+        div.className = 'card ' + color;
+        div.innerHTML = `
           <b>Name:</b> ${item.name} | <b>Phone:</b> ${item.phone}<br>
           <b>Model:</b> ${item.model} | <b>IMEI:</b> ${item.imei}<br>
           <b>Start:</b> ${item.Insurance_Start_Date} | <b>End:</b> ${item.Insurance_End_Date}<br>
@@ -84,7 +101,7 @@ document.getElementById('search').addEventListener('input', function () {
             <button onclick="location.href='claim_entry.php?insurance_id=${item.Insurance_Entry_Id}'">Claim</button>
           </div>
         `;
-        container.appendChild(card);
+        container.appendChild(div);
       });
 
       if (data.length === 0) {
