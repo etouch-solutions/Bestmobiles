@@ -1,183 +1,137 @@
 <?php
+// brand.php
 include 'db.php';
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
 $conn = mysqli_connect($host, $user, $pass, $db);
 
 // Insert or Update
-if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['branch_name'])) {
-    $branchName = mysqli_real_escape_string($conn, $_POST['branch_name']);
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['brand_name'])) {
+    $brandName = mysqli_real_escape_string($conn, $_POST['brand_name']);
     $isActive = intval($_POST['is_active']);
-    $branchId = $_POST['branch_id'] ?? null;
+    $brandId = $_POST['brand_id'] ?? null;
 
-    if ($branchId) {
-        $stmt = $conn->prepare("UPDATE Branch_Master SET Branch_Name = ?, Is_Active = ? WHERE Branch_Id = ?");
-        $stmt->bind_param("sii", $branchName, $isActive, $branchId);
+    if ($brandId) {
+        // Update
+        $stmt = $conn->prepare("UPDATE Brands_Master SET Brand_Name = ?, Is_Active = ? WHERE Brand_Id = ?");
+        $stmt->bind_param("sii", $brandName, $isActive, $brandId);
     } else {
-        $stmt = $conn->prepare("INSERT INTO Branch_Master (Branch_Name, Is_Active) VALUES (?, ?)");
-        $stmt->bind_param("si", $branchName, $isActive);
+        // Insert
+        $stmt = $conn->prepare("INSERT INTO Brands_Master (Brand_Name, Is_Active) VALUES (?, ?)");
+        $stmt->bind_param("si", $brandName, $isActive);
     }
 
     $stmt->execute();
     $stmt->close();
-    header("Location: branch.php");
+    header("Location: brand.php");
     exit();
 }
 
 // Delete
 if (isset($_GET['delete'])) {
     $deleteId = intval($_GET['delete']);
-    $conn->query("DELETE FROM Branch_Master WHERE Branch_Id = $deleteId");
-    header("Location: branch.php?deleted=1");
+    $conn->query("DELETE FROM Brands_Master WHERE Brand_Id = $deleteId");
+    header("Location: brand.php?deleted=1");
     exit();
 }
 
 // Edit fetch
-$editBranch = null;
+$editBrand = null;
 if (isset($_GET['edit'])) {
     $editId = intval($_GET['edit']);
-    $res = $conn->query("SELECT * FROM Branch_Master WHERE Branch_Id = $editId");
+    $res = $conn->query("SELECT * FROM Brands_Master WHERE Brand_Id = $editId");
     if ($res && $res->num_rows > 0) {
-        $editBranch = $res->fetch_assoc();
+        $editBrand = $res->fetch_assoc();
     }
 }
 ?>
 
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Branch Master</title>
-  <link rel="stylesheet" href="styles.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+  <title>Manage Brands</title>
+  <style>
+    body { font-family: Arial; background: #f2f2f2; padding: 20px; }
+    .container { display: flex; gap: 20px; }
+    .form-box, .list-box { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 5px #aaa; width: 50%; }
+    input, select, button { padding: 8px; width: 100%; margin: 10px 0; }
+    .brand-item { cursor: pointer; padding: 5px; border-bottom: 1px solid #ddd; }
+    .brand-item:hover { background: #f9f9f9; }
+    #brandDetails { margin-top: 20px; }
+    .search-box { margin-bottom: 10px; }
+    .actions { font-size: 12px; margin-top: 5px; }
+    .actions a { margin-right: 10px; text-decoration: none; color: blue; }
+    .actions a.delete { color: red; }
+  </style>
 </head>
 <body>
-  <div class="navtop">
-    <div class="logo">LOGO</div>
-    <h1>Best Mobile Insurance Software</h1>
-    <div class="hamburger" onclick="toggleSidebar()">☰</div>
+<h2>Brand Master</h2>
+<div class="container">
+  <!-- Form Box -->
+  <div class="form-box">
+    <h3><?= $editBrand ? 'Edit Brand' : 'Add Brand' ?></h3>
+    <form method="POST">
+      <?php if ($editBrand): ?>
+        <input type="hidden" name="brand_id" value="<?= $editBrand['Brand_Id'] ?>">
+      <?php endif; ?>
+
+      <label>Brand Name:</label>
+      <input type="text" name="brand_name" required value="<?= $editBrand['Brand_Name'] ?? '' ?>">
+
+      <label>Status:</label>
+      <select name="is_active">
+        <option value="1" <?= (isset($editBrand['Is_Active']) && $editBrand['Is_Active'] == 1) ? 'selected' : '' ?>>Active</option>
+        <option value="0" <?= (isset($editBrand['Is_Active']) && $editBrand['Is_Active'] == 0) ? 'selected' : '' ?>>Inactive</option>
+      </select>
+
+      <button type="submit"><?= $editBrand ? 'Update Brand' : 'Add Brand' ?></button>
+    </form>
   </div>
 
-  <div class="container">
-    <aside class="sidebar mobile-hidden" id="sidebarMenu">
-      <ul>
-        <a href="index.php"><li>Dashboard</li></a>
-        <a href="branch.php" class="active"><li>Branch Master</li></a>
-        <a href="brand.php"><li>Brand Master</li></a>
-        <a href="add_staff.php"><li>Staff Master</li></a>
-        <a href="Customer_Master.php"><li>Customer Master</li></a>
-        <a href="add_insurance.php"><li>Insurance Master</li></a>
-        <a href="add_defect.php"><li>Defect Master</li></a>
-        <a href="insurance_entry.php"><li>Insurance Entry</li></a>
-        <a href="serch.php"><li>Claim</li></a>
-      </ul>
-    </aside>
-
-    <main class="main-content">
-      <div class="content-area">
-        <!-- Branch Form -->
-        <section class="add-branch">
-          <h3><?= $editBranch ? 'Edit Branch' : 'Add Branch' ?></h3>
-          <form method="POST">
-            <?php if ($editBranch): ?>
-              <input type="hidden" name="branch_id" value="<?= $editBranch['Branch_Id'] ?>">
-            <?php endif; ?>
-            <input type="text" name="branch_name" placeholder="Branch Name" required value="<?= $editBranch['Branch_Name'] ?? '' ?>">
-            <select name="is_active" required>
-              <option value="">Select Status</option>
-              <option value="1" <?= (isset($editBranch['Is_Active']) && $editBranch['Is_Active'] == 1) ? 'selected' : '' ?>>Active</option>
-              <option value="0" <?= (isset($editBranch['Is_Active']) && $editBranch['Is_Active'] == 0) ? 'selected' : '' ?>>Inactive</option>
-            </select>
-            <button type="submit"><?= $editBranch ? 'Update Branch' : 'Add Branch' ?></button>
-          </form>
-        </section>
-
-        <!-- Branch Overview -->
-        <section class="overview">
-          <h3>Branch Overview</h3>
-          <div class="search-container">
-            <i class="fas fa-search search-icon"></i>
-            <input type="text" id="branchSearch" placeholder="Search by name..." onkeyup="filterBranches()" />
-          </div>
-
-          <div class="table-responsive">
-            <table id="branchTable">
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Status</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                <?php
-                  $res = mysqli_query($conn, "SELECT * FROM Branch_Master ORDER BY Branch_Id DESC");
-                  while ($row = mysqli_fetch_assoc($res)) {
-                    $statusText = $row['Is_Active'] == 1 ? 'Active' : 'Inactive';
-                    $statusClass = $row['Is_Active'] == 1 ? 'active-row' : 'inactive-row';
-                    echo "<tr class='$statusClass'>
-                            <td>{$row['Branch_Name']}</td>
-                            <td>$statusText</td>
-                            <td class='action-btns'>
-                              <a href='?edit={$row['Branch_Id']}'><i class='fa fa-pen'></i></a>
-                              <i class='fa fa-eye' onclick='viewDetails(" . json_encode($row) . ")'></i>
-                              <i class='fa fa-trash' onclick='deleteBranch({$row['Branch_Id']})'></i>
-                            </td>
-                          </tr>";
-                  }
-                ?>
-              </tbody>
-            </table>
-          </div>
-        </section>
-      </div>
-    </main>
-  </div>
-
-  <!-- Popup for Branch Details -->
-  <div class="popup-overlay" id="popupOverlay">
-    <div class="popup-content" id="popupContent">
-      <span class="close-btn" onclick="closePopup()">&times;</span>
-      <h3>Branch Details</h3>
-      <div id="popupDetails"></div>
+  <!-- Brand List -->
+  <div class="list-box">
+    <h3>All Brands</h3>
+    <input type="text" placeholder="Search brand..." class="search-box" onkeyup="filterBrands(this.value)">
+    <div id="brandList">
+      <?php
+        $res = mysqli_query($conn, "SELECT * FROM Brands_Master ORDER BY Brand_Id DESC");
+        while ($row = mysqli_fetch_assoc($res)) {
+          $jsonRow = json_encode($row);
+          echo "<div class='brand-item' onclick='viewDetails($jsonRow)'>
+                  {$row['Brand_Name']}
+                  <div class='actions'>
+                    <a href='?edit={$row['Brand_Id']}'>Edit</a>
+                    <a href='javascript:void(0)' class='delete' onclick='deleteBrand({$row['Brand_Id']})'>Delete</a>
+                  </div>
+                </div>";
+        }
+      ?>
     </div>
+    <div id="brandDetails"></div>
   </div>
+</div>
 
-  <script>
-    function filterBranches() {
-      const input = document.getElementById('branchSearch').value.toLowerCase();
-      const rows = document.querySelectorAll('#branchTable tbody tr');
-      rows.forEach(row => {
-        row.style.display = row.innerText.toLowerCase().includes(input) ? '' : 'none';
-      });
-    }
+<script>
+function filterBrands(query) {
+  const items = document.querySelectorAll('.brand-item');
+  items.forEach(item => {
+    item.style.display = item.innerText.toLowerCase().includes(query.toLowerCase()) ? 'block' : 'none';
+  });
+}
 
-    function viewDetails(branch) {
-      const html = `
-        <p><strong>ID:</strong> ${branch.Branch_Id}</p>
-        <p><strong>Name:</strong> ${branch.Branch_Name}</p>
-        <p><strong>Status:</strong> ${branch.Is_Active == 1 ? 'Active' : 'Inactive'}</p>
-      `;
-      document.getElementById('popupDetails').innerHTML = html;
-      document.getElementById('popupOverlay').style.display = 'flex';
-    }
+function viewDetails(brand) {
+  const html = `
+    <h4>Brand Details</h4>
+    <p><strong>ID:</strong> ${brand.Brand_Id}</p>
+    <p><strong>Name:</strong> ${brand.Brand_Name}</p>
+    <p><strong>Status:</strong> ${brand.Is_Active == 1 ? 'Active' : 'Inactive'}</p>
+  `;
+  document.getElementById("brandDetails").innerHTML = html;
+}
 
-    function closePopup() {
-      document.getElementById('popupOverlay').style.display = 'none';
-    }
-
-    function deleteBranch(id) {
-      if (confirm("Are you sure you want to delete this branch?")) {
-        window.location.href = "?delete=" + id;
-      }
-    }
-
-    function toggleSidebar() {
-      const sidebar = document.getElementById("sidebarMenu");
-      sidebar.classList.toggle("mobile-hidden");
-      sidebar.classList.toggle("mobile-visible");
-    }
-  </script>
+function deleteBrand(id) {
+  if (confirm("Are you sure you want to delete this brand?")) {
+    window.location.href = "?delete=" + id;
+  }
+}
+</script>
 </body>
 </html>
