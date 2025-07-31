@@ -60,15 +60,15 @@ if (isset($_GET['edit'])) {
   <div class="container">
     <aside class="sidebar mobile-hidden" id="sidebarMenu">
       <ul>
-        <li><a href="#">Dashboard</a></li>
-        <li><a href="branch-master.html">Branch Master</a></li>
-        <li><a href="brand-master.php" class="active">Brand Master</a></li>
-        <li><a href="staff-master.html">Staff Master</a></li>
-        <li><a href="customer-master.html">Customer Master</a></li>
-        <li><a href="#">Insurance Master</a></li>
-        <li><a href="#">Defect Master</a></li>
-        <li><a href="#">Insurance Entry</a></li>
-        <li><a href="#">Claim</a></li>
+        <<a style="text-decoration: none; color: #144d30ff; font-weight: 500; font-size: 14px;"  href="index.php"><li>Dashboard</li></a>
+     <a style="text-decoration: none; color: #144d30ff; font-weight: 500; font-size: 14px;" href="branch.php" class="active"> <li>Branch Master</li></a>
+     <a style="text-decoration: none; color: #144d30ff; font-weight: 500; font-size: 14px;"  href="brand.php" > <li>Brand Master</li></a>
+      <a style="text-decoration: none; color: #144d30ff; font-weight: 500; font-size: 14px;"  href="add_staff.php"><li>Staff Master</li></a>
+      <a style="text-decoration: none; color: #144d30ff; font-weight: 500; font-size: 14px;"  href="Customer_Master.php"><li>Customer Master</li></a>
+      <a style="text-decoration: none; color: #144d30ff; font-weight: 500; font-size: 14px;"  href="add_insurance.php"><li>Insurance Master</li></a>
+      <a style="text-decoration: none; color: #144d30ff; font-weight: 500; font-size: 14px;"  href="add_defect.php"><li>Defect Master</li></a>
+      <a style="text-decoration: none; color: #144d30ff; font-weight: 500; font-size: 14px;"  href="insurance_entry.php"><li>Insurance Entry</li></a>
+      <a style="text-decoration: none; color: #144d30ff; font-weight: 500; font-size: 14px;"  href="serch.php"><li>Claim</li></a>
       </ul>
     </aside>
 
