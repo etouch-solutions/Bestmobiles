@@ -1,5 +1,7 @@
 <?php
 include 'db.php';
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
 $conn = mysqli_connect($host, $user, $pass, $db);
 
 // Insert or Update
