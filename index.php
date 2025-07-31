@@ -35,14 +35,14 @@
     <aside class="sidebar mobile-hidden" id="sidebarMenu">
       <ul>
       <li><a href="#">Dashboard</a></li>
-      <li><a href="branch-master.html" class="active">Branch Master</a></li>
-      <li><a href="brand-master.html" >Brand Master</a></li>
-      <li><a href="staff-master.html">Staff Master</a></li>
-      <li><a href="customer-master.html">Customer Master</a></li>
-      <li><a href="#">Insurance Master</a></li>
-      <li><a href="#">Defect Master</a></li>
-      <li><a href="#">Insurance Entry</a></li>
-      <li><a href="#">Claim</a></li>
+      <li><a href="branch.php" class="active">Branch Master</a></li>
+      <li><a href="brand.php" >Brand Master</a></li>
+      <li><a href="add_staff.php">Staff Master</a></li>
+      <li><a href="customer.php">Customer Master</a></li>
+      <li><a href="insurance.php">Insurance Master</a></li>
+      <li><a href="defect.php">Defect Master</a></li>
+      <li><a href="insurance_entry.php">Insurance Entry</a></li>
+      <li><a href="claim.php">Claim</a></li>
       </ul>
     </aside>
 
