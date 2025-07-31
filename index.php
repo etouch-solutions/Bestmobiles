@@ -36,13 +36,13 @@
       <ul>
       <li><a href="#">Dashboard</a></li>
      <a href="branch.php" class="active"> <li>Branch Master</li></a>
-      <li><a href="brand.php" >Brand Master</a></li>
-      <li><a href="add_staff.php">Staff Master</a></li>
-      <li><a href="Customer_Master.php">Customer Master</a></li>
-      <li><a href="add_insurance.php">Insurance Master</a></li>
-      <li><a href="add_defect.php">Defect Master</a></li>
-      <li><a href="insurance_entry.php">Insurance Entry</a></li>
-      <li><a href="serch.php">Claim</a></li>
+     <a href="brand.php" > <li>Brand Master</li></a>
+      <a href="add_staff.php"><li>Staff Master</li></a>
+      <a href="Customer_Master.php"><li>Customer Master</li></a>
+      <a href="add_insurance.php"><li>Insurance Master</li></a>
+      <a href="add_defect.php"><li>Defect Master</li></a>
+      <a href="insurance_entry.php"><li>Insurance Entry</li></a>
+      <a href="serch.php"><li>Claim</li></a>
       </ul>
     </aside>
 
