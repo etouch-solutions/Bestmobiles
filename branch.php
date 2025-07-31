@@ -1,8 +1,7 @@
 <?php
-$host = 'localhost';
-$user = 'root';
-$pass = '';
-$db = 'mobile_insurance'; // Update this if needed
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+include 'db.php';
 
 $conn = new mysqli($host, $user, $pass, $db);
 if ($conn->connect_error) {
