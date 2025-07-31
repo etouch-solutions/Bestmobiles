@@ -51,7 +51,12 @@ if (isset($_GET['edit'])) {
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-<h2>Branch Master</h2>
+<div class="navtop">
+    
+    <div class="logo">LOGO</div>
+    <h1> Best Mobile Insurance Software</h1>
+    <div class="hamburger" onclick="toggleSidebar()">☰</div>
+  </div>
 <div class="container">
   <!-- Form Box -->
   <div class="form-box">
