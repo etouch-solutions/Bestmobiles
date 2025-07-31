@@ -80,16 +80,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <form method="POST" enctype="multipart/form-data">
       <input type="hidden" name="insurance_entry_id" value="<?= $insurance_id ?>">
 
-      <label>Select Defect</label>
-      <select name="defect_id" required>
-        <option value="">-- Choose Defect --</option>
-        <?php
-        $defects = mysqli_query($conn, "SELECT Defect_Id, Defect_Name FROM Claim_Defects");
-        while ($d = mysqli_fetch_assoc($defects)) {
-          echo "<option value='{$d['Defect_Id']}'>{$d['Defect_Name']}</option>";
-        }
-        ?>
-      </select>
+    <label>Select Defect</label>
+<select name="defect_id" required>
+  <option value="">-- Select Defect --</option>
+  <?php
+    $res = mysqli_query($conn, "SELECT Defect_Id, Defect_Name FROM Defect_Master WHERE Is_Active = 1");
+    if ($res && mysqli_num_rows($res) > 0) {
+      while ($row = mysqli_fetch_assoc($res)) {
+        echo "<option value='{$row['Defect_Id']}'>{$row['Defect_Name']}</option>";
+      }
+    } else {
+      echo "<option disabled>No defects found</option>";
+    }
+  ?>
+</select>t>
 
       <label>Remarks (optional)</label>
       <textarea name="remarks" rows="3"></textarea>
