@@ -30,7 +30,7 @@ html, body {
   z-index: 10;
 }
 a,ul,li{
-    color: inherit;
+    color: #2f855a;
     text-decoration: none;
 
 }
