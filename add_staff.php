@@ -86,49 +86,50 @@ $staffs = $conn->query("
 
   <!-- Main Content -->
   <main class="main-content">
-    <div class="form-box">
-      <h3><?= $editData ? "Edit Staff" : "Add Staff" ?></h3>
-      <form method="POST">
-        <?php if ($editData): ?>
-          <input type="hidden" name="staff_id" value="<?= $editData['Staff_Id'] ?>">
-        <?php endif; ?>
+   <div class="form-box">
+  <h3><?= $editData ? "Edit Staff" : "Add Staff" ?></h3>
+  <form method="POST">
+    <?php if ($editData): ?>
+      <input type="hidden" name="staff_id" value="<?= $editData['Staff_Id'] ?>">
+    <?php endif; ?>
 
-        <label>Name:</label>
-        <input type="text" name="staff_name" required value="<?= $editData['Staff_Name'] ?? '' ?>">
+    <label>Name:</label>
+    <input type="text" name="staff_name" required value="<?= $editData['Staff_Name'] ?? '' ?>">
 
-        <label>Contact No:</label>
-        <input type="number" name="staff_cno" required value="<?= $editData['Staff_CNo'] ?? '' ?>">
+    <label>Contact No:</label>
+    <input type="number" name="staff_cno" required value="<?= $editData['Staff_CNo'] ?? '' ?>">
 
-        <label>Email:</label>
-        <input type="email" name="staff_email" required value="<?= $editData['Staff_Email'] ?? '' ?>">
+    <label>Email:</label>
+    <input type="email" name="staff_email" required value="<?= $editData['Staff_Email'] ?? '' ?>">
 
-        <label>Address:</label>
-        <textarea name="staff_address" required><?= $editData['Staff_Address'] ?? '' ?></textarea>
+    <label>Address:</label>
+    <textarea name="staff_address" required><?= $editData['Staff_Address'] ?? '' ?></textarea>
 
-        <label>Designation:</label>
-        <input type="text" name="staff_designation" required value="<?= $editData['Staff_Designation'] ?? '' ?>">
+    <label>Designation:</label>
+    <input type="text" name="staff_designation" required value="<?= $editData['Staff_Designation'] ?? '' ?>">
 
-        <label>Branch:</label>
-        <select name="branch_id" required>
-          <option value="">-- Select Branch --</option>
-          <?php
-          $branches = $conn->query("SELECT Branch_Id, Branch_Name FROM Branch_Master");
-          while ($b = $branches->fetch_assoc()):
-            $selected = (isset($editData['Branch_Id']) && $editData['Branch_Id'] == $b['Branch_Id']) ? 'selected' : '';
-          ?>
-            <option value="<?= $b['Branch_Id'] ?>" <?= $selected ?>><?= htmlspecialchars($b['Branch_Name']) ?></option>
-          <?php endwhile; ?>
-        </select>
+    <label>Branch:</label>
+    <select name="branch_id" required>
+      <option value="">-- Select Branch --</option>
+      <?php
+      $branches = $conn->query("SELECT Branch_Id, Branch_Name FROM Branch_Master");
+      while ($b = $branches->fetch_assoc()):
+        $selected = (isset($editData['Branch_Id']) && $editData['Branch_Id'] == $b['Branch_Id']) ? 'selected' : '';
+      ?>
+        <option value="<?= $b['Branch_Id'] ?>" <?= $selected ?>><?= htmlspecialchars($b['Branch_Name']) ?></option>
+      <?php endwhile; ?>
+    </select>
 
-        <label>Status:</label>
-        <select name="staff_status">
-          <option value="1" <?= (isset($editData['Staff_Status']) && $editData['Staff_Status'] == 1) ? 'selected' : '' ?>>Active</option>
-          <option value="0" <?= (isset($editData['Staff_Status']) && $editData['Staff_Status'] == 0) ? 'selected' : '' ?>>Inactive</option>
-        </select>
+    <label>Status:</label>
+    <select name="staff_status">
+      <option value="1" <?= (isset($editData['Staff_Status']) && $editData['Staff_Status'] == 1) ? 'selected' : '' ?>>Active</option>
+      <option value="0" <?= (isset($editData['Staff_Status']) && $editData['Staff_Status'] == 0) ? 'selected' : '' ?>>Inactive</option>
+    </select>
 
-        <button type="submit"><?= $editData ? 'Update Staff' : 'Add Staff' ?></button>
-      </form>
-    </div>
+    <button type="submit"><?= $editData ? 'Update Staff' : 'Add Staff' ?></button>
+  </form>
+</div>
+
 
     <div class="list-box">
       <h3>All Staff</h3>
