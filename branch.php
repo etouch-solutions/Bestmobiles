@@ -2,7 +2,7 @@
 include 'db.php';
 $conn = mysqli_connect($host, $user, $pass, $db);
 
-// Insert or Update
+// Insert or Update Branch
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['branch_name'])) {
     $name = mysqli_real_escape_string($conn, $_POST['branch_name']);
     $head = mysqli_real_escape_string($conn, $_POST['branch_head_name']);
@@ -25,7 +25,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['branch_name'])) {
     exit();
 }
 
-// Delete
+// Delete Branch
 if (isset($_GET['delete'])) {
     $delId = intval($_GET['delete']);
     $conn->query("DELETE FROM Branch_Master WHERE Branch_Id = $delId");
@@ -33,7 +33,7 @@ if (isset($_GET['delete'])) {
     exit();
 }
 
-// Fetch for edit
+// Edit Branch
 $editBranch = null;
 if (isset($_GET['edit'])) {
     $editId = intval($_GET['edit']);
@@ -43,25 +43,23 @@ if (isset($_GET['edit'])) {
     }
 }
 ?>
-
 <!DOCTYPE html>
 <html>
 <head>
   <title>Branch Master</title>
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-<div class="navtop">
-    
+   <div class="navtop">
     <div class="logo">LOGO</div>
-    <h1> Best Mobile Insurance Software</h1>
+    <h1>Best Mobile Insurance Software</h1>
     <div class="hamburger" onclick="toggleSidebar()">☰</div>
   </div>
 
-   <div class="container">
+<div class="container">
     <aside class="sidebar mobile-hidden" id="sidebarMenu">
       <ul>
-      <a style="text-decoration: none; color: #144d30ff; font-weight: 500; font-size: 14px;"  href="index.php"><li>Dashboard</li></a>
+        <<a style="text-decoration: none; color: #144d30ff; font-weight: 500; font-size: 14px;"  href="index.php"><li>Dashboard</li></a>
      <a style="text-decoration: none; color: #144d30ff; font-weight: 500; font-size: 14px;" href="branch.php" class="active"> <li>Branch Master</li></a>
      <a style="text-decoration: none; color: #144d30ff; font-weight: 500; font-size: 14px;"  href="brand.php" > <li>Brand Master</li></a>
       <a style="text-decoration: none; color: #144d30ff; font-weight: 500; font-size: 14px;"  href="add_staff.php"><li>Staff Master</li></a>
@@ -73,89 +71,119 @@ if (isset($_GET['edit'])) {
       </ul>
     </aside>
 
-      <div class="form-box">
-    <h3><?= $editBranch ? 'Edit Branch' : 'Add Branch' ?></h3>
-    <form method="POST">
-      <?php if ($editBranch): ?>
-        <input type="hidden" name="branch_id" value="<?= $editBranch['Branch_Id'] ?>">
-      <?php endif; ?>
-
-      <label>Branch Name:</label>
-      <input type="text" name="branch_name" required value="<?= $editBranch['Branch_Name'] ?? '' ?>">
-
-      <label>Branch Head Name:</label>
-      <input type="text" name="branch_head_name" required value="<?= $editBranch['Branch_Head_Name'] ?? '' ?>">
-
-      <label>Branch Address:</label>
-      <textarea name="branch_address" required><?= $editBranch['Branch_Address'] ?? '' ?></textarea>
-
-      <label>Branch Contact No:</label>
-      <input type="number" name="branch_cno" required value="<?= $editBranch['Branch_CNo'] ?? '' ?>">
-
-      <label>Status:</label>
-      <select name="branch_status">
-        <option value="1" <?= (isset($editBranch['Branch_Status']) && $editBranch['Branch_Status'] == 1) ? 'selected' : '' ?>>Active</option>
-        <option value="0" <?= (isset($editBranch['Branch_Status']) && $editBranch['Branch_Status'] == 0) ? 'selected' : '' ?>>Inactive</option>
-      </select>
-
-      <button type="submit"><?= $editBranch ? 'Update Branch' : 'Add Branch' ?></button>
-    </form>
-  </div>
-</div>
- <main class="main-content">
+    <main class="main-content">
       <div class="content-area">
-  <!-- Form Box -->
-  <div class="form-box">
-    <h3><?= $editBranch ? 'Edit Branch' : 'Add Branch' ?></h3>
-    <form method="POST">
-      <?php if ($editBranch): ?>
-        <input type="hidden" name="branch_id" value="<?= $editBranch['Branch_Id'] ?>">
-      <?php endif; ?>
+        <!-- Brand Form -->
+        <section class="add-branch">
+          <h3><?= $editBrand ? 'Edit Brand' : 'Add Brand' ?></h3>
+          <form method="POST">
+            <?php if ($editBrand): ?>
+              <input type="hidden" name="brand_id" value="<?= $editBrand['Brand_Id'] ?>">
+            <?php endif; ?>
+            <input type="text" name="brand_name" id="brandName" placeholder="Brand Name" required value="<?= $editBrand['Brand_Name'] ?? '' ?>">
+            <select name="is_active" id="status">
+              <option value="">Select Status</option>
+              <option value="1" <?= (isset($editBrand['Is_Active']) && $editBrand['Is_Active'] == 1) ? 'selected' : '' ?>>Active</option>
+              <option value="0" <?= (isset($editBrand['Is_Active']) && $editBrand['Is_Active'] == 0) ? 'selected' : '' ?>>Inactive</option>
+            </select>
+            <button type="submit"><?= $editBrand ? 'Update Brand' : 'Add Brand' ?></button>
+          </form>
+        </section>
 
-      <label>Branch Name:</label>
-      <input type="text" name="branch_name" required value="<?= $editBranch['Branch_Name'] ?? '' ?>">
+        <!-- Brand Overview -->
+        <section class="overview">
+          <h3>Brand Overview</h3>
+          <div class="search-container">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" id="brandSearch" placeholder="Search by name..." onkeyup="filterBrands()" />
+          </div>
 
-      <label>Branch Head Name:</label>
-      <input type="text" name="branch_head_name" required value="<?= $editBranch['Branch_Head_Name'] ?? '' ?>">
-
-      <label>Branch Address:</label>
-      <textarea name="branch_address" required><?= $editBranch['Branch_Address'] ?? '' ?></textarea>
-
-      <label>Branch Contact No:</label>
-      <input type="number" name="branch_cno" required value="<?= $editBranch['Branch_CNo'] ?? '' ?>">
-
-      <label>Status:</label>
-      <select name="branch_status">
-        <option value="1" <?= (isset($editBranch['Branch_Status']) && $editBranch['Branch_Status'] == 1) ? 'selected' : '' ?>>Active</option>
-        <option value="0" <?= (isset($editBranch['Branch_Status']) && $editBranch['Branch_Status'] == 0) ? 'selected' : '' ?>>Inactive</option>
-      </select>
-
-      <button type="submit"><?= $editBranch ? 'Update Branch' : 'Add Branch' ?></button>
-    </form>
+          <div class="table-responsive">
+            <table id="brandTable">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <?php
+                  $res = mysqli_query($conn, "SELECT * FROM Brands_Master ORDER BY Brand_Id DESC");
+                  while ($row = mysqli_fetch_assoc($res)) {
+                    $statusText = $row['Is_Active'] == 1 ? 'Active' : 'Inactive';
+                    $statusClass = $row['Is_Active'] == 1 ? 'active-row' : 'inactive-row';
+                    echo "<tr class='$statusClass'>
+                            <td>{$row['Brand_Name']}</td>
+                            <td>$statusText</td>
+                            <td class='action-btns'>
+                              <a href='?edit={$row['Brand_Id']}'><i class='fa fa-pen'></i></a>
+                              <i class='fa fa-eye' onclick='viewDetails(" . json_encode($row) . ")'></i>
+                              <i class='fa fa-trash' onclick='deleteBrand({$row['Brand_Id']})'></i>
+                            </td>
+                          </tr>";
+                  }
+                ?>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+    </main>
   </div>
 
-  <!-- List Box -->
-  <div class="list-box">
-    <h3>All Branches</h3>
-    <input type="text" placeholder="Search branch..." class="search-box" onkeyup="filterBranches(this.value)">
-    <div id="branchList">
-      <?php
-      $result = mysqli_query($conn, "SELECT * FROM Branch_Master ORDER BY Branch_Id DESC");
-      while ($row = mysqli_fetch_assoc($result)) {
-        $jsonRow = json_encode($row);
+<div class="container">
+  <h2><?= $editBranch ? 'Edit Branch' : 'Add New Branch' ?></h2>
+  <form method="POST" class="branch-form">
+    <?php if ($editBranch): ?>
+      <input type="hidden" name="branch_id" value="<?= $editBranch['Branch_Id'] ?>">
+    <?php endif; ?>
+    <label>Branch Name:</label>
+    <input type="text" name="branch_name" required value="<?= $editBranch['Branch_Name'] ?? '' ?>">
+
+    <label>Branch Head Name:</label>
+    <input type="text" name="branch_head_name" required value="<?= $editBranch['Branch_Head_Name'] ?? '' ?>">
+
+    <label>Branch Address:</label>
+    <textarea name="branch_address" required><?= $editBranch['Branch_Address'] ?? '' ?></textarea>
+
+    <label>Contact No:</label>
+    <input type="text" name="branch_cno" required value="<?= $editBranch['Branch_CNo'] ?? '' ?>">
+
+    <label>Status:</label>
+    <select name="branch_status">
+      <option value="1" <?= (isset($editBranch['Branch_Status']) && $editBranch['Branch_Status'] == 1) ? 'selected' : '' ?>>Active</option>
+      <option value="0" <?= (isset($editBranch['Branch_Status']) && $editBranch['Branch_Status'] == 0) ? 'selected' : '' ?>>Inactive</option>
+    </select>
+
+    <button type="submit"><?= $editBranch ? 'Update' : 'Add' ?> Branch</button>
+  </form>
+
+  <hr>
+
+  <h2>Branch List</h2>
+  <input type="text" id="searchBox" placeholder="Search Branch" onkeyup="filterBranches(this.value)">
+  <div class="branch-list" id="branchList">
+    <?php
+    $result = mysqli_query($conn, "SELECT * FROM Branch_Master ORDER BY Branch_Id DESC");
+    while ($row = mysqli_fetch_assoc($result)) {
+        $jsonRow = htmlspecialchars(json_encode($row), ENT_QUOTES, 'UTF-8');
         echo "<div class='branch-item' onclick='viewDetails($jsonRow)'>
-                {$row['Branch_Name']}
-                <div class='actions'>
-                  <a href='?edit={$row['Branch_Id']}'>Edit</a>
-                  <a href='javascript:void(0)' class='delete' onclick='deleteBranch({$row['Branch_Id']})'>Delete</a>
+                <div>
+                    <strong>{$row['Branch_Name']}</strong><br>
+                    Head: {$row['Branch_Head_Name']}
+                </div>
+                <div>
+                    <a href='?edit={$row['Branch_Id']}'>Edit</a> |
+                    <a href='javascript:void(0)' onclick='deleteBranch({$row['Branch_Id']})' style='color:red;'>Delete</a>
                 </div>
               </div>";
-      }
-      ?>
-    </div>
-    <div id="branchDetails"></div>
+    }
+    ?>
+  </div>
+
+  <div id="branchDetails" class="branch-details"></div>
 </div>
-    </main>
 
 <script>
 function filterBranches(query) {
@@ -167,7 +195,7 @@ function filterBranches(query) {
 
 function viewDetails(branch) {
   const html = `
-    <h4>Branch Details</h4>
+    <h3>Branch Details</h3>
     <p><strong>ID:</strong> ${branch.Branch_Id}</p>
     <p><strong>Name:</strong> ${branch.Branch_Name}</p>
     <p><strong>Head:</strong> ${branch.Branch_Head_Name}</p>
@@ -184,5 +212,6 @@ function deleteBranch(id) {
   }
 }
 </script>
+
 </body>
 </html>
