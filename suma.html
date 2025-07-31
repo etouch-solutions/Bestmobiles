@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Branch Master</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+</head>
+<body>
+  <div class="navtop">
+    
+    <div class="logo">LOGO</div>
+    <h1> Best Mobile Insurance Software</h1>
+    <div class="hamburger" onclick="toggleSidebar()">☰</div>
+  </div>
+
+  <div class="container">
+    <aside class="sidebar mobile-hidden" id="sidebarMenu">
+      <ul>
+      <li><a href="#">Dashboard</a></li>
+      <li><a href="branch-master.html" class="active">Branch Master</a></li>
+      <li><a href="brand-master.html" >Brand Master</a></li>
+      <li><a href="staff-master.html">Staff Master</a></li>
+      <li><a href="customer-master.html">Customer Master</a></li>
+      <li><a href="#">Insurance Master</a></li>
+      <li><a href="#">Defect Master</a></li>
+      <li><a href="#">Insurance Entry</a></li>
+      <li><a href="#">Claim</a></li>
+      </ul>
+    </aside>
+
+    <main class="main-content">
+      <div class="content-area">
+        <section class="add-branch">
+          <h3>Add Branch</h3>
+          <form id="branchForm">
+            <input type="text" id="branchName" placeholder="Branch Name" required />
+            <input type="text" id="branchHead" placeholder="Branch Head Name" required />
+            <textarea id="branchAddress" placeholder="Branch Address" required></textarea>
+            <input type="number" id="contactNumber" placeholder="Contact Number" required />
+            <select id="status">
+              <option value="">Select Status</option>
+              <option value="Active">Active</option>
+              <option value="Inactive">Inactive</option>
+            </select>
+            <button type="submit">Add Branch</button>
+          </form>
+        </section>
+
+        <section class="overview">
+          <h3>Branch Overview</h3>
+          <div class="search-container">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" id="searchInput" placeholder="Search by name..." />
+          </div>
+
+          <div class="table-responsive">
+            <table id="branchTable">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Contact No</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <!-- Popup Modal -->
+  <div class="popup-overlay" id="popupOverlay">
+    <div class="popup-content" id="popupContent">
+      <span class="close-btn" onclick="closePopup()">&times;</span>
+      <h3>Branch Details</h3>
+      <div id="popupDetails"></div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

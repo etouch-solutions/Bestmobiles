@@ -48,19 +48,7 @@ if (isset($_GET['edit'])) {
 <html>
 <head>
   <title>Branch Master</title>
-  <style>
-    body { font-family: Arial; background: #f2f2f2; padding: 20px; }
-    .container { display: flex; gap: 20px; }
-    .form-box, .list-box { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 5px #aaa; width: 50%; }
-    input, select, textarea, button { padding: 8px; width: 100%; margin: 10px 0; }
-    .branch-item { cursor: pointer; padding: 5px; border-bottom: 1px solid #ddd; }
-    .branch-item:hover { background: #f9f9f9; }
-    #branchDetails { margin-top: 20px; }
-    .search-box { margin-bottom: 10px; }
-    .actions { font-size: 12px; margin-top: 4px; }
-    .actions a { margin-right: 10px; text-decoration: none; color: blue; }
-    .actions a.delete { color: red; }
-  </style>
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 <h2>Branch Master</h2>
