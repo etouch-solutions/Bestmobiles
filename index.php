@@ -25,7 +25,7 @@
   <div class="container">
     <aside class="sidebar mobile-hidden" id="sidebarMenu">
       <ul>
-      <a style="text-decoration: none; color: #144d30ff; font-weight: 500; font-size: 14px;"  href="#"><li>Dashboard</li></a>
+      <a style="text-decoration: none; color: #144d30ff; font-weight: 500; font-size: 14px;"  href="index.php"><li>Dashboard</li></a>
      <a style="text-decoration: none; color: #144d30ff; font-weight: 500; font-size: 14px;" href="branch.php" class="active"> <li>Branch Master</li></a>
      <a style="text-decoration: none; color: #144d30ff; font-weight: 500; font-size: 14px;"  href="brand.php" > <li>Brand Master</li></a>
       <a style="text-decoration: none; color: #144d30ff; font-weight: 500; font-size: 14px;"  href="add_staff.php"><li>Staff Master</li></a>
@@ -37,57 +37,7 @@
       </ul>
     </aside>
 
-    <main class="main-content">
-      <div class="content-area">
-        <section class="add-branch">
-          <h3>Add Branch</h3>
-          <form id="branchForm">
-            <input type="text" id="branchName" placeholder="Branch Name" required />
-            <input type="text" id="branchHead" placeholder="Branch Head Name" required />
-            <textarea id="branchAddress" placeholder="Branch Address" required></textarea>
-            <input type="number" id="contactNumber" placeholder="Contact Number" required />
-            <select id="status">
-              <option value="">Select Status</option>
-              <option value="Active">Active</option>
-              <option value="Inactive">Inactive</option>
-            </select>
-            <button type="submit">Add Branch</button>
-          </form>
-        </section>
-
-        <section class="overview">
-          <h3>Branch Overview</h3>
-          <div class="search-container">
-            <i class="fas fa-search search-icon"></i>
-            <input type="text" id="searchInput" placeholder="Search by name..." />
-          </div>
-
-          <div class="table-responsive">
-            <table id="branchTable">
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Contact No</th>
-                  <th>Status</th>
-                  <th>Action</th>
-                </tr>
-              </thead>
-              <tbody></tbody>
-            </table>
-          </div>
-        </section>
-      </div>
-    </main>
-  </div>
-
-  <!-- Popup Modal -->
-  <div class="popup-overlay" id="popupOverlay">
-    <div class="popup-content" id="popupContent">
-      <span class="close-btn" onclick="closePopup()">&times;</span>
-      <h3>Branch Details</h3>
-      <div id="popupDetails"></div>
-    </div>
-  </div>
+ 
 
   <script src="script.js"></script>
 </body>
