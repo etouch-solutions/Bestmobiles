@@ -60,11 +60,11 @@ if (isset($_GET['edit'])) {
   <div class="container">
     <aside class="sidebar mobile-hidden" id="sidebarMenu">
       <ul>
-        <li><a href="#">Dashboard</a></li>
-        <li><a href="branch-master.html">Branch Master</a></li>
+        <li><a href="index.php">Dashboard</a></li>
+        <li><a href="branch.php">Branch Master</a></li>
         <li><a href="brand.php" class="active">Brand Master</a></li>
-        <li><a href="staff-master.html">Staff Master</a></li>
-        <li><a href="customer-master.html">Customer Master</a></li>
+        <li><a href="add_staff.php">Staff Master</a></li>
+        <li><a href="">Customer Master</a></li>
         <li><a href="#">Insurance Master</a></li>
         <li><a href="#">Defect Master</a></li>
         <li><a href="#">Insurance Entry</a></li>
