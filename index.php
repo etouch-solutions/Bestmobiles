@@ -15,6 +15,6 @@
 <a href="Insurance_Entry.php">add a insurance for device</a> <br>
  <a href="claim_entry.php">add a claim for device</a>
 
-    
+    <a href="serch.php">add a claim for device</a>
 </body>
 </html>
