@@ -35,7 +35,7 @@
     <aside class="sidebar mobile-hidden" id="sidebarMenu">
       <ul>
       <li><a href="#">Dashboard</a></li>
-      <li><a href="branch.php" class="active">Branch Master</a></li>
+     <a href="branch.php" class="active"> <li>Branch Master</li></a>
       <li><a href="brand.php" >Brand Master</a></li>
       <li><a href="add_staff.php">Staff Master</a></li>
       <li><a href="Customer_Master.php">Customer Master</a></li>
