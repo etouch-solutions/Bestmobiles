@@ -69,7 +69,7 @@ $allData = fetch_insurance_entries($conn);
         <b>Claims:</b> <?= $item['claim_count'] ?>
         <div class="card-buttons">
           <button onclick="location.href='view_insurance.php?id=<?= $item['Insurance_Entry_Id'] ?>'">View</button>
-          <button onclick="location.href='claim_entry.php?insurance_id=<?= $item['Insurance_Entry_Id'] ?>'">Claim</button>
+          <button onclick="location.href='clamentry-form.php?insurance_id=<?= $item['Insurance_Entry_Id'] ?>'">Claim</button>
         </div>
       </div>
     <?php endforeach; ?>
