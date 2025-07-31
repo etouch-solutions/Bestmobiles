@@ -47,7 +47,7 @@ if (isset($_GET['edit'])) {
 <html>
 <head>
   <title>Branch Master</title>
-  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="styles.css">
 </head>
 <body>
    <div class="navtop">
