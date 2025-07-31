@@ -3,40 +3,40 @@ include 'db.php';
 $conn = mysqli_connect($host, $user, $pass, $db);
 
 // Insert or Update
-if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['brand_name'])) {
-    $brandName = mysqli_real_escape_string($conn, $_POST['brand_name']);
+if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['branch_name'])) {
+    $branchName = mysqli_real_escape_string($conn, $_POST['branch_name']);
     $isActive = intval($_POST['is_active']);
-    $brandId = $_POST['brand_id'] ?? null;
+    $branchId = $_POST['branch_id'] ?? null;
 
-    if ($brandId) {
-        $stmt = $conn->prepare("UPDATE Brands_Master SET Brand_Name = ?, Is_Active = ? WHERE Brand_Id = ?");
-        $stmt->bind_param("sii", $brandName, $isActive, $brandId);
+    if ($branchId) {
+        $stmt = $conn->prepare("UPDATE Branch_Master SET Branch_Name = ?, Is_Active = ? WHERE Branch_Id = ?");
+        $stmt->bind_param("sii", $branchName, $isActive, $branchId);
     } else {
-        $stmt = $conn->prepare("INSERT INTO Brands_Master (Brand_Name, Is_Active) VALUES (?, ?)");
-        $stmt->bind_param("si", $brandName, $isActive);
+        $stmt = $conn->prepare("INSERT INTO Branch_Master (Branch_Name, Is_Active) VALUES (?, ?)");
+        $stmt->bind_param("si", $branchName, $isActive);
     }
 
     $stmt->execute();
     $stmt->close();
-    header("Location: brand-master.php");
+    header("Location: branch.php");
     exit();
 }
 
 // Delete
 if (isset($_GET['delete'])) {
     $deleteId = intval($_GET['delete']);
-    $conn->query("DELETE FROM Brands_Master WHERE Brand_Id = $deleteId");
-    header("Location: brand-master.php?deleted=1");
+    $conn->query("DELETE FROM Branch_Master WHERE Branch_Id = $deleteId");
+    header("Location: branch.php?deleted=1");
     exit();
 }
 
 // Edit fetch
-$editBrand = null;
+$editBranch = null;
 if (isset($_GET['edit'])) {
     $editId = intval($_GET['edit']);
-    $res = $conn->query("SELECT * FROM Brands_Master WHERE Brand_Id = $editId");
+    $res = $conn->query("SELECT * FROM Branch_Master WHERE Branch_Id = $editId");
     if ($res && $res->num_rows > 0) {
-        $editBrand = $res->fetch_assoc();
+        $editBranch = $res->fetch_assoc();
     }
 }
 ?>
@@ -46,7 +46,7 @@ if (isset($_GET['edit'])) {
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Brand Master</title>
+  <title>Branch Master</title>
   <link rel="stylesheet" href="styles.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 </head>
@@ -60,47 +60,47 @@ if (isset($_GET['edit'])) {
   <div class="container">
     <aside class="sidebar mobile-hidden" id="sidebarMenu">
       <ul>
-        <<a style="text-decoration: none; color: #144d30ff; font-weight: 500; font-size: 14px;"  href="index.php"><li>Dashboard</li></a>
-     <a style="text-decoration: none; color: #144d30ff; font-weight: 500; font-size: 14px;" href="branch.php" class="active"> <li>Branch Master</li></a>
-     <a style="text-decoration: none; color: #144d30ff; font-weight: 500; font-size: 14px;"  href="brand.php" > <li>Brand Master</li></a>
-      <a style="text-decoration: none; color: #144d30ff; font-weight: 500; font-size: 14px;"  href="add_staff.php"><li>Staff Master</li></a>
-      <a style="text-decoration: none; color: #144d30ff; font-weight: 500; font-size: 14px;"  href="Customer_Master.php"><li>Customer Master</li></a>
-      <a style="text-decoration: none; color: #144d30ff; font-weight: 500; font-size: 14px;"  href="add_insurance.php"><li>Insurance Master</li></a>
-      <a style="text-decoration: none; color: #144d30ff; font-weight: 500; font-size: 14px;"  href="add_defect.php"><li>Defect Master</li></a>
-      <a style="text-decoration: none; color: #144d30ff; font-weight: 500; font-size: 14px;"  href="insurance_entry.php"><li>Insurance Entry</li></a>
-      <a style="text-decoration: none; color: #144d30ff; font-weight: 500; font-size: 14px;"  href="serch.php"><li>Claim</li></a>
+        <a href="index.php"><li>Dashboard</li></a>
+        <a href="branch.php" class="active"><li>Branch Master</li></a>
+        <a href="brand.php"><li>Brand Master</li></a>
+        <a href="add_staff.php"><li>Staff Master</li></a>
+        <a href="Customer_Master.php"><li>Customer Master</li></a>
+        <a href="add_insurance.php"><li>Insurance Master</li></a>
+        <a href="add_defect.php"><li>Defect Master</li></a>
+        <a href="insurance_entry.php"><li>Insurance Entry</li></a>
+        <a href="serch.php"><li>Claim</li></a>
       </ul>
     </aside>
 
     <main class="main-content">
       <div class="content-area">
-        <!-- Brand Form -->
+        <!-- Branch Form -->
         <section class="add-branch">
-          <h3><?= $editBrand ? 'Edit Brand' : 'Add Brand' ?></h3>
+          <h3><?= $editBranch ? 'Edit Branch' : 'Add Branch' ?></h3>
           <form method="POST">
-            <?php if ($editBrand): ?>
-              <input type="hidden" name="brand_id" value="<?= $editBrand['Brand_Id'] ?>">
+            <?php if ($editBranch): ?>
+              <input type="hidden" name="branch_id" value="<?= $editBranch['Branch_Id'] ?>">
             <?php endif; ?>
-            <input type="text" name="brand_name" id="brandName" placeholder="Brand Name" required value="<?= $editBrand['Brand_Name'] ?? '' ?>">
-            <select name="is_active" id="status">
+            <input type="text" name="branch_name" placeholder="Branch Name" required value="<?= $editBranch['Branch_Name'] ?? '' ?>">
+            <select name="is_active" required>
               <option value="">Select Status</option>
-              <option value="1" <?= (isset($editBrand['Is_Active']) && $editBrand['Is_Active'] == 1) ? 'selected' : '' ?>>Active</option>
-              <option value="0" <?= (isset($editBrand['Is_Active']) && $editBrand['Is_Active'] == 0) ? 'selected' : '' ?>>Inactive</option>
+              <option value="1" <?= (isset($editBranch['Is_Active']) && $editBranch['Is_Active'] == 1) ? 'selected' : '' ?>>Active</option>
+              <option value="0" <?= (isset($editBranch['Is_Active']) && $editBranch['Is_Active'] == 0) ? 'selected' : '' ?>>Inactive</option>
             </select>
-            <button type="submit"><?= $editBrand ? 'Update Brand' : 'Add Brand' ?></button>
+            <button type="submit"><?= $editBranch ? 'Update Branch' : 'Add Branch' ?></button>
           </form>
         </section>
 
-        <!-- Brand Overview -->
+        <!-- Branch Overview -->
         <section class="overview">
-          <h3>Brand Overview</h3>
+          <h3>Branch Overview</h3>
           <div class="search-container">
             <i class="fas fa-search search-icon"></i>
-            <input type="text" id="brandSearch" placeholder="Search by name..." onkeyup="filterBrands()" />
+            <input type="text" id="branchSearch" placeholder="Search by name..." onkeyup="filterBranches()" />
           </div>
 
           <div class="table-responsive">
-            <table id="brandTable">
+            <table id="branchTable">
               <thead>
                 <tr>
                   <th>Name</th>
@@ -110,17 +110,17 @@ if (isset($_GET['edit'])) {
               </thead>
               <tbody>
                 <?php
-                  $res = mysqli_query($conn, "SELECT * FROM Brands_Master ORDER BY Brand_Id DESC");
+                  $res = mysqli_query($conn, "SELECT * FROM Branch_Master ORDER BY Branch_Id DESC");
                   while ($row = mysqli_fetch_assoc($res)) {
                     $statusText = $row['Is_Active'] == 1 ? 'Active' : 'Inactive';
                     $statusClass = $row['Is_Active'] == 1 ? 'active-row' : 'inactive-row';
                     echo "<tr class='$statusClass'>
-                            <td>{$row['Brand_Name']}</td>
+                            <td>{$row['Branch_Name']}</td>
                             <td>$statusText</td>
                             <td class='action-btns'>
-                              <a href='?edit={$row['Brand_Id']}'><i class='fa fa-pen'></i></a>
+                              <a href='?edit={$row['Branch_Id']}'><i class='fa fa-pen'></i></a>
                               <i class='fa fa-eye' onclick='viewDetails(" . json_encode($row) . ")'></i>
-                              <i class='fa fa-trash' onclick='deleteBrand({$row['Brand_Id']})'></i>
+                              <i class='fa fa-trash' onclick='deleteBranch({$row['Branch_Id']})'></i>
                             </td>
                           </tr>";
                   }
@@ -133,29 +133,29 @@ if (isset($_GET['edit'])) {
     </main>
   </div>
 
-  <!-- Brand Details Popup -->
+  <!-- Popup for Branch Details -->
   <div class="popup-overlay" id="popupOverlay">
     <div class="popup-content" id="popupContent">
       <span class="close-btn" onclick="closePopup()">&times;</span>
-      <h3>Brand Details</h3>
+      <h3>Branch Details</h3>
       <div id="popupDetails"></div>
     </div>
   </div>
 
   <script>
-    function filterBrands() {
-      const input = document.getElementById('brandSearch').value.toLowerCase();
-      const rows = document.querySelectorAll('#brandTable tbody tr');
+    function filterBranches() {
+      const input = document.getElementById('branchSearch').value.toLowerCase();
+      const rows = document.querySelectorAll('#branchTable tbody tr');
       rows.forEach(row => {
         row.style.display = row.innerText.toLowerCase().includes(input) ? '' : 'none';
       });
     }
 
-    function viewDetails(brand) {
+    function viewDetails(branch) {
       const html = `
-        <p><strong>ID:</strong> ${brand.Brand_Id}</p>
-        <p><strong>Name:</strong> ${brand.Brand_Name}</p>
-        <p><strong>Status:</strong> ${brand.Is_Active == 1 ? 'Active' : 'Inactive'}</p>
+        <p><strong>ID:</strong> ${branch.Branch_Id}</p>
+        <p><strong>Name:</strong> ${branch.Branch_Name}</p>
+        <p><strong>Status:</strong> ${branch.Is_Active == 1 ? 'Active' : 'Inactive'}</p>
       `;
       document.getElementById('popupDetails').innerHTML = html;
       document.getElementById('popupOverlay').style.display = 'flex';
@@ -165,8 +165,8 @@ if (isset($_GET['edit'])) {
       document.getElementById('popupOverlay').style.display = 'none';
     }
 
-    function deleteBrand(id) {
-      if (confirm("Are you sure you want to delete this brand?")) {
+    function deleteBranch(id) {
+      if (confirm("Are you sure you want to delete this branch?")) {
         window.location.href = "?delete=" + id;
       }
     }
