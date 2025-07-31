@@ -301,15 +301,15 @@ table td {
 
 /* Icon Colors */
 .action-btns .fa-eye {
-  color: #4e4e4e54;
+  color: #4e4e4eb8;
 }
 
 .action-btns .fa-pen {
-  color: #70aae75e;
+  color: #70aae7ad;
 }
 
 .action-btns .fa-trash {
-  color: #e6536242;
+  color: #e65362ad;
 }
 
 .action-btns i:hover {
