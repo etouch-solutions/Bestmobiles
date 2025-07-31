@@ -26,7 +26,7 @@
     <aside class="sidebar mobile-hidden" id="sidebarMenu">
       <ul>
       <li><a href="#">Dashboard</a></li>
-     <a style="text-decoration: none; color: #2f855a;" href="branch.php" class="active"> <li>Branch Master</li></a>
+     <a style="text-decoration: none; color: #2f855a; font-weight: 600; font-size: 16px;" href="branch.php" class="active"> <li>Branch Master</li></a>
      <a href="brand.php" > <li>Brand Master</li></a>
       <a href="add_staff.php"><li>Staff Master</li></a>
       <a href="Customer_Master.php"><li>Customer Master</li></a>
