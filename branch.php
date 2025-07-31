@@ -72,6 +72,7 @@ if (isset($_GET['edit'])) {
       <a style="text-decoration: none; color: #144d30ff; font-weight: 500; font-size: 14px;"  href="serch.php"><li>Claim</li></a>
       </ul>
     </aside>
+
       <div class="form-box">
     <h3><?= $editBranch ? 'Edit Branch' : 'Add Branch' ?></h3>
     <form method="POST">

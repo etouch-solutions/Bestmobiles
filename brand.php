@@ -1,5 +1,4 @@
 <?php
-// brand.php
 include 'db.php';
 $conn = mysqli_connect($host, $user, $pass, $db);
 
@@ -10,18 +9,16 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['brand_name'])) {
     $brandId = $_POST['brand_id'] ?? null;
 
     if ($brandId) {
-        // Update
         $stmt = $conn->prepare("UPDATE Brands_Master SET Brand_Name = ?, Is_Active = ? WHERE Brand_Id = ?");
         $stmt->bind_param("sii", $brandName, $isActive, $brandId);
     } else {
-        // Insert
         $stmt = $conn->prepare("INSERT INTO Brands_Master (Brand_Name, Is_Active) VALUES (?, ?)");
         $stmt->bind_param("si", $brandName, $isActive);
     }
 
     $stmt->execute();
     $stmt->close();
-    header("Location: brand.php");
+    header("Location: brand-master.php");
     exit();
 }
 
@@ -29,7 +26,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['brand_name'])) {
 if (isset($_GET['delete'])) {
     $deleteId = intval($_GET['delete']);
     $conn->query("DELETE FROM Brands_Master WHERE Brand_Id = $deleteId");
-    header("Location: brand.php?deleted=1");
+    header("Location: brand-master.php?deleted=1");
     exit();
 }
 
@@ -45,93 +42,140 @@ if (isset($_GET['edit'])) {
 ?>
 
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Manage Brands</title>
-  <style>
-    body { font-family: Arial; background: #f2f2f2; padding: 20px; }
-    .container { display: flex; gap: 20px; }
-    .form-box, .list-box { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 5px #aaa; width: 50%; }
-    input, select, button { padding: 8px; width: 100%; margin: 10px 0; }
-    .brand-item { cursor: pointer; padding: 5px; border-bottom: 1px solid #ddd; }
-    .brand-item:hover { background: #f9f9f9; }
-    #brandDetails { margin-top: 20px; }
-    .search-box { margin-bottom: 10px; }
-    .actions { font-size: 12px; margin-top: 5px; }
-    .actions a { margin-right: 10px; text-decoration: none; color: blue; }
-    .actions a.delete { color: red; }
-  </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Brand Master</title>
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 </head>
 <body>
-<h2>Brand Master</h2>
-<div class="container">
-  <!-- Form Box -->
-  <div class="form-box">
-    <h3><?= $editBrand ? 'Edit Brand' : 'Add Brand' ?></h3>
-    <form method="POST">
-      <?php if ($editBrand): ?>
-        <input type="hidden" name="brand_id" value="<?= $editBrand['Brand_Id'] ?>">
-      <?php endif; ?>
-
-      <label>Brand Name:</label>
-      <input type="text" name="brand_name" required value="<?= $editBrand['Brand_Name'] ?? '' ?>">
-
-      <label>Status:</label>
-      <select name="is_active">
-        <option value="1" <?= (isset($editBrand['Is_Active']) && $editBrand['Is_Active'] == 1) ? 'selected' : '' ?>>Active</option>
-        <option value="0" <?= (isset($editBrand['Is_Active']) && $editBrand['Is_Active'] == 0) ? 'selected' : '' ?>>Inactive</option>
-      </select>
-
-      <button type="submit"><?= $editBrand ? 'Update Brand' : 'Add Brand' ?></button>
-    </form>
+  <div class="navtop">
+    <div class="logo">LOGO</div>
+    <h1>Best Mobile Insurance Software</h1>
+    <div class="hamburger" onclick="toggleSidebar()">☰</div>
   </div>
 
-  <!-- Brand List -->
-  <div class="list-box">
-    <h3>All Brands</h3>
-    <input type="text" placeholder="Search brand..." class="search-box" onkeyup="filterBrands(this.value)">
-    <div id="brandList">
-      <?php
-        $res = mysqli_query($conn, "SELECT * FROM Brands_Master ORDER BY Brand_Id DESC");
-        while ($row = mysqli_fetch_assoc($res)) {
-          $jsonRow = json_encode($row);
-          echo "<div class='brand-item' onclick='viewDetails($jsonRow)'>
-                  {$row['Brand_Name']}
-                  <div class='actions'>
-                    <a href='?edit={$row['Brand_Id']}'>Edit</a>
-                    <a href='javascript:void(0)' class='delete' onclick='deleteBrand({$row['Brand_Id']})'>Delete</a>
-                  </div>
-                </div>";
-        }
-      ?>
+  <div class="container">
+    <aside class="sidebar mobile-hidden" id="sidebarMenu">
+      <ul>
+        <li><a href="#">Dashboard</a></li>
+        <li><a href="branch-master.html">Branch Master</a></li>
+        <li><a href="brand-master.php" class="active">Brand Master</a></li>
+        <li><a href="staff-master.html">Staff Master</a></li>
+        <li><a href="customer-master.html">Customer Master</a></li>
+        <li><a href="#">Insurance Master</a></li>
+        <li><a href="#">Defect Master</a></li>
+        <li><a href="#">Insurance Entry</a></li>
+        <li><a href="#">Claim</a></li>
+      </ul>
+    </aside>
+
+    <main class="main-content">
+      <div class="content-area">
+        <!-- Brand Form -->
+        <section class="add-branch">
+          <h3><?= $editBrand ? 'Edit Brand' : 'Add Brand' ?></h3>
+          <form method="POST">
+            <?php if ($editBrand): ?>
+              <input type="hidden" name="brand_id" value="<?= $editBrand['Brand_Id'] ?>">
+            <?php endif; ?>
+            <input type="text" name="brand_name" id="brandName" placeholder="Brand Name" required value="<?= $editBrand['Brand_Name'] ?? '' ?>">
+            <select name="is_active" id="status">
+              <option value="">Select Status</option>
+              <option value="1" <?= (isset($editBrand['Is_Active']) && $editBrand['Is_Active'] == 1) ? 'selected' : '' ?>>Active</option>
+              <option value="0" <?= (isset($editBrand['Is_Active']) && $editBrand['Is_Active'] == 0) ? 'selected' : '' ?>>Inactive</option>
+            </select>
+            <button type="submit"><?= $editBrand ? 'Update Brand' : 'Add Brand' ?></button>
+          </form>
+        </section>
+
+        <!-- Brand Overview -->
+        <section class="overview">
+          <h3>Brand Overview</h3>
+          <div class="search-container">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" id="brandSearch" placeholder="Search by name..." onkeyup="filterBrands()" />
+          </div>
+
+          <div class="table-responsive">
+            <table id="brandTable">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <?php
+                  $res = mysqli_query($conn, "SELECT * FROM Brands_Master ORDER BY Brand_Id DESC");
+                  while ($row = mysqli_fetch_assoc($res)) {
+                    $statusText = $row['Is_Active'] == 1 ? 'Active' : 'Inactive';
+                    $statusClass = $row['Is_Active'] == 1 ? 'active-row' : 'inactive-row';
+                    echo "<tr class='$statusClass'>
+                            <td>{$row['Brand_Name']}</td>
+                            <td>$statusText</td>
+                            <td class='action-btns'>
+                              <a href='?edit={$row['Brand_Id']}'><i class='fa fa-pen'></i></a>
+                              <i class='fa fa-eye' onclick='viewDetails(" . json_encode($row) . ")'></i>
+                              <i class='fa fa-trash' onclick='deleteBrand({$row['Brand_Id']})'></i>
+                            </td>
+                          </tr>";
+                  }
+                ?>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <!-- Brand Details Popup -->
+  <div class="popup-overlay" id="popupOverlay">
+    <div class="popup-content" id="popupContent">
+      <span class="close-btn" onclick="closePopup()">&times;</span>
+      <h3>Brand Details</h3>
+      <div id="popupDetails"></div>
     </div>
-    <div id="brandDetails"></div>
   </div>
-</div>
 
-<script>
-function filterBrands(query) {
-  const items = document.querySelectorAll('.brand-item');
-  items.forEach(item => {
-    item.style.display = item.innerText.toLowerCase().includes(query.toLowerCase()) ? 'block' : 'none';
-  });
-}
+  <script>
+    function filterBrands() {
+      const input = document.getElementById('brandSearch').value.toLowerCase();
+      const rows = document.querySelectorAll('#brandTable tbody tr');
+      rows.forEach(row => {
+        row.style.display = row.innerText.toLowerCase().includes(input) ? '' : 'none';
+      });
+    }
 
-function viewDetails(brand) {
-  const html = `
-    <h4>Brand Details</h4>
-    <p><strong>ID:</strong> ${brand.Brand_Id}</p>
-    <p><strong>Name:</strong> ${brand.Brand_Name}</p>
-    <p><strong>Status:</strong> ${brand.Is_Active == 1 ? 'Active' : 'Inactive'}</p>
-  `;
-  document.getElementById("brandDetails").innerHTML = html;
-}
+    function viewDetails(brand) {
+      const html = `
+        <p><strong>ID:</strong> ${brand.Brand_Id}</p>
+        <p><strong>Name:</strong> ${brand.Brand_Name}</p>
+        <p><strong>Status:</strong> ${brand.Is_Active == 1 ? 'Active' : 'Inactive'}</p>
+      `;
+      document.getElementById('popupDetails').innerHTML = html;
+      document.getElementById('popupOverlay').style.display = 'flex';
+    }
 
-function deleteBrand(id) {
-  if (confirm("Are you sure you want to delete this brand?")) {
-    window.location.href = "?delete=" + id;
-  }
-}
-</script>
+    function closePopup() {
+      document.getElementById('popupOverlay').style.display = 'none';
+    }
+
+    function deleteBrand(id) {
+      if (confirm("Are you sure you want to delete this brand?")) {
+        window.location.href = "?delete=" + id;
+      }
+    }
+
+    function toggleSidebar() {
+      const sidebar = document.getElementById("sidebarMenu");
+      sidebar.classList.toggle("mobile-hidden");
+      sidebar.classList.toggle("mobile-visible");
+    }
+  </script>
 </body>
 </html>

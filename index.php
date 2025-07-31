@@ -36,7 +36,7 @@
       <a style="text-decoration: none; color: #144d30ff; font-weight: 500; font-size: 14px;"  href="serch.php"><li>Claim</li></a>
       </ul>
     </aside>
-
+</div>
  
 
   <script src="script.js"></script>
