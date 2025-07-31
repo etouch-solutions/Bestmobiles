@@ -122,12 +122,12 @@
     <div id="brandDetails">Select a brand to view details.</div>
 <div id="insuranceDetails">Select a plan to view details.</div>
 <h3>Live Preview</h3>
-<div id="previewModel"> <label>Model: </label>-</div>
-<div id="previewIMEI1"> <label>IMEI 1: </label>-</div>
-<div id="previewIMEI2"> <label>IMEI 2: </label>-</div>
-<div id="previewValue"> <label>Product Value: </label>-</div>
-<div id="previewPremium"> <label>Premium: </label>-</div>
-<div id="previewBillDate"> <label>Bill Date: </label>-</div>
+<div id="previewModel">Model: -</div>
+<div id="previewIMEI1">IMEI 1: -</div>
+<div id="previewIMEI2">IMEI 2: -</div>
+<div id="previewValue">Product Value: -</div>
+<div id="previewPremium">Premium: -</div>
+<div id="previewBillDate">Bill Date: -</div>
 <div id="previewStart">Start Date: -</div>
 <div id="previewEnd">End Date: -</div>
 <div id="previewInsStatus">Insurance Status: -</div>
