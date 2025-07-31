@@ -72,6 +72,34 @@ if (isset($_GET['edit'])) {
       <a style="text-decoration: none; color: #144d30ff; font-weight: 500; font-size: 14px;"  href="serch.php"><li>Claim</li></a>
       </ul>
     </aside>
+      <div class="form-box">
+    <h3><?= $editBranch ? 'Edit Branch' : 'Add Branch' ?></h3>
+    <form method="POST">
+      <?php if ($editBranch): ?>
+        <input type="hidden" name="branch_id" value="<?= $editBranch['Branch_Id'] ?>">
+      <?php endif; ?>
+
+      <label>Branch Name:</label>
+      <input type="text" name="branch_name" required value="<?= $editBranch['Branch_Name'] ?? '' ?>">
+
+      <label>Branch Head Name:</label>
+      <input type="text" name="branch_head_name" required value="<?= $editBranch['Branch_Head_Name'] ?? '' ?>">
+
+      <label>Branch Address:</label>
+      <textarea name="branch_address" required><?= $editBranch['Branch_Address'] ?? '' ?></textarea>
+
+      <label>Branch Contact No:</label>
+      <input type="number" name="branch_cno" required value="<?= $editBranch['Branch_CNo'] ?? '' ?>">
+
+      <label>Status:</label>
+      <select name="branch_status">
+        <option value="1" <?= (isset($editBranch['Branch_Status']) && $editBranch['Branch_Status'] == 1) ? 'selected' : '' ?>>Active</option>
+        <option value="0" <?= (isset($editBranch['Branch_Status']) && $editBranch['Branch_Status'] == 0) ? 'selected' : '' ?>>Inactive</option>
+      </select>
+
+      <button type="submit"><?= $editBranch ? 'Update Branch' : 'Add Branch' ?></button>
+    </form>
+  </div>
 </div>
  <main class="main-content">
       <div class="content-area">
