@@ -25,7 +25,7 @@
   <div class="container">
     <aside class="sidebar mobile-hidden" id="sidebarMenu">
       <ul>
-      <li><a style="text-decoration: none; color: #144d30ff; font-weight: 500; font-size: 14px;"  href="#">Dashboard</a></li>
+      <a style="text-decoration: none; color: #144d30ff; font-weight: 500; font-size: 14px;"  href="#"><li>Dashboard</li></a>
      <a style="text-decoration: none; color: #144d30ff; font-weight: 500; font-size: 14px;" href="branch.php" class="active"> <li>Branch Master</li></a>
      <a style="text-decoration: none; color: #144d30ff; font-weight: 500; font-size: 14px;"  href="brand.php" > <li>Brand Master</li></a>
       <a style="text-decoration: none; color: #144d30ff; font-weight: 500; font-size: 14px;"  href="add_staff.php"><li>Staff Master</li></a>
