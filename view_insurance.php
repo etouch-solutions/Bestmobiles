@@ -82,7 +82,7 @@ if (!$row = mysqli_fetch_assoc($res)) {
       </p>
     </div>
 
-    <a href="insurance_history.php">← Back to Insurance List</a>
+    <a href="serch.php">← Back to Insurance List</a>
   </div>
 </body>
 </html>
