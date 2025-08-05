@@ -58,131 +58,161 @@ $staffs = $conn->query("
 <!DOCTYPE html>
 <html>
 <head>
+  <meta charset="UTF-8">
   <title>Staff Master</title>
   <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
 </head>
 <body>
-<div class="navtop">
-  <div class="logo">LOGO</div>
-  <h1>Best Mobile Insurance Software</h1>
-  <div class="hamburger" onclick="toggleSidebar()">☰</div>
-</div>
+  <div class="navtop">
+    <div class="logo">LOGO</div>
+    <h1>Best Mobile Insurance Software</h1>
+    <div class="hamburger" onclick="toggleSidebar()">☰</div>
+  </div>
 
-<div class="container">
-  <!-- Sidebar -->
-  <aside class="sidebar mobile-hidden" id="sidebarMenu">
-    <ul>
-      <a href="index.php"><li>Dashboard</li></a>
-      <a href="branch.php"><li>Branch Master</li></a>
-      <a href="brand.php"><li>Brand Master</li></a>
-      <a href="staff.php" class="active"><li>Staff Master</li></a>
-      <a href="Customer_Master.php"><li>Customer Master</li></a>
-      <a href="add_insurance.php"><li>Insurance Master</li></a>
-      <a href="add_defect.php"><li>Defect Master</li></a>
-      <a href="insurance_entry.php"><li>Insurance Entry</li></a>
-      <a href="serch.php"><li>Claim</li></a>
-    </ul>
-  </aside>
+  <div class="container">
+    <!-- Sidebar -->
+    <aside class="sidebar mobile-hidden" id="sidebarMenu">
+      <ul>
+        <li><a href="index.php">Dashboard</a></li>
+        <li><a href="branch.php">Branch Master</a></li>
+        <li><a href="brand.php">Brand Master</a></li>
+        <li><a href="staff.php" class="active">Staff Master</a></li>
+        <li><a href="Customer_Master.php">Customer Master</a></li>
+        <li><a href="add_insurance.php">Insurance Master</a></li>
+        <li><a href="add_defect.php">Defect Master</a></li>
+        <li><a href="insurance_entry.php">Insurance Entry</a></li>
+        <li><a href="serch.php">Claim</a></li>
+      </ul>
+    </aside>
 
-  <!-- Main Content -->
-  <main class="main-content">
-   <div class="form-box">
-  <h3><?= $editData ? "Edit Staff" : "Add Staff" ?></h3>
-  <form method="POST">
-    <?php if ($editData): ?>
-      <input type="hidden" name="staff_id" value="<?= $editData['Staff_Id'] ?>">
-    <?php endif; ?>
+    <main class="main-content">
+      <div class="content-area">
+        <!-- Form Area -->
+        <section class="add-branch">
+          <h3><?= $editData ? "Edit Staff" : "Add Staff" ?></h3>
+          <form method="POST">
+            <?php if ($editData): ?>
+              <input type="hidden" name="staff_id" value="<?= $editData['Staff_Id'] ?>">
+            <?php endif; ?>
+            <input type="text" name="staff_name" placeholder="Staff Name" required value="<?= $editData['Staff_Name'] ?? '' ?>">
+            <input type="number" name="staff_cno" placeholder="Contact Number" required value="<?= $editData['Staff_CNo'] ?? '' ?>">
+            <input type="email" name="staff_email" placeholder="Email" required value="<?= $editData['Staff_Email'] ?? '' ?>">
+            <textarea name="staff_address" placeholder="Address" required><?= $editData['Staff_Address'] ?? '' ?></textarea>
+            <input type="text" name="staff_designation" placeholder="Designation" required value="<?= $editData['Staff_Designation'] ?? '' ?>">
 
-    <label>Name:</label>
-    <input type="text" name="staff_name" required value="<?= $editData['Staff_Name'] ?? '' ?>">
+            <select name="branch_id" required>
+              <option value="">-- Select Branch --</option>
+              <?php
+              $branches = $conn->query("SELECT Branch_Id, Branch_Name FROM Branch_Master");
+              while ($b = $branches->fetch_assoc()):
+                $selected = (isset($editData['Branch_Id']) && $editData['Branch_Id'] == $b['Branch_Id']) ? 'selected' : '';
+              ?>
+                <option value="<?= $b['Branch_Id'] ?>" <?= $selected ?>><?= htmlspecialchars($b['Branch_Name']) ?></option>
+              <?php endwhile; ?>
+            </select>
 
-    <label>Contact No:</label>
-    <input type="number" name="staff_cno" required value="<?= $editData['Staff_CNo'] ?? '' ?>">
+            <select name="staff_status">
+              <option value="">-- Select Status --</option>
+              <option value="1" <?= (isset($editData['Staff_Status']) && $editData['Staff_Status'] == 1) ? 'selected' : '' ?>>Active</option>
+              <option value="0" <?= (isset($editData['Staff_Status']) && $editData['Staff_Status'] == 0) ? 'selected' : '' ?>>Inactive</option>
+            </select>
 
-    <label>Email:</label>
-    <input type="email" name="staff_email" required value="<?= $editData['Staff_Email'] ?? '' ?>">
+            <button type="submit"><?= $editData ? 'Update Staff' : 'Add Staff' ?></button>
+          </form>
+        </section>
 
-    <label>Address:</label>
-    <textarea name="staff_address" required><?= $editData['Staff_Address'] ?? '' ?></textarea>
-
-    <label>Designation:</label>
-    <input type="text" name="staff_designation" required value="<?= $editData['Staff_Designation'] ?? '' ?>">
-
-    <label>Branch:</label>
-    <select name="branch_id" required>
-      <option value="">-- Select Branch --</option>
-      <?php
-      $branches = $conn->query("SELECT Branch_Id, Branch_Name FROM Branch_Master");
-      while ($b = $branches->fetch_assoc()):
-        $selected = (isset($editData['Branch_Id']) && $editData['Branch_Id'] == $b['Branch_Id']) ? 'selected' : '';
-      ?>
-        <option value="<?= $b['Branch_Id'] ?>" <?= $selected ?>><?= htmlspecialchars($b['Branch_Name']) ?></option>
-      <?php endwhile; ?>
-    </select>
-
-    <label>Status:</label>
-    <select name="staff_status">
-      <option value="1" <?= (isset($editData['Staff_Status']) && $editData['Staff_Status'] == 1) ? 'selected' : '' ?>>Active</option>
-      <option value="0" <?= (isset($editData['Staff_Status']) && $editData['Staff_Status'] == 0) ? 'selected' : '' ?>>Inactive</option>
-    </select>
-
-    <button type="submit"><?= $editData ? 'Update Staff' : 'Add Staff' ?></button>
-  </form>
-</div>
-
-
-    <div class="list-box">
-      <h3>All Staff</h3>
-      <input type="text" class="search-box" placeholder="Search staff..." onkeyup="filterStaff(this.value)">
-      <div id="staffList">
-        <?php while ($row = $staffs->fetch_assoc()):
-          $json = htmlspecialchars(json_encode($row), ENT_QUOTES, 'UTF-8'); ?>
-          <div class="brand-item" onclick='viewDetails(<?= $json ?>)'>
-            <?= htmlspecialchars($row['Staff_Name']) ?>
-            <div class="actions">
-              <a href="?edit=<?= $row['Staff_Id'] ?>">Edit</a>
-              <a href="javascript:void(0)" class="delete" onclick="deleteStaff(<?= $row['Staff_Id'] ?>)">Delete</a>
-            </div>
+        <!-- Staff List -->
+        <section class="overview">
+          <h3>Staff Overview</h3>
+          <div class="search-container">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" id="staffSearch" placeholder="Search staff..." onkeyup="filterStaff(this.value)">
           </div>
-        <?php endwhile; ?>
+
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Branch</th>
+                  <th>Designation</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <?php while ($row = $staffs->fetch_assoc()):
+                  $jsonRow = htmlspecialchars(json_encode($row), ENT_QUOTES, 'UTF-8');
+                  $statusText = $row['Staff_Status'] == 1 ? 'Active' : 'Inactive';
+                  $rowClass = $row['Staff_Status'] == 1 ? 'active-row' : 'inactive-row';
+                ?>
+                  <tr class="<?= $rowClass ?>">
+                    <td><?= $row['Staff_Name'] ?></td>
+                    <td><?= $row['Branch_Name'] ?? 'N/A' ?></td>
+                    <td><?= $row['Staff_Designation'] ?></td>
+                    <td><?= $statusText ?></td>
+                    <td class="action-btns">
+                      <i class='fas fa-eye' onclick='viewDetails(<?= $jsonRow ?>)'></i>
+                      <a href='?edit=<?= $row['Staff_Id'] ?>'><i class='fas fa-pen'></i></a>
+                      <a href='javascript:void(0)' onclick='deleteStaff(<?= $row['Staff_Id'] ?>)'><i class='fas fa-trash'></i></a>
+                    </td>
+                  </tr>
+                <?php endwhile; ?>
+              </tbody>
+            </table>
+          </div>
+        </section>
       </div>
-      <div id="staffDetails" style="margin-top: 20px;"></div>
+    </main>
+  </div>
+
+  <!-- Popup -->
+  <div class="popup-overlay" id="popupOverlay">
+    <div class="popup-content" id="popupContent">
+      <span class="close-btn" onclick="closePopup()">&times;</span>
+      <h3>Staff Details</h3>
+      <div id="popupDetails"></div>
     </div>
-  </main>
-</div>
+  </div>
 
-<script>
-function toggleSidebar() {
-  document.getElementById('sidebarMenu').classList.toggle('mobile-hidden');
-}
+  <script>
+    function toggleSidebar() {
+      document.getElementById('sidebarMenu').classList.toggle('mobile-hidden');
+    }
 
-function filterStaff(query) {
-  const items = document.querySelectorAll('.brand-item');
-  items.forEach(item => {
-    item.style.display = item.innerText.toLowerCase().includes(query.toLowerCase()) ? 'block' : 'none';
-  });
-}
+    function filterStaff(query) {
+      const rows = document.querySelectorAll("tbody tr");
+      rows.forEach(row => {
+        const text = row.innerText.toLowerCase();
+        row.style.display = text.includes(query.toLowerCase()) ? "" : "none";
+      });
+    }
 
-function viewDetails(staff) {
-  const html = `
-    <h4>Staff Details</h4>
-    <p><strong>ID:</strong> ${staff.Staff_Id}</p>
-    <p><strong>Name:</strong> ${staff.Staff_Name}</p>
-    <p><strong>Contact:</strong> ${staff.Staff_CNo}</p>
-    <p><strong>Email:</strong> ${staff.Staff_Email}</p>
-    <p><strong>Address:</strong> ${staff.Staff_Address}</p>
-    <p><strong>Designation:</strong> ${staff.Staff_Designation}</p>
-    <p><strong>Branch:</strong> ${staff.Branch_Name || 'Not Assigned'}</p>
-    <p><strong>Status:</strong> ${staff.Staff_Status == 1 ? 'Active' : 'Inactive'}</p>
-  `;
-  document.getElementById("staffDetails").innerHTML = html;
-}
+    function viewDetails(staff) {
+      const html = `
+        <p><strong>ID:</strong> ${staff.Staff_Id}</p>
+        <p><strong>Name:</strong> ${staff.Staff_Name}</p>
+        <p><strong>Contact:</strong> ${staff.Staff_CNo}</p>
+        <p><strong>Email:</strong> ${staff.Staff_Email}</p>
+        <p><strong>Address:</strong> ${staff.Staff_Address}</p>
+        <p><strong>Designation:</strong> ${staff.Staff_Designation}</p>
+        <p><strong>Branch:</strong> ${staff.Branch_Name ?? 'Not Assigned'}</p>
+        <p><strong>Status:</strong> ${staff.Staff_Status == 1 ? 'Active' : 'Inactive'}</p>
+      `;
+      document.getElementById("popupDetails").innerHTML = html;
+      document.getElementById("popupOverlay").style.display = 'flex';
+    }
 
-function deleteStaff(id) {
-  if (confirm("Are you sure you want to delete this staff?")) {
-    window.location.href = "?delete=" + id;
-  }
-}
-</script>
+    function closePopup() {
+      document.getElementById("popupOverlay").style.display = 'none';
+    }
+
+    function deleteStaff(id) {
+      if (confirm("Are you sure you want to delete this staff?")) {
+        window.location.href = "?delete=" + id;
+      }
+    }
+  </script>
 </body>
 </html>
