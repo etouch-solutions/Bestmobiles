@@ -32,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 if (isset($_GET['delete'])) {
   $delId = intval($_GET['delete']);
   $conn->query("DELETE FROM Staff_Master WHERE Staff_Id = $delId");
-  header("Location: staff.php?deleted=1");
+  header("Location: add_staff.php?deleted=1");
   exit();
 }
 
