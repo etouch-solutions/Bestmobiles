@@ -158,7 +158,7 @@ if (isset($_GET['edit'])) {
                           <td class='action-btns'>
                             <a href='javascript:void(0)' onclick='viewBranch($json)'><i class='fa fa-eye'></i></a>
                             <a href='?edit={$row['Branch_Id']}'><i class='fa fa-pen'></i></a>
-                            <a href='javascript:void(0)' onclick='deleteBranch({$row['Branch_Id']})'><i class='fa fa-trash'></i></a>
+                           
                           </td>
                         </tr>";
                 }
