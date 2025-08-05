@@ -174,7 +174,7 @@ $branches = $conn->query("SELECT Branch_Id, Branch_Name FROM Branch_Master");
                     <td class="action-btns">
                       <i class='fas fa-eye' onclick='viewDetails(<?= $jsonRow ?>)'></i>
                       <a href='?edit=<?= $row['Cus_Id'] ?>'><i class='fas fa-pen'></i></a>
-                      <a href='javascript:void(0)' onclick='deleteCustomer(<?= $row['Cus_Id'] ?>)'><i class='fas fa-trash'></i></a>
+                      
                     </td>
                   </tr>
                 <?php endwhile; ?>
