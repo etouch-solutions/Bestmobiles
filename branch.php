@@ -49,8 +49,37 @@ if (isset($_GET['edit'])) {
 <head>
   <title>Branch Master</title>
   <link rel="stylesheet" href="styles.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
-  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      padding-top: 60px;
+      left: 0; top: 0;
+      width: 100%; height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.6);
+    }
+    .modal-content {
+      background-color: #fff;
+      margin: auto;
+      padding: 20px;
+      border-radius: 10px;
+      width: 400px;
+      position: relative;
+    }
+    .close {
+      position: absolute;
+      top: 10px; right: 15px;
+      font-size: 22px;
+      color: red;
+      cursor: pointer;
+    }
+    .modal-content h4 {
+      margin-top: 0;
+    }
+  </style>
 </head>
 <body>
   <div class="navtop">
@@ -77,7 +106,7 @@ if (isset($_GET['edit'])) {
     <main class="main-content">
       <div class="content-area">
 
-        <!-- Add Branch Section -->
+        <!-- Add/Edit Branch Section -->
         <section class="add-branch">
           <h3><?= $editBranch ? 'Edit Branch' : 'Add Branch' ?></h3>
           <form method="POST">
@@ -120,14 +149,16 @@ if (isset($_GET['edit'])) {
                 <?php
                 $result = mysqli_query($conn, "SELECT * FROM Branch_Master ORDER BY Branch_Id DESC");
                 while ($row = mysqli_fetch_assoc($result)) {
+                  $json = htmlspecialchars(json_encode($row), ENT_QUOTES, 'UTF-8');
                   $statusClass = $row['Branch_Status'] ? 'active-row' : 'inactive-row';
                   echo "<tr class='$statusClass'>
                           <td>{$row['Branch_Name']}</td>
                           <td>{$row['Branch_CNo']}</td>
                           <td>" . ($row['Branch_Status'] ? 'Active' : 'Inactive') . "</td>
                           <td class='action-btns'>
+                            <a href='javascript:void(0)' onclick='viewBranch($json)'><i class='fa fa-eye'></i></a>
                             <a href='?edit={$row['Branch_Id']}'><i class='fa fa-pen'></i></a>
-                            
+                            <a href='javascript:void(0)' onclick='deleteBranch({$row['Branch_Id']})'><i class='fa fa-trash'></i></a>
                           </td>
                         </tr>";
                 }
@@ -139,6 +170,15 @@ if (isset($_GET['edit'])) {
 
       </div>
     </main>
+  </div>
+
+  <!-- Modal -->
+  <div id="branchModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal()">&times;</span>
+      <h4>Branch Details</h4>
+      <div id="modalDetails"></div>
+    </div>
   </div>
 
   <script>
@@ -160,7 +200,29 @@ if (isset($_GET['edit'])) {
       sidebar.classList.toggle('mobile-visible');
       sidebar.classList.toggle('mobile-hidden');
     }
+
+    function viewBranch(branch) {
+      const html = `
+        <p><strong>Branch Name:</strong> ${branch.Branch_Name}</p>
+        <p><strong>Head Name:</strong> ${branch.Branch_Head_Name}</p>
+        <p><strong>Address:</strong> ${branch.Branch_Address}</p>
+        <p><strong>Contact No:</strong> ${branch.Branch_CNo}</p>
+        <p><strong>Status:</strong> ${branch.Branch_Status == 1 ? 'Active' : 'Inactive'}</p>
+      `;
+      document.getElementById('modalDetails').innerHTML = html;
+      document.getElementById('branchModal').style.display = 'block';
+    }
+
+    function closeModal() {
+      document.getElementById('branchModal').style.display = 'none';
+    }
+
+    window.onclick = function(event) {
+      const modal = document.getElementById('branchModal');
+      if (event.target == modal) {
+        closeModal();
+      }
+    }
   </script>
 </body>
-
 </html>
