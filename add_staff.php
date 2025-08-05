@@ -24,7 +24,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
   $stmt->execute();
   $stmt->close();
-  header("Location: staff.php");
+  header("Location: add_staff.php");
   exit();
 }
 
@@ -77,7 +77,7 @@ $staffs = $conn->query("
         <li><a href="index.php">Dashboard</a></li>
         <li><a href="branch.php">Branch Master</a></li>
         <li><a href="brand.php">Brand Master</a></li>
-        <li><a href="staff.php" class="active">Staff Master</a></li>
+        <li><a href="add_staff.php" class="active">Staff Master</a></li>
         <li><a href="Customer_Master.php">Customer Master</a></li>
         <li><a href="add_insurance.php">Insurance Master</a></li>
         <li><a href="add_defect.php">Defect Master</a></li>
