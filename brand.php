@@ -119,7 +119,7 @@ if (isset($_GET['edit'])) {
                             <td>{$row['Brand_Name']}</td>
                             <td>{$statusText}</td>
                             <td class='action-btns'>
-                               
+                              <i class='fas fa-eye' onclick='viewDetails($jsonRow)'></i>
                               <a href='?edit={$row['Brand_Id']}'><i class='fas fa-pen'></i></a>
                                
                             </td>
