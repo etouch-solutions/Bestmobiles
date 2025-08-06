@@ -1,50 +1,47 @@
 <?php
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
-include 'db.php'; // $conn should be your mysqli connection
+include 'db.php';
 
-// INSERT or UPDATE
+// Insert or Update
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $id = $_POST['defect_id'] ?? null;
-    $name = $_POST['defect_name'] ?? '';
-    $desc = $_POST['defect_description'] ?? '';
-    $status = $_POST['defect_status'] ?? 1;
+  $id = $_POST['defect_id'] ?? null;
+  $name = $_POST['defect_name'];
+  $desc = $_POST['defect_description'];
+  $status = $_POST['defect_status'];
 
-    if ($id) {
-        // UPDATE
-        $stmt = $conn->prepare("UPDATE Defect_Master SET Defect_Name=?, Defect_Description=?, Is_Active=?, Updated_At=NOW() WHERE Defect_Id=?");
-        $stmt->bind_param("ssii", $name, $desc, $status, $id);
-    } else {
-        // INSERT
-        $stmt = $conn->prepare("INSERT INTO Defect_Master (Defect_Name, Defect_Description, Is_Active) VALUES (?, ?, ?)");
-        $stmt->bind_param("ssi", $name, $desc, $status);
-    }
+  if ($id) {
+    $stmt = $conn->prepare("UPDATE Defect_Master SET Defect_Name=?, Defect_Description=?, Is_Active=?, Updated_At=NOW() WHERE Defect_Id=?");
+    $stmt->bind_param("ssii", $name, $desc, $status, $id);
+  } else {
+    $stmt = $conn->prepare("INSERT INTO Defect_Master (Defect_Name, Defect_Description, Is_Active) VALUES (?, ?, ?)");
+    $stmt->bind_param("ssi", $name, $desc, $status);
+  }
 
-    $stmt->execute();
-    $stmt->close();
-    header("Location: add_defect.php?added=1");
-    exit;
+  $stmt->execute();
+  $stmt->close();
+  header("Location: add_defect.php");
+  exit;
 }
 
-// DELETE
+// Delete
 if (isset($_GET['delete'])) {
-    $id = intval($_GET['delete']);
-    $conn->query("DELETE FROM Defect_Master WHERE Defect_Id = $id");
-    header("Location: add_defect.php?deleted=1");
-    exit;
+  $id = intval($_GET['delete']);
+  $conn->query("DELETE FROM Defect_Master WHERE Defect_Id = $id");
+  header("Location: add_defect.php?deleted=1");
+  exit;
 }
 
-// GET for edit
+// Fetch for edit
 $editData = null;
 if (isset($_GET['edit'])) {
-    $editId = intval($_GET['edit']);
-    $res = $conn->query("SELECT * FROM Defect_Master WHERE Defect_Id = $editId");
-    if ($res && $res->num_rows > 0) {
-        $editData = $res->fetch_assoc();
-    }
+  $editId = intval($_GET['edit']);
+  $res = $conn->query("SELECT * FROM Defect_Master WHERE Defect_Id = $editId");
+  if ($res && $res->num_rows > 0) {
+    $editData = $res->fetch_assoc();
+  }
 }
 
-// FETCH ALL
 $search = $_GET['search'] ?? '';
 $searchSql = $search ? "WHERE Defect_Name LIKE '%$search%' OR Defect_Description LIKE '%$search%'" : "";
 $defects = $conn->query("SELECT * FROM Defect_Master $searchSql ORDER BY Defect_Id DESC");
@@ -53,95 +50,143 @@ $defects = $conn->query("SELECT * FROM Defect_Master $searchSql ORDER BY Defect_
 <!DOCTYPE html>
 <html>
 <head>
+  <meta charset="UTF-8">
   <title>Defect Master</title>
-  <style>
-    body { font-family: Arial, sans-serif; display: flex; background: #f9f9f9; margin: 0; }
-    .sidebar { width: 25%; background: #fff; padding: 20px; border-right: 1px solid #ccc; height: 100vh; overflow-y: auto; }
-    .main { width: 50%; padding: 20px; }
-    .preview { width: 25%; background: #f0f0f0; padding: 20px; border-left: 1px solid #ccc; }
-    input, select, textarea {
-      width: 100%; padding: 8px; margin-top: 5px; margin-bottom: 15px;
-      border: 1px solid #ccc; border-radius: 4px;
-    }
-    .item {
-      padding: 10px; cursor: pointer;
-      border-bottom: 1px solid #eee;
-    }
-    .item:hover { background: #e0e0e0; }
-    .actions a { margin-right: 10px; color: blue; text-decoration: none; }
-    .actions a.delete { color: red; }
-  </style>
+  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+</head>
+<body>
+  <div class="navtop">
+    <div class="logo">LOGO</div>
+    <h1>Best Mobile Insurance Software</h1>
+    <div class="hamburger" onclick="toggleSidebar()">☰</div>
+  </div>
+
+  <div class="container">
+    <!-- Sidebar -->
+    <aside class="sidebar mobile-hidden" id="sidebarMenu">
+      <ul>
+        <li><a href="index.php">Dashboard</a></li>
+        <li><a href="branch.php">Branch Master</a></li>
+        <li><a href="brand.php">Brand Master</a></li>
+        <li><a href="add_staff.php">Staff Master</a></li>
+        <li><a href="Customer_Master.php">Customer Master</a></li>
+        <li><a href="add_insurance.php">Insurance Master</a></li>
+        <li><a href="add_defect.php" class="active">Defect Master</a></li>
+        <li><a href="insurance_entry.php">Insurance Entry</a></li>
+        <li><a href="serch.php">Claim</a></li>
+      </ul>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="content-area">
+        <!-- Form -->
+        <section class="add-branch">
+          <h3><?= $editData ? "Edit Defect" : "Add Defect" ?></h3>
+          <form method="POST">
+            <?php if ($editData): ?>
+              <input type="hidden" name="defect_id" value="<?= $editData['Defect_Id'] ?>">
+            <?php endif; ?>
+
+            <input type="text" name="defect_name" placeholder="Defect Name" required value="<?= $editData['Defect_Name'] ?? '' ?>">
+            <textarea name="defect_description" placeholder="Description" required><?= $editData['Defect_Description'] ?? '' ?></textarea>
+
+            <select name="defect_status" required>
+              <option value="">-- Select Status --</option>
+              <option value="1" <?= (isset($editData['Is_Active']) && $editData['Is_Active'] == 1) ? 'selected' : '' ?>>Active</option>
+              <option value="0" <?= (isset($editData['Is_Active']) && $editData['Is_Active'] == 0) ? 'selected' : '' ?>>Inactive</option>
+            </select>
+
+            <button type="submit"><?= $editData ? 'Update Defect' : 'Add Defect' ?></button>
+          </form>
+        </section>
+
+        <!-- List -->
+        <section class="overview">
+          <h3>Defect List</h3>
+          <div class="search-container">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" id="searchBox" placeholder="Search defects..." value="<?= htmlspecialchars($search) ?>" onkeyup="filterDefects(this.value)">
+          </div>
+
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Description</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <?php while ($row = $defects->fetch_assoc()):
+                  $jsonRow = htmlspecialchars(json_encode($row), ENT_QUOTES, 'UTF-8');
+                  $statusText = $row['Is_Active'] == 1 ? 'Active' : 'Inactive';
+                  $rowClass = $row['Is_Active'] == 1 ? 'active-row' : 'inactive-row';
+                ?>
+                  <tr class="<?= $rowClass ?>">
+                    <td><?= $row['Defect_Name'] ?></td>
+                    <td><?= $row['Defect_Description'] ?></td>
+                    <td><?= $statusText ?></td>
+                    <td class="action-btns">
+                      <i class='fas fa-eye' onclick='viewDetails(<?= $jsonRow ?>)'></i>
+                      <a href='?edit=<?= $row['Defect_Id'] ?>'><i class='fas fa-pen'></i></a>
+                      <a href='javascript:void(0)' onclick='deleteDefect(<?= $row['Defect_Id'] ?>)'><i class='fas fa-trash text-danger'></i></a>
+                    </td>
+                  </tr>
+                <?php endwhile; ?>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
+
+  <!-- Popup -->
+  <div class="popup-overlay" id="popupOverlay">
+    <div class="popup-content" id="popupContent">
+      <span class="close-btn" onclick="closePopup()">&times;</span>
+      <h3>Defect Details</h3>
+      <div id="popupDetails"></div>
+    </div>
+  </div>
+
   <script>
-    function showPreview(data) {
-      document.getElementById('preview').innerHTML = `
-        <h3>Defect Details</h3>
-        <p><strong>Name:</strong> ${data.name}</p>
-        <p><strong>Description:</strong> ${data.desc}</p>
-        <p><strong>Status:</strong> ${data.status == 1 ? 'Active' : 'Inactive'}</p>
-      `;
+    function toggleSidebar() {
+      document.getElementById('sidebarMenu').classList.toggle('mobile-hidden');
     }
-    function confirmDelete(id) {
+
+    function filterDefects(query) {
+      const rows = document.querySelectorAll("tbody tr");
+      rows.forEach(row => {
+        const text = row.innerText.toLowerCase();
+        row.style.display = text.includes(query.toLowerCase()) ? "" : "none";
+      });
+    }
+
+    function viewDetails(data) {
+      const html = `
+        <p><strong>ID:</strong> ${data.Defect_Id}</p>
+        <p><strong>Name:</strong> ${data.Defect_Name}</p>
+        <p><strong>Description:</strong> ${data.Defect_Description}</p>
+        <p><strong>Status:</strong> ${data.Is_Active == 1 ? 'Active' : 'Inactive'}</p>
+      `;
+      document.getElementById("popupDetails").innerHTML = html;
+      document.getElementById("popupOverlay").style.display = 'flex';
+    }
+
+    function closePopup() {
+      document.getElementById("popupOverlay").style.display = 'none';
+    }
+
+    function deleteDefect(id) {
       if (confirm("Are you sure you want to delete this defect?")) {
         window.location.href = "?delete=" + id;
       }
     }
   </script>
-</head>
-<body>
-
-<!-- Sidebar -->
-<div class="sidebar">
-  <h3>Defect Types</h3>
-  <form method="get">
-    <input type="text" name="search" placeholder="Search..." value="<?= htmlspecialchars($search) ?>">
-  </form>
-  <hr>
-  <?php while ($row = $defects->fetch_assoc()): ?>
-    <?php
-      $id = $row['Defect_Id'];
-      $name = htmlspecialchars($row['Defect_Name'], ENT_QUOTES);
-      $desc = htmlspecialchars($row['Defect_Description'], ENT_QUOTES);
-      $status = $row['Is_Active'];
-    ?>
-    <div class="item" onclick='showPreview({ name: "<?= $name ?>", desc: "<?= $desc ?>", status: <?= $status ?> })'>
-      <b><?= $name ?></b><br>
-      <div class="actions">
-        <a href="?edit=<?= $id ?>">Edit</a>
-        <a href="javascript:void(0)" class="delete" onclick="confirmDelete(<?= $id ?>)">Delete</a>
-      </div>
-    </div>
-  <?php endwhile; ?>
-</div>
-
-<!-- Form -->
-<div class="main">
-  <h2><?= $editData ? "Edit Defect" : "Add Defect Type" ?></h2>
-  <form method="POST">
-    <?php if ($editData): ?>
-      <input type="hidden" name="defect_id" value="<?= $editData['Defect_Id'] ?>">
-    <?php endif; ?>
-
-    <label>Defect Name:</label>
-    <input type="text" name="defect_name" required value="<?= $editData['Defect_Name'] ?? '' ?>">
-
-    <label>Defect Description:</label>
-    <textarea name="defect_description" required><?= $editData['Defect_Description'] ?? '' ?></textarea>
-
-    <label>Status:</label>
-    <select name="defect_status" required>
-      <option value="1" <?= (isset($editData['Is_Active']) && $editData['Is_Active'] == 1) ? 'selected' : '' ?>>Active</option>
-      <option value="0" <?= (isset($editData['Is_Active']) && $editData['Is_Active'] == 0) ? 'selected' : '' ?>>Inactive</option>
-    </select>
-
-    <input type="submit" value="<?= $editData ? 'Update Defect' : 'Add Defect' ?>">
-  </form>
-</div>
-
-<!-- Preview Panel -->
-<div class="preview" id="preview">
-  <h3>Defect Details</h3>
-  <p>Select a defect to preview.</p>
-</div>
-
 </body>
 </html>
