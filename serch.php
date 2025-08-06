@@ -41,63 +41,117 @@ if (isset($_GET['q'])) {
 }
 $allData = fetch_insurance_entries($conn);
 ?>
+
 <!DOCTYPE html>
 <html>
 <head>
   <title>Insurance & Claim History</title>
   <link rel="stylesheet" href="styles.css">
   <style>
-    .main-content {
-      margin-left: 220px;
-      padding: 30px;
-      background: #f5f7fa;
-      min-height: 90vh;
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f5f7fa;
     }
 
-    .page-title {
-      font-size: 24px;
+    .navtop {
+      background: #fff;
+      padding: 15px 20px;
+      border-bottom: 1px solid #ddd;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: fixed;
+      top: 0;
+      width: 100%;
+      z-index: 1000;
+    }
+
+    .navtop h1 {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 600;
+    }
+
+    .sidebar {
+      width: 200px;
+      position: fixed;
+      top: 60px;
+      left: 0;
+      background-color: #fff;
+      height: 100%;
+      padding: 20px 10px;
+      border-right: 1px solid #ddd;
+    }
+
+    .sidebar a {
+      display: block;
+      margin-bottom: 15px;
       font-weight: bold;
-      margin-bottom: 20px;
+      color: #2ecc71;
+      text-decoration: none;
+      padding: 8px 10px;
+      border-radius: 5px;
+    }
+
+    .sidebar a:hover,
+    .sidebar a.active {
+      background-color: #2ecc71;
+      color: white;
+    }
+
+    .main-content {
+      margin-left: 220px;
+      padding: 100px 30px 30px 30px;
+    }
+
+    h2 {
+      margin-top: 0;
     }
 
     .search-bar {
-      width: 100%;
-      padding: 12px;
+      padding: 12px 15px;
       font-size: 16px;
-      margin-bottom: 25px;
+      width: 100%;
+      max-width: 500px;
+      margin-bottom: 20px;
       border: 1px solid #ccc;
       border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     }
 
     table {
       width: 100%;
-      background: white;
       border-collapse: collapse;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+      background: white;
+      box-shadow: 0 0 10px rgba(0,0,0,0.05);
+      border-radius: 8px;
+      overflow: hidden;
     }
 
     th, td {
-      padding: 12px;
+      padding: 12px 15px;
+      border-bottom: 1px solid #f0f0f0;
       text-align: left;
-      border-bottom: 1px solid #eee;
     }
 
     th {
-      background: #f1f1f1;
+      background-color: #f9f9f9;
+      font-weight: bold;
     }
 
-    tr.expired { background-color: #f8d7da; }
-    tr.claimed { background-color: #fff3cd; }
-    tr.not_claimed { background-color: #d4edda; }
+    tr.expired { background-color: #ffe6e6; }
+    tr.claimed { background-color: #fff8e1; }
+    tr.not_claimed { background-color: #e8f5e9; }
 
     .action-btn {
       padding: 6px 12px;
       background: #3498db;
-      color: #fff;
+      color: white;
       border: none;
       border-radius: 5px;
-      margin-right: 5px;
       cursor: pointer;
+      margin-right: 5px;
     }
 
     .action-btn:hover {
@@ -105,13 +159,17 @@ $allData = fetch_insurance_entries($conn);
     }
 
     @media (max-width: 768px) {
-      .main-content {
-        margin-left: 0;
-        padding: 15px;
+      .sidebar {
+        display: none;
       }
 
-      table, th, td {
-        font-size: 14px;
+      .main-content {
+        margin-left: 0;
+        padding: 80px 20px 20px;
+      }
+
+      .search-bar {
+        width: 100%;
       }
     }
   </style>
@@ -120,47 +178,46 @@ $allData = fetch_insurance_entries($conn);
 
 <!-- Header -->
 <div class="navtop">
-  <div class="logo">LOGO</div>
+  <div class="logo"><strong>LOGO</strong></div>
   <h1>Best Mobile Insurance Software</h1>
-  <div class="hamburger" onclick="toggleSidebar()">☰</div>
+  <div></div>
 </div>
 
 <!-- Sidebar -->
-<aside class="sidebar mobile-hidden" id="sidebarMenu">
-  <ul>
-    <a href="index.php"><li>Dashboard</li></a>
-    <a href="branch.php"><li>Branch Master</li></a>
-    <a href="brand.php"><li>Brand Master</li></a>
-    <a href="add_staff.php"><li>Staff Master</li></a>
-    <a href="Customer_Master.php"><li>Customer Master</li></a>
-    <a href="add_insurance.php"><li>Insurance Master</li></a>
-    <a href="add_defect.php"><li>Defect Master</li></a>
-    <a href="insuranceentry.php"><li>Insurance Entry</li></a>
-    <a href="serch.php" class="active"><li>Claim</li></a>
-  </ul>
+<aside class="sidebar">
+  <a href="index.php">Dashboard</a>
+  <a href="branch.php">Branch Master</a>
+  <a href="brand.php">Brand Master</a>
+  <a href="add_staff.php">Staff Master</a>
+  <a href="Customer_Master.php">Customer Master</a>
+  <a href="add_insurance.php">Insurance Master</a>
+  <a href="add_defect.php">Defect Master</a>
+  <a href="insuranceentry.php">Insurance Entry</a>
+  <a href="serch.php" class="active">Claim</a>
 </aside>
 
 <!-- Main Content -->
 <div class="main-content">
-  <div class="page-title">Insurance & Claim History</div>
+  <h2>Insurance & Claim History</h2>
 
-  <input type="text" id="search" class="search-bar" placeholder="Search by Name / Phone / IMEI">
+  <input type="text" id="search" class="search-bar" placeholder="Search by Name, Phone, or IMEI...">
 
-  <table>
-    <thead>
-      <tr>
-        <th>Customer Name</th>
-        <th>Phone</th>
-        <th>Model</th>
-        <th>IMEI</th>
-        <th>Start Date</th>
-        <th>End Date</th>
-        <th>Claims</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody id="results">
-      <?php foreach ($allData as $item): ?>
+  <div style="overflow-x:auto;">
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Phone</th>
+          <th>Model</th>
+          <th>IMEI</th>
+          <th>Start Date</th>
+          <th>End Date</th>
+          <th>Claims</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody id="results">
+        <?php foreach ($allData as $item): ?>
         <tr class="<?= $item['status'] ?>">
           <td><?= $item['name'] ?></td>
           <td><?= $item['phone'] ?></td>
@@ -174,23 +231,26 @@ $allData = fetch_insurance_entries($conn);
             <button class="action-btn" onclick="location.href='clamentry-form.php?insurance_id=<?= $item['Insurance_Entry_Id'] ?>'">Claim</button>
           </td>
         </tr>
-      <?php endforeach; ?>
-    </tbody>
-  </table>
+        <?php endforeach; ?>
+      </tbody>
+    </table>
+  </div>
 </div>
 
-<!-- Search Script -->
 <script>
 document.getElementById('search').addEventListener('input', function () {
   const query = this.value.trim();
+
   fetch('?q=' + encodeURIComponent(query))
     .then(res => res.json())
     .then(data => {
       const container = document.getElementById('results');
       container.innerHTML = '';
+
       data.forEach(item => {
-        const row = document.createElement('tr');
+        let row = document.createElement('tr');
         row.className = item.status;
+
         row.innerHTML = `
           <td>${item.name}</td>
           <td>${item.phone}</td>
@@ -206,12 +266,12 @@ document.getElementById('search').addEventListener('input', function () {
         `;
         container.appendChild(row);
       });
+
       if (data.length === 0) {
-        container.innerHTML = `<tr><td colspan="8">No matching records found.</td></tr>`;
+        container.innerHTML = '<tr><td colspan="8">No insurance found.</td></tr>';
       }
     });
 });
 </script>
-
 </body>
 </html>
