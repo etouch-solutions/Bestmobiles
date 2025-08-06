@@ -99,7 +99,7 @@
     <input type="date" name="insurance_start" id="insurance_start" onchange="calculatePremiumAndEndDate(); updatePreview('start', this)" required>
 
     <label>Insurance End</label>
-   <input type="date" name="insurance_end" id="insurance_end"  >
+   <input type="date" name="insurance_end" id="insurance_end" readonly>
     <label>Insurance Status</label>
     <select name="insurance_status" onchange="updatePreview('insStatus', this)">
   <option value="1">Valid</option>
