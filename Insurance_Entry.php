@@ -17,13 +17,24 @@
 </div>
 
 <div class="container">
-  <aside class="sidebar mobile-hidden" id="sidebarMenu">
-    <ul>
-      <li><a href="dashboard.php">Dashboard</a></li>
-      <li class="active"><a href="add_insurance_entry.php">Insurance Entry</a></li>
-      <li><a href="insurance_entry_list.php">Entries List</a></li>
-    </ul>
-  </aside>
+  
+
+ <aside class="sidebar mobile-hidden" id="sidebarMenu">
+      <ul>
+        <li><a href="index.php">Dashboard</a></li>
+        <li><a href="branch.php">Branch Master</a></li>
+        <li><a href="brand.php">Brand Master</a></li>
+        <li><a href="add_staff.php">Staff Master</a></li>
+        <li><a href="Customer_Master.php">Customer Master</a></li>
+        <li><a href="add_insurance.php" class="active">Insurance Master</a></li>
+        <li><a href="add_defect.php">Defect Master</a></li>
+        <li><a href="insurance_entry.php">Insurance Entry</a></li>
+        <li><a href="serch.php">Claim</a></li>
+      </ul>
+    </aside>
+
+
+
 
   <main class="main-content">
     <div class="content-area">
