@@ -44,11 +44,9 @@ $allData = fetch_insurance_entries($conn);
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Insurance History</title>
+  <title>Insurance & Claim History</title>
+  <link rel="stylesheet" href="styles.css">
   <style>
-    body { font-family: Arial; background: #f5f5f5; padding: 30px; }
-    .container { max-width: 900px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px #ccc; }
-    input { width: 100%; padding: 10px; margin-bottom: 20px; border: 1px solid #ccc; border-radius: 5px; }
     .card { border-radius: 10px; padding: 15px; margin-bottom: 15px; color: white; }
     .green { background-color: #28a745; }
     .yellow { background-color: #ffc107; color: black; }
@@ -57,29 +55,34 @@ $allData = fetch_insurance_entries($conn);
   </style>
 </head>
 <body>
-<div class="container">
-  <h2>Insurance & Claim History</h2>
-  <input type="text" id="search" placeholder="Search by Name / Phone / IMEI">
-  <div id="results">
-    <?php foreach ($allData as $item): ?>
-      <div class="card <?= $item['status'] === 'expired' ? 'red' : ($item['status'] === 'claimed' ? 'yellow' : 'green') ?>">
-        <b>Name:</b> <?= $item['name'] ?> | <b>Phone:</b> <?= $item['phone'] ?><br>
-        <b>Model:</b> <?= $item['model'] ?> | <b>IMEI:</b> <?= $item['imei'] ?><br>
-        <b>Start:</b> <?= $item['Insurance_Start_Date'] ?> | <b>End:</b> <?= $item['Insurance_End_Date'] ?><br>
-        <b>Claims:</b> <?= $item['claim_count'] ?>
-        <div class="card-buttons">
-          <button onclick="location.href='view_insurance.php?id=<?= $item['Insurance_Entry_Id'] ?>'">View</button>
-          <button onclick="location.href='clamentry-form.php?insurance_id=<?= $item['Insurance_Entry_Id'] ?>'">Claim</button>
+<?php include 'sidebar.php'; ?>
+<div class="main-content">
+  <div class="header">
+    <h2>Insurance & Claim History</h2>
+  </div>
+
+  <div class="content-panel">
+    <input type="text" id="search" class="form-input" placeholder="Search by Name / Phone / IMEI">
+    <div id="results">
+      <?php foreach ($allData as $item): ?>
+        <div class="card <?= $item['status'] === 'expired' ? 'red' : ($item['status'] === 'claimed' ? 'yellow' : 'green') ?>">
+          <b>Name:</b> <?= $item['name'] ?> | <b>Phone:</b> <?= $item['phone'] ?><br>
+          <b>Model:</b> <?= $item['model'] ?> | <b>IMEI:</b> <?= $item['imei'] ?><br>
+          <b>Start:</b> <?= $item['Insurance_Start_Date'] ?> | <b>End:</b> <?= $item['Insurance_End_Date'] ?><br>
+          <b>Claims:</b> <?= $item['claim_count'] ?>
+          <div class="card-buttons">
+            <button onclick="location.href='view_insurance.php?id=<?= $item['Insurance_Entry_Id'] ?>'">View</button>
+            <button onclick="location.href='clamentry-form.php?insurance_id=<?= $item['Insurance_Entry_Id'] ?>'">Claim</button>
+          </div>
         </div>
-      </div>
-    <?php endforeach; ?>
+      <?php endforeach; ?>
+    </div>
   </div>
 </div>
 
 <script>
 document.getElementById('search').addEventListener('input', function () {
   const query = this.value.trim();
-
   fetch('?q=' + encodeURIComponent(query))
     .then(res => res.json())
     .then(data => {
@@ -98,7 +101,7 @@ document.getElementById('search').addEventListener('input', function () {
           <b>Claims:</b> ${item.claim_count}
           <div class="card-buttons">
             <button onclick="location.href='view_insurance.php?id=${item.Insurance_Entry_Id}'">View</button>
-            <button onclick="location.href='claim_entry.php?insurance_id=${item.Insurance_Entry_Id}'">Claim</button>
+            <button onclick="location.href='clamentry-form.php?insurance_id=${item.Insurance_Entry_Id}'">Claim</button>
           </div>
         `;
         container.appendChild(div);
