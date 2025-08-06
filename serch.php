@@ -52,9 +52,9 @@ $allData = fetch_insurance_entries($conn);
     body { margin: 0; font-family: 'Segoe UI', sans-serif; background: #f5f7fa; }
 
     .header {
-      background: #2c3e50;
+      
       color: white;
-      padding: 15px 25px;
+      
       font-size: 20px;
     }
 
