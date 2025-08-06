@@ -41,62 +41,149 @@ if (isset($_GET['q'])) {
 }
 $allData = fetch_insurance_entries($conn);
 ?>
+
 <!DOCTYPE html>
 <html>
 <head>
   <title>Insurance & Claim History</title>
-   <link rel="stylesheet" href="styles.css">
   <style>
-    .card { border-radius: 10px; padding: 15px; margin-bottom: 15px; color: white; }
-    .green { background-color: #28a745; }
-    .yellow { background-color: #ffc107; color: black; }
-    .red { background-color: #dc3545; }
-    .card-buttons button { margin-right: 10px; padding: 5px 15px; }
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: 'Segoe UI', sans-serif; background: #f5f7fa; }
+
+    .header {
+      background: #2c3e50;
+      color: white;
+      padding: 15px 25px;
+      font-size: 20px;
+    }
+
+    .sidebar {
+      width: 220px;
+      background: #34495e;
+      height: 100vh;
+      position: fixed;
+      top: 50px;
+      left: 0;
+      padding-top: 20px;
+      color: white;
+    }
+
+    .sidebar a {
+      display: block;
+      padding: 12px 20px;
+      color: white;
+      text-decoration: none;
+    }
+
+    .sidebar a:hover {
+      background: #1abc9c;
+    }
+
+    .main-content {
+      margin-left: 220px;
+      padding: 20px 30px;
+      margin-top: 50px;
+    }
+
+    h2 {
+      margin-bottom: 20px;
+    }
+
+    .search-bar {
+      width: 100%;
+      padding: 12px 15px;
+      font-size: 16px;
+      margin-bottom: 25px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    .card {
+      background: white;
+      padding: 20px;
+      border-left: 6px solid #2ecc71;
+      margin-bottom: 20px;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+      transition: all 0.3s ease;
+    }
+
+    .card.claimed { border-left-color: #f1c40f; }
+    .card.expired { border-left-color: #e74c3c; }
+
+    .card:hover {
+      transform: translateY(-2px);
+    }
+
+    .card-buttons {
+      margin-top: 10px;
+    }
+
+    .card-buttons button {
+      padding: 8px 15px;
+      margin-right: 10px;
+      border: none;
+      border-radius: 5px;
+      background: #3498db;
+      color: white;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    .card-buttons button:hover {
+      background: #2980b9;
+    }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        display: none;
+      }
+
+      .main-content {
+        margin-left: 0;
+      }
+    }
   </style>
 </head>
 <body>
-<?php include 'sidebar.php'; ?>
+
+<div class="header">Insurance Management System</div>
+
+<div class="sidebar">
+  <a href="dashboard.php">Dashboard</a>
+  <a href="insurance_entry.php">Insurance Entry</a>
+  <a href="claim_entry.php">Claim Entry</a>
+  <a href="insurance_history.php">Insurance History</a>
+  <a href="logout.php">Logout</a>
+</div>
+
 <div class="main-content">
-  <div class="header">
-    <h2>Insurance & Claim History</h2>
-  </div>
-
-
- <aside class="sidebar mobile-hidden" id="sidebarMenu">
-      <ul>
-      <a style="text-decoration: none; color: #144d30ff; font-weight: 500; font-size: 14px;"  href="index.php"><li>Dashboard</li></a>
-     <a style="text-decoration: none; color: #144d30ff; font-weight: 500; font-size: 14px;" href="branch.php" class="active"> <li>Branch Master</li></a>
-     <a style="text-decoration: none; color: #144d30ff; font-weight: 500; font-size: 14px;"  href="brand.php" > <li>Brand Master</li></a>
-      <a style="text-decoration: none; color: #144d30ff; font-weight: 500; font-size: 14px;"  href="add_staff.php"><li>Staff Master</li></a>
-      <a style="text-decoration: none; color: #144d30ff; font-weight: 500; font-size: 14px;"  href="Customer_Master.php"><li>Customer Master</li></a>
-      <a style="text-decoration: none; color: #144d30ff; font-weight: 500; font-size: 14px;"  href="add_insurance.php"><li>Insurance Master</li></a>
-      <a style="text-decoration: none; color: #144d30ff; font-weight: 500; font-size: 14px;"  href="add_defect.php"><li>Defect Master</li></a>
-      <a style="text-decoration: none; color: #144d30ff; font-weight: 500; font-size: 14px;"  href="insuranceentry.php"><li>Insurance Entry</li></a>
-      <a style="text-decoration: none; color: #144d30ff; font-weight: 500; font-size: 14px;"  href="serch.php"><li>Claim</li></a>
-      </ul>
-    </aside>
-  <div class="content-panel">
-    <input type="text" id="search" class="form-input" placeholder="Search by Name / Phone / IMEI">
-    <div id="results">
-      <?php foreach ($allData as $item): ?>
-        <div class="card <?= $item['status'] === 'expired' ? 'red' : ($item['status'] === 'claimed' ? 'yellow' : 'green') ?>">
-          <b>Name:</b> <?= $item['name'] ?> | <b>Phone:</b> <?= $item['phone'] ?><br>
-          <b>Model:</b> <?= $item['model'] ?> | <b>IMEI:</b> <?= $item['imei'] ?><br>
-          <b>Start:</b> <?= $item['Insurance_Start_Date'] ?> | <b>End:</b> <?= $item['Insurance_End_Date'] ?><br>
-          <b>Claims:</b> <?= $item['claim_count'] ?>
-          <div class="card-buttons">
-            <button onclick="location.href='view_insurance.php?id=<?= $item['Insurance_Entry_Id'] ?>'">View</button>
-            <button onclick="location.href='clamentry-form.php?insurance_id=<?= $item['Insurance_Entry_Id'] ?>'">Claim</button>
-          </div>
+  <h2>Insurance & Claim History</h2>
+  <input type="text" id="search" class="search-bar" placeholder="Search by Name, Phone, or IMEI...">
+  <div id="results">
+    <?php foreach ($allData as $item): ?>
+      <div class="card <?= $item['status'] ?>">
+        <b>Name:</b> <?= $item['name'] ?> |
+        <b>Phone:</b> <?= $item['phone'] ?><br>
+        <b>Model:</b> <?= $item['model'] ?> |
+        <b>IMEI:</b> <?= $item['imei'] ?><br>
+        <b>Start:</b> <?= $item['Insurance_Start_Date'] ?> |
+        <b>End:</b> <?= $item['Insurance_End_Date'] ?><br>
+        <b>Total Claims:</b> <?= $item['claim_count'] ?><br>
+        <div class="card-buttons">
+          <button onclick="location.href='view_insurance.php?id=<?= $item['Insurance_Entry_Id'] ?>'">View</button>
+          <button onclick="location.href='clamentry-form.php?insurance_id=<?= $item['Insurance_Entry_Id'] ?>'">Claim</button>
         </div>
-      <?php endforeach; ?>
-    </div>
+      </div>
+    <?php endforeach; ?>
   </div>
 </div>
 
 <script>
 document.getElementById('search').addEventListener('input', function () {
   const query = this.value.trim();
+
   fetch('?q=' + encodeURIComponent(query))
     .then(res => res.json())
     .then(data => {
@@ -104,15 +191,18 @@ document.getElementById('search').addEventListener('input', function () {
       container.innerHTML = '';
 
       data.forEach(item => {
-        let color = item.status === 'expired' ? 'red' : item.status === 'claimed' ? 'yellow' : 'green';
+        let statusClass = item.status;
+        let div = document.createElement('div');
+        div.className = 'card ' + statusClass;
 
-        const div = document.createElement('div');
-        div.className = 'card ' + color;
         div.innerHTML = `
-          <b>Name:</b> ${item.name} | <b>Phone:</b> ${item.phone}<br>
-          <b>Model:</b> ${item.model} | <b>IMEI:</b> ${item.imei}<br>
-          <b>Start:</b> ${item.Insurance_Start_Date} | <b>End:</b> ${item.Insurance_End_Date}<br>
-          <b>Claims:</b> ${item.claim_count}
+          <b>Name:</b> ${item.name} |
+          <b>Phone:</b> ${item.phone}<br>
+          <b>Model:</b> ${item.model} |
+          <b>IMEI:</b> ${item.imei}<br>
+          <b>Start:</b> ${item.Insurance_Start_Date} |
+          <b>End:</b> ${item.Insurance_End_Date}<br>
+          <b>Total Claims:</b> ${item.claim_count}<br>
           <div class="card-buttons">
             <button onclick="location.href='view_insurance.php?id=${item.Insurance_Entry_Id}'">View</button>
             <button onclick="location.href='clamentry-form.php?insurance_id=${item.Insurance_Entry_Id}'">Claim</button>
@@ -122,10 +212,11 @@ document.getElementById('search').addEventListener('input', function () {
       });
 
       if (data.length === 0) {
-        container.innerHTML = '<p>No insurance found.</p>';
+        container.innerHTML = '<p>No results found.</p>';
       }
     });
 });
 </script>
+
 </body>
 </html>
