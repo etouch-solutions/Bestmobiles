@@ -56,7 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
   <title>Claim Entry</title>
   <style>
-    body { font-family: Arial; background: #f9f9f9; padding: 30px; }
+    body { font-family: Arial; background: #ffffffff; padding: 30px; }
     .container { max-width: 600px; margin: auto; background: white; padding: 25px; border-radius: 10px; box-shadow: 0 0 10px #ccc; }
     input, select, textarea { width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 5px; }
     button { background: green; color: white; padding: 10px 20px; border: none; border-radius: 5px; cursor: pointer; }
