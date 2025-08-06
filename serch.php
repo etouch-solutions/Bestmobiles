@@ -60,7 +60,7 @@ $allData = fetch_insurance_entries($conn);
 
     .sidebar {
       width: 220px;
-      background: #34495e;
+      
       height: 100vh;
       position: fixed;
       top: 50px;
