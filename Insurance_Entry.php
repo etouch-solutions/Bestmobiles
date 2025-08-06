@@ -27,7 +27,7 @@
         <li><a href="Customer_Master.php">Customer Master</a></li>
         <li><a href="add_insurance.php">Insurance Master</a></li>
         <li><a href="add_defect.php" class="active">Defect Master</a></li>
-        <li><a href="insurance_entry.php">Insurance Entry</a></li>
+        <li><a href="Insurance_Entry.php">Insurance Entry</a></li>
         <li><a href="serch.php">Claim</a></li>
       </ul>
     </aside>
