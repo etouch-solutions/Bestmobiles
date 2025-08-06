@@ -46,6 +46,7 @@ $allData = fetch_insurance_entries($conn);
 <html>
 <head>
   <title>Insurance & Claim History</title>
+  <link rel="stylesheet" href="styles.css">
   <style>
     * { box-sizing: border-box; }
     body { margin: 0; font-family: 'Segoe UI', sans-serif; background: #f5f7fa; }
@@ -148,15 +149,26 @@ $allData = fetch_insurance_entries($conn);
 </head>
 <body>
 
-<div class="header">Insurance Management System</div>
+ <div class="navtop">
+    <div class="logo">LOGO</div>
+    <h1>Best Mobile Insurance Software</h1>
+    <div class="hamburger" onclick="toggleSidebar()">☰</div>
+  </div>
 
-<div class="sidebar">
-  <a href="dashboard.php">Dashboard</a>
-  <a href="insurance_entry.php">Insurance Entry</a>
-  <a href="claim_entry.php">Claim Entry</a>
-  <a href="insurance_history.php">Insurance History</a>
-  <a href="logout.php">Logout</a>
-</div>
+    <aside class="sidebar mobile-hidden" id="sidebarMenu">
+      <ul>
+        <a href="index.php"><li>Dashboard</li></a>
+        <a href="branch.php" class="active"><li>Branch Master</li></a>
+        <a href="brand.php"><li>Brand Master</li></a>
+        <a href="add_staff.php"><li>Staff Master</li></a>
+        <a href="Customer_Master.php"><li>Customer Master</li></a>
+        <a href="add_insurance.php"><li>Insurance Master</li></a>
+        <a href="add_defect.php"><li>Defect Master</li></a>
+        <a href="insuranceentry.php"><li>Insurance Entry</li></a>
+        <a href="serch.php"><li>Claim</li></a>
+      </ul>
+    </aside>
+
 
 <div class="main-content">
   <h2>Insurance & Claim History</h2>
