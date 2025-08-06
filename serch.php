@@ -140,7 +140,11 @@ $allData = fetch_insurance_entries($conn);
 </head>
 <body>
 
-<div class="header">Insurance Management System</div>
+<div class="navtop">
+    <div class="logo">LOGO</div>
+    <h1>Best Mobile Insurance Software</h1>
+    <div class="hamburger" onclick="toggleSidebar()">☰</div>
+  </div>
 
     <aside class="sidebar mobile-hidden" id="sidebarMenu">
       <ul>
