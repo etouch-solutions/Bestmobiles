@@ -195,13 +195,13 @@ document.getElementById('search').addEventListener('input', function () {
         div.className = 'card ' + statusClass;
 
         div.innerHTML = `
-          <b>Name:</b> ${item.name} |
-          <b>Phone:</b> ${item.phone}<br>
-          <b>Model:</b> ${item.model} |
-          <b>IMEI:</b> ${item.imei}<br>
-          <b>Start:</b> ${item.Insurance_Start_Date} |
-          <b>End:</b> ${item.Insurance_End_Date}<br>
-          <b>Total Claims:</b> ${item.claim_count}<br>
+          <b>Name:</b> ${item.name}
+          <b>Phone:</b> ${item.phone}
+          <b>Model:</b> ${item.model} 
+          <b>IMEI:</b> ${item.imei}
+          <b>Start:</b> ${item.Insurance_Start_Date} 
+          <b>End:</b> ${item.Insurance_End_Date}
+          <b>Total Claims:</b> ${item.claim_count}
           <div class="card-buttons">
             <button onclick="location.href='view_insurance.php?id=${item.Insurance_Entry_Id}'">View</button>
             <button onclick="location.href='clamentry-form.php?insurance_id=${item.Insurance_Entry_Id}'">Claim</button>
