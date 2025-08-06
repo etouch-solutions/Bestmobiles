@@ -45,7 +45,7 @@ $allData = fetch_insurance_entries($conn);
 <html>
 <head>
   <title>Insurance & Claim History</title>
-  <link rel="stylesheet" href="styles.css">
+   <link rel="stylesheet" href="styles.css">
   <style>
     .card { border-radius: 10px; padding: 15px; margin-bottom: 15px; color: white; }
     .green { background-color: #28a745; }
@@ -61,6 +61,20 @@ $allData = fetch_insurance_entries($conn);
     <h2>Insurance & Claim History</h2>
   </div>
 
+
+ <aside class="sidebar mobile-hidden" id="sidebarMenu">
+      <ul>
+      <a style="text-decoration: none; color: #144d30ff; font-weight: 500; font-size: 14px;"  href="index.php"><li>Dashboard</li></a>
+     <a style="text-decoration: none; color: #144d30ff; font-weight: 500; font-size: 14px;" href="branch.php" class="active"> <li>Branch Master</li></a>
+     <a style="text-decoration: none; color: #144d30ff; font-weight: 500; font-size: 14px;"  href="brand.php" > <li>Brand Master</li></a>
+      <a style="text-decoration: none; color: #144d30ff; font-weight: 500; font-size: 14px;"  href="add_staff.php"><li>Staff Master</li></a>
+      <a style="text-decoration: none; color: #144d30ff; font-weight: 500; font-size: 14px;"  href="Customer_Master.php"><li>Customer Master</li></a>
+      <a style="text-decoration: none; color: #144d30ff; font-weight: 500; font-size: 14px;"  href="add_insurance.php"><li>Insurance Master</li></a>
+      <a style="text-decoration: none; color: #144d30ff; font-weight: 500; font-size: 14px;"  href="add_defect.php"><li>Defect Master</li></a>
+      <a style="text-decoration: none; color: #144d30ff; font-weight: 500; font-size: 14px;"  href="insuranceentry.php"><li>Insurance Entry</li></a>
+      <a style="text-decoration: none; color: #144d30ff; font-weight: 500; font-size: 14px;"  href="serch.php"><li>Claim</li></a>
+      </ul>
+    </aside>
   <div class="content-panel">
     <input type="text" id="search" class="form-input" placeholder="Search by Name / Phone / IMEI">
     <div id="results">
