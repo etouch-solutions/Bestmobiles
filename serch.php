@@ -59,26 +59,17 @@ $allData = fetch_insurance_entries($conn);
     }
 
     .sidebar {
-      width: 220px;
-      
-      height: 100vh;
+       ;
       position: fixed;
-      top: 50px;
-      left: 0;
-       
-      color: white;
+      
     }
 
     .sidebar a {
       display: block;
       
-      color: white;
-      text-decoration: none;
     }
 
-    .sidebar a:hover {
-      background: #1abc9c;
-    }
+     
 
     .main-content {
       margin-left: 220px;
