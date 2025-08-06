@@ -17,128 +17,87 @@
 </div>
 
 <div class="container">
-  <aside class="sidebar mobile-hidden" id="sidebarMenu">
-    <ul>
-      <li><a href="dashboard.php">Dashboard</a></li>
-      <li class="active"><a href="add_insurance_entry.php">Insurance Entry</a></li>
-      <li><a href="insurance_entry_list.php">Entries List</a></li>
-    </ul>
-  </aside>
+    <!-- Sidebar -->
+    <aside class="sidebar mobile-hidden" id="sidebarMenu">
+      <ul>
+        <li><a href="index.php">Dashboard</a></li>
+        <li><a href="branch.php">Branch Master</a></li>
+        <li><a href="brand.php">Brand Master</a></li>
+        <li><a href="add_staff.php">Staff Master</a></li>
+        <li><a href="Customer_Master.php">Customer Master</a></li>
+        <li><a href="add_insurance.php">Insurance Master</a></li>
+        <li><a href="add_defect.php" class="active">Defect Master</a></li>
+        <li><a href="insurance_entry.php">Insurance Entry</a></li>
+        <li><a href="serch.php">Claim</a></li>
+      </ul>
+    </aside>
 
-  <main class="main-content">
-    <div class="content-area">
-      <!-- Form Section -->
-      <section class="add-branch">
-        <h3>Add Insurance Entry</h3>
-        <form action="insert_insurance_entry.php" method="POST" enctype="multipart/form-data">
-          <label>Select Customer</label>
-          <select name="cus_id" onchange="loadCustomerDetails(this.value)" required>
-            <option value="">-- Select --</option>
-            <?php
-              $res = mysqli_query($conn, "SELECT Cus_Id, Cus_Name FROM Customer_Master WHERE Is_Active=1");
-              while ($row = mysqli_fetch_assoc($res))
-                echo "<option value='{$row['Cus_Id']}'>{$row['Cus_Name']}</option>";
-            ?>
-          </select>
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="content-area">
+        <!-- Form -->
+        <section class="add-branch">
+          <h3><?= $editData ? "Edit Defect" : "Add Defect" ?></h3>
+          <form method="POST">
+            <?php if ($editData): ?>
+              <input type="hidden" name="defect_id" value="<?= $editData['Defect_Id'] ?>">
+            <?php endif; ?>
 
-          <label>Select Brand</label>
-          <select name="brand_id" onchange="loadBrandDetails(this.value)" required>
-            <option value="">-- Select --</option>
-            <?php
-              $res = mysqli_query($conn, "SELECT Brand_Id, Brand_Name FROM Brands_Master WHERE Is_Active=1");
-              while ($row = mysqli_fetch_assoc($res))
-                echo "<option value='{$row['Brand_Id']}'>{$row['Brand_Name']}</option>";
-            ?>
-          </select>
+            <input type="text" name="defect_name" placeholder="Defect Name" required value="<?= $editData['Defect_Name'] ?? '' ?>">
+            <textarea name="defect_description" placeholder="Description" required><?= $editData['Defect_Description'] ?? '' ?></textarea>
 
-          <label>Select Insurance Plan</label>
-          <select name="insurance_id" id="insurance_id" onchange="calculatePremiumAndEndDate(); loadInsuranceDetails(this.value)" required>
-            <option value="">-- Select --</option>
-            <?php
-              $res = mysqli_query($conn, "SELECT Insurance_Id, Insurance_Name, Premium_Percentage, Duration_Months FROM Insurance_Master WHERE Is_Active=1");
-              while($r = mysqli_fetch_assoc($res))
-                echo "<option value='{$r['Insurance_Id']}' data-premium='{$r['Premium_Percentage']}' data-duration='{$r['Duration_Months']}'>{$r['Insurance_Name']}</option>";
-            ?>
-          </select>
+            <select name="defect_status" required>
+              <option value="">-- Select Status --</option>
+              <option value="1" <?= (isset($editData['Is_Active']) && $editData['Is_Active'] == 1) ? 'selected' : '' ?>>Active</option>
+              <option value="0" <?= (isset($editData['Is_Active']) && $editData['Is_Active'] == 0) ? 'selected' : '' ?>>Inactive</option>
+            </select>
 
-          <label>Select Staff</label>
-          <select name="staff_id" required>
-            <option value="">-- Select --</option>
-            <?php
-              $res = mysqli_query($conn, "SELECT Staff_Id, Staff_Name FROM Staff_Master WHERE Staff_Status=1");
-              while($r = mysqli_fetch_assoc($res))
-                echo "<option value='{$r['Staff_Id']}'>{$r['Staff_Name']}</option>";
-            ?>
-          </select>
+            <button type="submit"><?= $editData ? 'Update Defect' : 'Add Defect' ?></button>
+          </form>
+        </section>
 
-          <label>Product Model Name</label>
-          <input type="text" name="product_model_name" oninput="updatePreview('model', this)" required>
+        <!-- List -->
+        <section class="overview">
+          <h3>Defect List</h3>
+          <div class="search-container">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" id="searchBox" placeholder="Search defects..." value="<?= htmlspecialchars($search) ?>" onkeyup="filterDefects(this.value)">
+          </div>
 
-          <label>IMEI 1</label>
-          <input type="text" name="imei_1" oninput="updatePreview('imei1', this)" required>
-
-          <label>IMEI 2</label>
-          <input type="text" name="imei_2" oninput="updatePreview('imei2', this)">
-
-          <label>Product Value (₹)</label>
-          <input type="number" name="product_value" id="product_value" oninput="calculatePremiumAndEndDate(); updatePreview('value', this)" required>
-
-          <label>Calculated Premium (₹)</label>
-          <input type="number" name="premium_amount" id="premium_amount" readonly>
-
-          <label>Upload Product Photo</label>
-          <input type="file" name="product_photo" accept="image/*" onchange="previewImage(this,'previewProductPhoto')">
-
-          <label>Upload Bill Photo</label>
-          <input type="file" name="bill_photo" accept="image/*" onchange="previewImage(this,'previewBillPhoto')">
-
-          <label>Bill Date</label>
-          <input type="date" name="bill_date" onchange="updatePreview('bill', this)" required>
-
-          <label>Insurance Start</label>
-          <input type="date" name="insurance_start" id="insurance_start" onchange="calculatePremiumAndEndDate(); updatePreview('start', this)" required>
-
-          <label>Insurance End</label>
-          <input type="date" name="insurance_end" id="insurance_end" readonly>
-
-          <label>Insurance Status</label>
-          <select name="insurance_status" onchange="updatePreview('insStatus', this)">
-            <option value="1">Valid</option>
-            <option value="0">Invalid</option>
-          </select>
-
-          <label>Product Insurance Status</label>
-          <select name="product_ins_status" onchange="updatePreview('prodStatus', this)">
-            <option value="1">Active</option>
-            <option value="0">Inactive</option>
-          </select>
-
-          <button type="submit">Submit</button>
-        </form>
-      </section>
-
-      <!-- Preview Panel -->
-      <section class="overview">
-        <h3>Live Preview</h3>
-        <div id="customerDetails">Select a customer to view details.</div>
-        <div id="brandDetails">Select a brand to view details.</div>
-        <div id="insuranceDetails">Select a plan to view details.</div>
-        <p id="previewModel">Model: -</p>
-        <p id="previewIMEI1">IMEI 1: -</p>
-        <p id="previewIMEI2">IMEI 2: -</p>
-        <p id="previewValue">Product Value: -</p>
-        <p id="previewPremium">Premium: -</p>
-        <p id="previewBillDate">Bill Date: -</p>
-        <p id="previewStart">Start Date: -</p>
-        <p id="previewEnd">End Date: -</p>
-        <p id="previewInsStatus">Insurance Status: -</p>
-        <p id="previewProdStatus">Product Insurance Status: -</p>
-        <div>Product Photo:<br><img id="previewProductPhoto" width="120"></div>
-        <div>Bill Photo:<br><img id="previewBillPhoto" width="120"></div>
-      </section>
-    </div>
-  </main>
-</div>
+          <div class="table-responsive">
+            <table>
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Description</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <?php while ($row = $defects->fetch_assoc()):
+                  $jsonRow = htmlspecialchars(json_encode($row), ENT_QUOTES, 'UTF-8');
+                  $statusText = $row['Is_Active'] == 1 ? 'Active' : 'Inactive';
+                  $rowClass = $row['Is_Active'] == 1 ? 'active-row' : 'inactive-row';
+                ?>
+                  <tr class="<?= $rowClass ?>">
+                    <td><?= $row['Defect_Name'] ?></td>
+                    <td><?= $row['Defect_Description'] ?></td>
+                    <td><?= $statusText ?></td>
+                    <td class="action-btns">
+                      <i class='fas fa-eye' onclick='viewDetails(<?= $jsonRow ?>)'></i>
+                      <a href='?edit=<?= $row['Defect_Id'] ?>'><i class='fas fa-pen'></i></a>
+                      <a href='javascript:void(0)' onclick='deleteDefect(<?= $row['Defect_Id'] ?>)'><i class='fas fa-trash text-danger'></i></a>
+                    </td>
+                  </tr>
+                <?php endwhile; ?>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+    </main>
+  </div>
 
 <!-- JS -->
 <script>
