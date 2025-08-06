@@ -86,18 +86,18 @@ $allData = fetch_insurance_entries($conn);
 
     .sidebar a {
       display: block;
-      margin-bottom: 15px;
-      font-weight: bold;
-      color: #2ecc71;
-      text-decoration: none;
-      padding: 8px 10px;
-      border-radius: 5px;
+      
+      
+       
+     
+       
+       
     }
 
     .sidebar a:hover,
     .sidebar a.active {
-      background-color: #2ecc71;
-      color: white;
+   
+      c 
     }
 
     .main-content {
