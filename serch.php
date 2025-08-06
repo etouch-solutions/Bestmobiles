@@ -51,9 +51,34 @@ $allData = fetch_insurance_entries($conn);
     * { box-sizing: border-box; }
     body { margin: 0; font-family: 'Segoe UI', sans-serif; background: #f5f7fa; }
 
-     
+    .header {
+      background: #2c3e50;
+      color: white;
+      padding: 15px 25px;
+      font-size: 20px;
+    }
 
-     
+    .sidebar {
+      width: 220px;
+      background: #34495e;
+      height: 100vh;
+      position: fixed;
+      top: 50px;
+      left: 0;
+      padding-top: 20px;
+      color: white;
+    }
+
+    .sidebar a {
+      display: block;
+      padding: 12px 20px;
+      color: white;
+      text-decoration: none;
+    }
+
+    .sidebar a:hover {
+      background: #1abc9c;
+    }
 
     .main-content {
       margin-left: 220px;
