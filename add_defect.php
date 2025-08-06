@@ -73,7 +73,7 @@ $defects = $conn->query("SELECT * FROM Defect_Master $searchSql ORDER BY Defect_
         <a href="Customer_Master.php"><li>Customer Master</li></a>
         <a href="add_insurance.php"><li>Insurance Master</li></a>
         <a href="add_defect.php"><li>Defect Master</li></a>
-        <a href="insurance_entry.php"><li>Insurance Entry</li></a>
+        <a href="insuranceentry.php"><li>Insurance Entry</li></a>
         <a href="serch.php"><li>Claim</li></a>
       </ul>
     </aside>
