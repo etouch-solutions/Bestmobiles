@@ -60,17 +60,18 @@ if (isset($_GET['edit'])) {
   <div class="container">
     <aside class="sidebar mobile-hidden" id="sidebarMenu">
       <ul>
-        <li><a href="index.php">Dashboard</a></li>
-        <li><a href="branch.php">Branch Master</a></li>
-        <li><a href="brand.php" class="active">Brand Master</a></li>
-        <li><a href="add_staff.php">Staff Master</a></li>
-        <li><a href="">Customer Master</a></li>
-        <li><a href="#">Insurance Master</a></li>
-        <li><a href="#">Defect Master</a></li>
-        <li><a href="#">Insurance Entry</a></li>
-        <li><a href="#">Claim</a></li>
+        <a href="index.php"><li>Dashboard</li></a>
+        <a href="branch.php" class="active"><li>Branch Master</li></a>
+        <a href="brand.php"><li>Brand Master</li></a>
+        <a href="add_staff.php"><li>Staff Master</li></a>
+        <a href="Customer_Master.php"><li>Customer Master</li></a>
+        <a href="add_insurance.php"><li>Insurance Master</li></a>
+        <a href="add_defect.php"><li>Defect Master</li></a>
+        <a href="insurance_entry.php"><li>Insurance Entry</li></a>
+        <a href="serch.php"><li>Claim</li></a>
       </ul>
     </aside>
+
 
     <main class="main-content">
       <div class="content-area">
