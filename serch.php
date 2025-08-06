@@ -65,13 +65,13 @@ $allData = fetch_insurance_entries($conn);
       position: fixed;
       top: 50px;
       left: 0;
-      padding-top: 20px;
+       
       color: white;
     }
 
     .sidebar a {
       display: block;
-      padding: 12px 20px;
+      
       color: white;
       text-decoration: none;
     }
