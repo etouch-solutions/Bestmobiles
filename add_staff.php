@@ -3,29 +3,102 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 include 'db.php';
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $name = trim($_POST['staff_name'] ?? '');
+    $cno = trim($_POST['staff_cno'] ?? '');
+    $email = trim($_POST['staff_email'] ?? '');
+    $address = trim($_POST['staff_address'] ?? '');
+    $designation = trim($_POST['staff_designation'] ?? '');
+    $status = isset($_POST['staff_status']) ? intval($_POST['staff_status']) : 0;
+    $branch_id = isset($_POST['branch_id']) ? intval($_POST['branch_id']) : 0;
 
+    // basic validation
+    if ($name === '' || $cno === '') {
+        header("Location: add_staff.php?error=1&msg=" . urlencode("Name and Contact are required"));
+        exit();
+    }
 
- if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    $name = trim($_POST['name'] ?? '');
-    $email = trim($_POST['email'] ?? '');
-
-    if ($name !== '' && $email !== '') {
-        $stmt = $conn->prepare("INSERT INTO staff (name, email) VALUES (?, ?)");
-        $stmt->bind_param("ss", $name, $email);
-
-        if ($stmt->execute()) {
-            header("Location: add_staff.php?success=1&msg=Staff+Added+Successfully");
-            exit();
-        } else {
-            header("Location: add_staff.php?error=1&msg=Failed+to+Add+Staff");
-            exit();
-        }
+    if ($id) {
+        $stmt = $conn->prepare(
+            "UPDATE Staff_Master 
+             SET Staff_Name=?, Staff_CNo=?, Staff_Email=?, Staff_Address=?, Staff_Designation=?, Staff_Status=?, Branch_Id=? 
+             WHERE Staff_Id=?"
+        );
+        $stmt->bind_param("sssssiii", $name, $cno, $email, $address, $designation, $status, $branch_id, $id);
     } else {
-        header("Location: add_staff.php?error=1&msg=Please+fill+all+fields");
+        $stmt = $conn->prepare(
+            "INSERT INTO Staff_Master (Staff_Name, Staff_CNo, Staff_Email, Staff_Address, Staff_Designation, Staff_Status, Branch_Id) 
+             VALUES (?, ?, ?, ?, ?, ?, ?)"
+        );
+        $stmt->bind_param("sssssii", $name, $cno, $email, $address, $designation, $status, $branch_id);
+    }
+
+    if (!$stmt) {
+        header("Location: add_staff.php?error=1&msg=" . urlencode("DB prepare failed: " . $conn->error));
+        exit();
+    }
+
+    if ($stmt->execute()) {
+        $stmt->close();
+        header("Location: add_staff.php?success=1&msg=" . urlencode($id ? "Staff updated successfully" : "Staff added successfully"));
+        exit();
+    } else {
+        $err = $stmt->error ?: $conn->error;
+        $stmt->close();
+        header("Location: add_staff.php?error=1&msg=" . urlencode("DB error: " . $err));
         exit();
     }
 }
 
+// ---------- Handle delete ----------
+if (isset($_GET['delete'])) {
+    $delId = intval($_GET['delete']);
+    if ($delId > 0 && $conn->query("DELETE FROM Staff_Master WHERE Staff_Id = $delId")) {
+        header("Location: add_staff.php?success=1&msg=" . urlencode("Staff deleted successfully"));
+        exit();
+    } else {
+        header("Location: add_staff.php?error=1&msg=" . urlencode("Failed to delete staff"));
+        exit();
+    }
+}
+
+// ---------- Fetch edit data (if requested) ----------
+$editData = null;
+if (isset($_GET['edit'])) {
+    $editId = intval($_GET['edit']);
+    if ($editId > 0) {
+        $res = $conn->query("SELECT * FROM Staff_Master WHERE Staff_Id = $editId");
+        if ($res && $res->num_rows > 0) {
+            $editData = $res->fetch_assoc();
+        }
+    }
+}
+
+// ---------- Fetch lists for page ----------
+$staffs = $conn->query("
+    SELECT s.*, b.Branch_Name 
+    FROM Staff_Master s 
+    LEFT JOIN Branch_Master b ON s.Branch_Id = b.Branch_Id 
+    ORDER BY s.Staff_Id DESC
+");
+$branches = $conn->query("SELECT Branch_Id, Branch_Name FROM Branch_Master ORDER BY Branch_Name ASC");
+?>
+
+<!-- Add this in the <head> or before </body> -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<?php if (isset($_GET['msg'])): ?>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        Swal.fire({
+            icon: '<?php echo isset($_GET['success']) ? "success" : "error"; ?>',
+            title: '<?php echo isset($_GET['success']) ? "Success" : "Error"; ?>',
+            text: "<?php echo htmlspecialchars($_GET['msg'], ENT_QUOTES); ?>",
+            confirmButtonColor: '<?php echo isset($_GET['success']) ? "#28a745" : "#dc3545"; ?>'
+        });
+    });
+</script>
+<?php endif; ?>
 
 
 
