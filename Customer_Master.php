@@ -128,7 +128,7 @@ $branches = $conn->query("SELECT Branch_Id, Branch_Name FROM Branch_Master");
             </select>
 
             <select name="cus_status">
-              <option value="">-- Select Status --</option>
+              
               <option value="1" <?= (isset($editData['Is_Active']) && $editData['Is_Active'] == 1) ? 'selected' : '' ?>>Active</option>
               <option value="0" <?= (isset($editData['Is_Active']) && $editData['Is_Active'] == 0) ? 'selected' : '' ?>>Inactive</option>
             </select>

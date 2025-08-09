@@ -114,7 +114,7 @@ $staffs = $conn->query("
             </select>
 
             <select name="staff_status">
-              <option value="">-- Select Status --</option>
+              
               <option value="1" <?= (isset($editData['Staff_Status']) && $editData['Staff_Status'] == 1) ? 'selected' : '' ?>>Active</option>
               <option value="0" <?= (isset($editData['Staff_Status']) && $editData['Staff_Status'] == 0) ? 'selected' : '' ?>>Inactive</option>
             </select>

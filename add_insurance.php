@@ -94,7 +94,7 @@ $plans = $conn->query("SELECT * FROM Insurance_Master ORDER BY Insurance_Id DESC
             <input type="number" name="premium_percentage" placeholder="Premium %" min="1" required value="<?= $editData['Premium_Percentage'] ?? '' ?>">
 
             <select name="duration" required>
-              <option value="">-- Select Duration --</option>
+             
               <?php for ($i = 1; $i <= 24; $i++): ?>
                 <option value="<?= $i ?>" <?= (isset($editData['Duration_Months']) && $editData['Duration_Months'] == $i) ? 'selected' : '' ?>>
                   <?= $i ?> Month<?= $i > 1 ? 's' : '' ?>
