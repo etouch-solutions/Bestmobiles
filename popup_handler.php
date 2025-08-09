@@ -1,66 +1,68 @@
 <?php
-// popup_handler.php
-session_start();
+// popup_handler.php — Include this at top of your page
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
-// Step 1: If URL has popup parameters, save them in session and redirect
+// STEP 1: Catch popup data from query string
 if (isset($_GET['success']) || isset($_GET['error'])) {
     $_SESSION['popup_type'] = isset($_GET['success']) ? 'success' : 'error';
     $_SESSION['popup_message'] = $_GET['msg'] ?? '';
-    header("Location: " . strtok($_SERVER["REQUEST_URI"], '?'));
+
+    // Redirect to same page without query string (Prevents loop)
+    $url = strtok($_SERVER['REQUEST_URI'], '?');
+    header("Location: $url");
     exit();
 }
 
-// Step 2: Show popup if stored in session
+// STEP 2: Show popup only if message exists in session
 if (!empty($_SESSION['popup_message'])) {
-    $type = $_SESSION['popup_type'];
-    $msg = htmlspecialchars($_SESSION['popup_message'], ENT_QUOTES, 'UTF-8');
+    $type = $_SESSION['popup_type'] ?? 'success';
+    $msg  = htmlspecialchars($_SESSION['popup_message'], ENT_QUOTES, 'UTF-8');
 
-    // Clear from session so it doesn't reappear
-    unset($_SESSION['popup_message'], $_SESSION['popup_type']);
+    // Clear so refresh won't show again
+    unset($_SESSION['popup_type'], $_SESSION['popup_message']);
     ?>
     <style>
     .site-popup {
-        color: #000000;
-      position: fixed;
-      top: 20px;
-      right: 20px;
-      min-width: 260px;
-      max-width: 420px;
-      padding: 14px 16px;
-      border-radius: 6px;
-      color: #fff;
-      font-weight: 600;
-      z-index: 99999;
-      box-shadow: 0 6px 18px rgba(0,0,0,0.12);
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      animation: popupIn 0.35s ease;
+        position: fixed;
+        top: 20px;
+        right: -400px; /* hidden initially */
+        min-width: 260px;
+        max-width: 420px;
+        padding: 14px 16px;
+        border-radius: 6px;
+        color: #fff;
+        font-weight: 600;
+        z-index: 99999;
+        box-shadow: 0 6px 18px rgba(0,0,0,0.12);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        opacity: 0;
+        transition: right 0.4s ease, opacity 0.4s ease;
     }
-    .site-popup.success { background: #86ffa2ff; }
-    .site-popup.error   { background: #ff929dff; }
-    .site-popup .close { cursor: pointer; font-size: 18px; opacity: 0.9; }
-    @keyframes popupIn { from { transform: translateY(-10px); opacity: 0 } to { transform: translateY(0); opacity: 1 } }
+    .site-popup.success { background: #28a745; }
+    .site-popup.error   { background: #dc3545; }
+    .site-popup.show {
+        right: 20px;
+        opacity: 1;
+    }
     </style>
-
-    <div id="sitePopup" class="site-popup <?= $type ?>">
-      <div style="flex:1;line-height:1.2;">
-        <?= $type === 'success' ? '✅' : '❌' ?>
-        <span style="margin-left:8px;"><?= $msg ?></span>
-      </div>
-      <div class="close" onclick="closeSitePopup()">×</div>
+    <div class="site-popup <?= $type ?>" id="sitePopup">
+        <?= $type === 'success' ? '✅' : '❌' ?> <?= $msg ?>
     </div>
-
     <script>
-    function closeSitePopup(){
-      const el = document.getElementById('sitePopup');
-      if(!el) return;
-      el.style.transition = 'opacity .25s, transform .25s';
-      el.style.opacity = 0;
-      el.style.transform = 'translateY(-8px)';
-      setTimeout(()=> el.remove(), 300);
-    }
-    setTimeout(()=> { if (document.getElementById('sitePopup')) closeSitePopup(); }, 3500);
+        window.onload = function() {
+            var el = document.getElementById('sitePopup');
+            if (el) {
+                setTimeout(() => el.classList.add('show'), 100);
+                setTimeout(() => {
+                    el.classList.remove('show');
+                    setTimeout(() => el.remove(), 400);
+                }, 3500);
+            }
+        };
     </script>
     <?php
 }

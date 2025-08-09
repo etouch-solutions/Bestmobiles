@@ -5,12 +5,27 @@ include 'db.php';
 
 
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $name = trim($_POST['name'] ?? '');
+    $email = trim($_POST['email'] ?? '');
 
+    if ($name !== '' && $email !== '') {
+        $stmt = $conn->prepare("INSERT INTO staff (name, email) VALUES (?, ?)");
+        $stmt->bind_param("ss", $name, $email);
 
-
-header("Location: add_staff.php?success=1&msg=Staff+Added+Successfully");
-exit();
-
+        if ($stmt->execute()) {
+            header("Location: add_staff.php?success=1&msg=Staff+Added+Successfully");
+            exit();
+        } else {
+            header("Location: add_staff.php?error=1&msg=Failed+to+Add+Staff");
+            exit();
+        }
+    } else {
+        header("Location: add_staff.php?error=1&msg=Please+fill+all+fields");
+        exit();
+    }
+}
+?>
 
 
 
