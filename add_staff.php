@@ -1,10 +1,8 @@
-<?php include 'popup_handler.php'; ?>
-
 <?php
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 include 'db.php';
-
+include 'popup_handler.php';
 // Insert or Update logic
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   $id = $_POST['staff_id'] ?? null;
@@ -55,20 +53,20 @@ $staffs = $conn->query("
   LEFT JOIN Branch_Master b ON s.Branch_Id = b.Branch_Id 
   ORDER BY s.Staff_Id DESC
 ");
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $name = $_POST['name'] ?? '';
+
+    // Example: Staff added successfully
+    if (!empty($name)) {
+        header("Location: add_staff.php?success=1&msg=Staff+Added+Successfully");
+        exit();
+    } else {
+        header("Location: add_staff.php?error=1&msg=Failed+to+Add+Staff");
+        exit();
+    }
+}
 ?>
-
-
-
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-
-
-
-
-
-
-
-
 
 <!DOCTYPE html>
 <html>
@@ -230,6 +228,5 @@ $staffs = $conn->query("
       }
     }
   </script>
- 
 </body>
 </html>
