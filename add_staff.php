@@ -111,6 +111,23 @@ $staffs = $conn->query("
 ");
 $branches = $conn->query("SELECT Branch_Id, Branch_Name FROM Branch_Master ORDER BY Branch_Name ASC");
 ?>
+
+<!-- Add this in the <head> or before </body> -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<?php if (isset($_GET['msg'])): ?>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        Swal.fire({
+            icon: '<?php echo isset($_GET['success']) ? "success" : "error"; ?>',
+            title: '<?php echo isset($_GET['success']) ? "Success" : "Error"; ?>',
+            text: "<?php echo htmlspecialchars($_GET['msg'], ENT_QUOTES); ?>",
+            confirmButtonColor: '<?php echo isset($_GET['success']) ? "#28a745" : "#dc3545"; ?>'
+        });
+    });
+</script>
+<?php endif; ?>
+
 <!DOCTYPE html>
 <html>
 <head>
