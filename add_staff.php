@@ -2,6 +2,7 @@
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 include 'db.php';
+include 'popup_handler.php';
 
 // Insert or Update logic
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
