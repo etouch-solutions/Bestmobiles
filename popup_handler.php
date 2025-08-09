@@ -26,8 +26,8 @@ $msg = isset($_GET['msg']) ? htmlspecialchars(urldecode($_GET['msg']), ENT_QUOTE
   gap: 10px;
   animation: popupIn 0.35s ease;
 }
-.site-popup.success { background: #28a745; }
-.site-popup.error   { background: #dc3545; }
+.site-popup.success { background: #afffc2ff; }
+.site-popup.error   { background: #ffc1c7ff; }
 .site-popup .close { cursor: pointer; font-size: 18px; opacity: 0.9; }
 @keyframes popupIn { from { transform: translateY(-10px); opacity: 0 } to { transform: translateY(0); opacity: 1 } }
 </style>
