@@ -46,9 +46,9 @@ if (isset($_GET['edit'])) {
     $editData = $res->fetch_assoc();
   }
 }
-header("Location: add_insurance.php?success=1&msg=Insurance+Plan+Added+Successfully");
+header("Location: add_staff.php?success=1&msg=Staff+Added+Successfully");
 exit();
-header("Location: add_insurance.php?error=1&msg=Failed+to+Add+Insurance+Plan");
+header("Location: add_staff.php?error=1&msg=Failed+to+Add+Staff");
 exit();
 
 // Fetch staff list
