@@ -3,6 +3,18 @@ error_reporting(E_ALL);
 ini_set('display_errors', 1);
 include 'db.php';
 
+
+
+
+
+
+header("Location: add_staff.php?success=1&msg=Staff+Added+Successfully");
+exit();
+
+
+
+
+
 // ---------- Handle form submit (insert / update) ----------
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $id = isset($_POST['staff_id']) && $_POST['staff_id'] !== '' ? intval($_POST['staff_id']) : null;
@@ -201,7 +213,8 @@ $branches = $conn->query("SELECT Branch_Id, Branch_Name FROM Branch_Master ORDER
   </div>
 
   <!-- Include popup handler HERE (inside body) so header() can still work earlier. -->
-  <?php include 'popup_handler.php'; ?>
+<?php include 'popup_handler.php'; ?>
+
 
   <!-- Popup view (detail) -->
   <div class="popup-overlay" id="popupOverlay" style="display:none;">
