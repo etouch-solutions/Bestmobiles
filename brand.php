@@ -84,7 +84,7 @@ if (isset($_GET['edit'])) {
             <?php endif; ?>
             <input type="text" name="brand_name" placeholder="Brand Name" required value="<?= $editBrand['Brand_Name'] ?? '' ?>">
             <select name="is_active">
-              <option value="">Select Status</option>
+               
               <option value="1" <?= (isset($editBrand['Is_Active']) && $editBrand['Is_Active'] == 1) ? 'selected' : '' ?>>Active</option>
               <option value="0" <?= (isset($editBrand['Is_Active']) && $editBrand['Is_Active'] == 0) ? 'selected' : '' ?>>Inactive</option>
             </select>
