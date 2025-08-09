@@ -119,7 +119,7 @@ if (isset($_GET['edit'])) {
             <textarea name="branch_address" placeholder="Branch Address" required><?= $editBranch['Branch_Address'] ?? '' ?></textarea>
             <input type="number" name="branch_cno" placeholder="Contact Number" required value="<?= $editBranch['Branch_CNo'] ?? '' ?>">
             <select name="branch_status" required>
-              <option value="">Select Status</option>
+             
               <option value="1" <?= (isset($editBranch['Branch_Status']) && $editBranch['Branch_Status'] == 1) ? 'selected' : '' ?>>Active</option>
               <option value="0" <?= (isset($editBranch['Branch_Status']) && $editBranch['Branch_Status'] == 0) ? 'selected' : '' ?>>Inactive</option>
             </select>

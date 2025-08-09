@@ -103,7 +103,7 @@ $staffs = $conn->query("
             <input type="text" name="staff_designation" placeholder="Designation" required value="<?= $editData['Staff_Designation'] ?? '' ?>">
 
             <select name="branch_id" required>
-              <option value="">-- Select Branch --</option>
+             
               <?php
               $branches = $conn->query("SELECT Branch_Id, Branch_Name FROM Branch_Master");
               while ($b = $branches->fetch_assoc()):

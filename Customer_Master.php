@@ -119,7 +119,7 @@ $branches = $conn->query("SELECT Branch_Id, Branch_Name FROM Branch_Master");
             <input type="number" name="cus_ref_cno" placeholder="Reference Number" value="<?= $editData['Cus_Ref_CNo'] ?? '' ?>">
 
             <select name="branch_id" required>
-              <option value="">-- Select Branch --</option>
+           
               <?php while ($b = $branches->fetch_assoc()): ?>
                 <option value="<?= $b['Branch_Id'] ?>" <?= (isset($editData['Branch_Id']) && $editData['Branch_Id'] == $b['Branch_Id']) ? 'selected' : '' ?>>
                   <?= htmlspecialchars($b['Branch_Name']) ?>

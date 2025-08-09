@@ -62,7 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <input type="hidden" name="insurance_entry_id" id="insurance_entry_id">
 <label>Select Defect</label>
 <select name="defect_id" required>
-  <option value="">-- Select Defect --</option>
+ 
   <?php
     $res = mysqli_query($conn, "SELECT Defect_Id, Defect_Name FROM Defect_Master WHERE Is_Active = 1");
     if ($res && mysqli_num_rows($res) > 0) {

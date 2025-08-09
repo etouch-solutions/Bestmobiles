@@ -103,7 +103,7 @@ $plans = $conn->query("SELECT * FROM Insurance_Master ORDER BY Insurance_Id DESC
             </select>
 
             <select name="insurance_status">
-              <option value="">-- Select Status --</option>
+              
               <option value="1" <?= (isset($editData['Insurance_Status']) && $editData['Insurance_Status'] == 1) ? 'selected' : '' ?>>Active</option>
               <option value="0" <?= (isset($editData['Insurance_Status']) && $editData['Insurance_Status'] == 0) ? 'selected' : '' ?>>Inactive</option>
             </select>

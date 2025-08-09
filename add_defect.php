@@ -94,7 +94,7 @@ $defects = $conn->query("SELECT * FROM Defect_Master $searchSql ORDER BY Defect_
             <textarea name="defect_description" placeholder="Description" required><?= $editData['Defect_Description'] ?? '' ?></textarea>
 
             <select name="defect_status" required>
-              <option value="">-- Select Status --</option>
+              
               <option value="1" <?= (isset($editData['Is_Active']) && $editData['Is_Active'] == 1) ? 'selected' : '' ?>>Active</option>
               <option value="0" <?= (isset($editData['Is_Active']) && $editData['Is_Active'] == 0) ? 'selected' : '' ?>>Inactive</option>
             </select>
