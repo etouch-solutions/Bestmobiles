@@ -59,18 +59,7 @@ $staffs = $conn->query("
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-<?php if (isset($_GET['msg'])): ?>
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        Swal.fire({
-            icon: '<?php echo isset($_GET['success']) ? "success" : "error"; ?>',
-            title: '<?php echo isset($_GET['success']) ? "Success" : "Error"; ?>',
-            text: "<?php echo htmlspecialchars($_GET['msg'], ENT_QUOTES); ?>",
-            confirmButtonColor: '<?php echo isset($_GET['success']) ? "#28a745" : "#dc3545"; ?>'
-        });
-    });
-</script>
-<?php endif; ?>
+
 
 
 
@@ -239,5 +228,18 @@ $staffs = $conn->query("
       }
     }
   </script>
+
+  <?php if (isset($_GET['msg'])): ?>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        Swal.fire({
+            icon: '<?php echo isset($_GET['success']) ? "success" : "error"; ?>',
+            title: '<?php echo isset($_GET['success']) ? "Success" : "Error"; ?>',
+            text: "<?php echo htmlspecialchars($_GET['msg'], ENT_QUOTES); ?>",
+            confirmButtonColor: '<?php echo isset($_GET['success']) ? "#28a745" : "#dc3545"; ?>'
+        });
+    });
+</script>
+<?php endif; ?>
 </body>
 </html>
