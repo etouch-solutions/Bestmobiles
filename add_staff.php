@@ -46,7 +46,7 @@ if (isset($_GET['edit'])) {
     $editData = $res->fetch_assoc();
   }
 }
-header("Location: add_staff.php?success=1&msg=Staff+Added+Successfully");
+header("Location: addstaff.php?success=1&msg=Staff+Added+Successfully");
 exit();
 header("Location: add_staff.php?error=1&msg=Failed+to+Add+Staff");
 exit();
