@@ -116,7 +116,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <input type="text" name="staff_designation" placeholder="Designation" required value="<?= $editData['Staff_Designation'] ?? '' ?>">
 
             <select name="branch_id" required>
-              <option value="">-- Select Branch --</option>
+               
               <?php
               $branches = $conn->query("SELECT Branch_Id, Branch_Name FROM Branch_Master");
               while ($b = $branches->fetch_assoc()):
@@ -127,7 +127,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </select>
 
             <select name="staff_status">
-              <option value="">-- Select Status --</option>
+             
               <option value="1" <?= (isset($editData['Staff_Status']) && $editData['Staff_Status'] == 1) ? 'selected' : '' ?>>Active</option>
               <option value="0" <?= (isset($editData['Staff_Status']) && $editData['Staff_Status'] == 0) ? 'selected' : '' ?>>Inactive</option>
             </select>
