@@ -150,7 +150,7 @@ $allData = fetch_insurance_entries($conn);
     }
 
     .action-btn.disabled {
-      background: #aaa;
+      background: #ff9c9cff;
       cursor: not-allowed;
     }
 
