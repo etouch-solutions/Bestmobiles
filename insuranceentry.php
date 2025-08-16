@@ -65,7 +65,10 @@
           <select name="insurance_id" id="insurance_id" onchange="calculatePremiumAndEndDate(); loadInsuranceDetails(this.value)" required>
             <option value="">-- Select --</option>
             <?php
-              $res = mysqli_query($conn, "SELECT Insurance_Id, Insurance_Name, Premium_Percentage, Duration_Months FROM Insurance_Master WHERE Is_Active=1");
+             $res = mysqli_query($conn, "SELECT Insurance_Id, Insurance_Name, Premium_Percentage, Duration_Months 
+                            FROM Insurance_Master 
+                            WHERE Insurance_Status=1");
+
               while($r = mysqli_fetch_assoc($res))
                 echo "<option value='{$r['Insurance_Id']}' data-premium='{$r['Premium_Percentage']}' data-duration='{$r['Duration_Months']}'>{$r['Insurance_Name']}</option>";
             ?>
