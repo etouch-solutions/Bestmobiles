@@ -4,55 +4,48 @@ $servername = "localhost"; // or your host
 $username   = "u520351775_etouch"; // your DB username
 $password   = "!@#Admin@4321";  // your DB password
 $dbname     = "u520351775_bestmobiles"; // your DB name
-
 $conn = new mysqli($servername, $username, $password, $dbname);
-
-// Check connection
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-require 'vendor/autoload.php';  // Make sure composer is installed
+// ===== Download Excel when button clicked =====
+if (isset($_POST['download'])) {
+    header("Content-Type: application/vnd.ms-excel");
+    header("Content-Disposition: attachment; filename=branch_list.xls");
+    header("Pragma: no-cache");
+    header("Expires: 0");
 
-use PhpOffice\PhpSpreadsheet\Spreadsheet;
-use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
-
-// Create spreadsheet
-$spreadsheet = new Spreadsheet();
-$sheet = $spreadsheet->getActiveSheet();
-
-// Fetch data
-$sql = "SELECT * FROM Branch_Master";
-$result = $conn->query($sql);
-
-if ($result->num_rows > 0) {
-    $rowIndex = 1;
-
-    // Set header
-    $fields = $result->fetch_fields();
-    $col = 'A';
-    foreach ($fields as $field) {
-        $sheet->setCellValue($col.$rowIndex, $field->name);
-        $col++;
-    }
-
-    // Data rows
-    while($row = $result->fetch_assoc()) {
-        $rowIndex++;
-        $col = 'A';
-        foreach ($row as $value) {
-            $sheet->setCellValue($col.$rowIndex, $value);
-            $col++;
+    $result = $conn->query("SELECT * FROM Branch_Master");
+    if ($result->num_rows > 0) {
+        echo "Branch_Id\tBranch_Name\tBranch_Address\tBranch_CNo\tIs_Active\tCreated_At\n";
+        while ($row = $result->fetch_assoc()) {
+            echo $row['Branch_Id'] . "\t" .
+                 $row['Branch_Name'] . "\t" .
+                 $row['Branch_Address'] . "\t" .
+                 $row['Branch_CNo'] . "\t" .
+                 $row['Is_Active'] . "\t" .
+                 $row['Created_At'] . "\n";
         }
     }
+    exit;
 }
-
-// Output Excel file
-$writer = new Xlsx($spreadsheet);
-$filename = "branch_data.xlsx";
-
-header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-header("Content-Disposition: attachment; filename=\"$filename\"");
-$writer->save("php://output");
-exit;
 ?>
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Download Branch Master Excel</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        button { padding: 10px 20px; background: green; color: white; border: none; cursor: pointer; border-radius: 5px; }
+        button:hover { background: darkgreen; }
+    </style>
+</head>
+<body>
+    <h2>Branch Master Export</h2>
+    <form method="post">
+        <button type="submit" name="download">Download Excel</button>
+    </form>
+</body>
+</html>
