@@ -61,6 +61,11 @@ $plans = $conn->query("SELECT * FROM Insurance_Master ORDER BY Insurance_Id DESC
     <div class="logo">LOGO</div>
     <h1>Best Mobile Insurance Software</h1>
     <div class="hamburger" onclick="toggleSidebar()">☰</div>
+
+    <a href="xl.php?table=Insurance_Master">
+    <button>Export Insurance Master</button>
+</a>
+
   </div>
 
   <div class="container">

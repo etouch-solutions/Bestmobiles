@@ -60,6 +60,10 @@ $defects = $conn->query("SELECT * FROM Defect_Master $searchSql ORDER BY Defect_
     <div class="logo">LOGO</div>
     <h1>Best Mobile Insurance Software</h1>
     <div class="hamburger" onclick="toggleSidebar()">☰</div>
+    <a href="xl.php?table=Defect_Master">
+    <button>Export Defect Master</button>
+</a>
+
   </div>
 
   <div class="container">

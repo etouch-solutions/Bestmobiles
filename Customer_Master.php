@@ -81,6 +81,9 @@ $branches = $conn->query("SELECT Branch_Id, Branch_Name FROM Branch_Master");
     <div class="logo">LOGO</div>
     <h1>Best Mobile Insurance Software</h1>
     <div class="hamburger" onclick="toggleSidebar()">☰</div>
+    <a href="xl.php?table=Customer_Master">
+    <button>Export Customer Master</button>
+</a>
   </div>
 
   <div class="container">

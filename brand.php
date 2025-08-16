@@ -55,6 +55,9 @@ if (isset($_GET['edit'])) {
     <div class="logo">LOGO</div>
     <h1>Best Mobile Insurance Software</h1>
     <div class="hamburger" onclick="toggleSidebar()">☰</div>
+    <a href="xl.php?table=Brand_Master">
+    <button>Export Brand Master</button>
+</a>
   </div>
 
   <div class="container">

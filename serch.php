@@ -173,7 +173,16 @@ $allData = fetch_insurance_entries($conn);
 <div class="navtop">
   <div class="logo"><strong>LOGO</strong></div>
   <h1>Best Mobile Insurance Software</h1>
-  <div></div>
+  <div>
+    <a href="xl.php?table=Insurance_Entry">
+    <button>Export Insurances  </button>
+</a>
+
+<a href="xl.php?table=Claim_Entry">
+    <button>Export Claims  </button>
+</a>
+
+  </div>
 </div>
 
 <!-- Sidebar -->
