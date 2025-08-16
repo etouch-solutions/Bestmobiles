@@ -269,7 +269,7 @@ table th,
 table td {
   padding: 10px;
   text-align: left;
-  font-weight: bold;
+  font-weight: 600;
 }
 
 table th {
