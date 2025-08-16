@@ -20,24 +20,27 @@ function fetch_insurance_entries($conn, $search = "")
                         OR ie.IMEI_1 LIKE '%$search%')";
     }
 
-    $sql = "SELECT 
-                ce.Claim_Id,
-                cm.Cus_Name,
-                cm.Cus_CNo,
-                ie.IMEI_1,
-                cd.Defect_Name,
-                cdv.Defect_Value,
-                ce.Remarks,
-                ce.Created_At
-            FROM Claim_Entry ce
-            INNER JOIN Customer_Master cm ON ce.Cus_Id = cm.Cus_Id
-            INNER JOIN Insurance_Entry ie ON ce.Insurance_Id = ie.Insurance_Id
-            LEFT JOIN Claim_Defect_Value cdv ON ce.Claim_Id = cdv.Claim_Id
-            LEFT JOIN Claim_Defects cd ON cdv.Defect_Id = cd.Defect_Id
-            WHERE 1=1 $search_sql
-            ORDER BY ce.Created_At DESC";
+  $sql = "
+    SELECT 
+        ce.Claim_Id,
+        ce.Remarks,
+        ce.Created_At AS Claim_Date,
+        ie.InsuranceEntry_Id,
+        ie.Product_Model_Name,
+        ie.IMEI_1,
+        c.Cus_Id,
+        c.Cus_Name,
+        c.Cus_CNo,
+        c.Cus_Address
+    FROM Claim_Entry ce
+    JOIN Insurance_Entry ie ON ce.InsuranceEntry_Id = ie.InsuranceEntry_Id
+    JOIN Customer_Master c ON ie.Cus_Id = c.Cus_Id
+    WHERE c.Cus_Name LIKE '%$search%' 
+       OR c.Cus_CNo LIKE '%$search%' 
+       OR ie.IMEI_1 LIKE '%$search%'
+";
+$result = $conn->query($sql);
 
-    return $conn->query($sql);
 }
 
 // Handle search input
