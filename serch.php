@@ -1,279 +1,117 @@
 <?php
 include 'db.php';
 
-function fetch_insurance_entries($conn, $q = '') {
-  $q = mysqli_real_escape_string($conn, $q);
-  $where = $q ? "WHERE c.Cus_Name LIKE '%$q%' OR c.Cus_CNo LIKE '%$q%' OR i.IMEI_1 LIKE '%$q%'" : '';
-
-  $res = mysqli_query($conn, "
-    SELECT 
-      i.Insurance_Entry_Id,
-      c.Cus_Name AS name,
-      c.Cus_CNo AS phone,
-      i.Product_Model_Name AS model,
-      i.IMEI_1 AS imei,
-      i.Product_Value,
-      i.Insurance_Start_Date,
-      i.Insurance_End_Date,
-      (
-        SELECT COUNT(*) FROM Claim_Entry ce 
-        WHERE ce.Insurance_Entry_Id = i.Insurance_Entry_Id
-      ) AS claim_count
-    FROM Insurance_Entry i
-    JOIN Customer_Master c ON c.Cus_Id = i.Cus_Id
-    $where
-    ORDER BY i.Insurance_Entry_Id DESC
-  ");
-
-  $data = [];
-  $today = date('Y-m-d');
-  while ($row = mysqli_fetch_assoc($res)) {
-    if ($today > $row['Insurance_End_Date']) {
-      $row['status'] = 'expired'; // Red
-    } elseif ($row['claim_count'] > 0) {
-      $row['status'] = 'claimed'; // Yellow
-    } else {
-      $row['status'] = 'not_claimed'; // Green
-    }
-    $data[] = $row;
-  }
-  return $data;
-}
-
-if (isset($_GET['q'])) {
-  header('Content-Type: application/json');
-  echo json_encode(fetch_insurance_entries($conn, $_GET['q']));
-  exit;
-}
-$allData = fetch_insurance_entries($conn);
+// Fetch insurance entries with customer, branch, brand, insurance details
+$sql = "
+    SELECT ie.*, 
+           cm.Cus_Name, cm.Cus_CNo, 
+           bm.Branch_Name, 
+           br.Brand_Name, 
+           im.Insurance_Name,
+           (
+               SELECT COUNT(*) 
+               FROM Claim_Entry ce 
+               WHERE ce.Ins_Entry_Id = ie.Ins_Entry_Id
+           ) AS Claim_Count
+    FROM Insurance_Entry ie
+    JOIN Customer_Master cm ON ie.Cus_Id = cm.Cus_Id
+    JOIN Branch_Master bm ON cm.Branch_Id = bm.Branch_Id
+    JOIN Brand_Master br ON ie.Brand_Id = br.Brand_Id
+    JOIN Insurance_Master im ON ie.Insurance_Id = im.Insurance_Id
+    ORDER BY ie.Created_At DESC
+";
+$result = $conn->query($sql);
 ?>
-
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Insurance & Claim History</title>
-  <link rel="stylesheet" href="styles.css">
-  <style>
+<meta charset="UTF-8">
+<title>Insurance Entries</title>
+<style>
     body {
-      margin: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background-color: #f5f7fa;
+        font-family: Arial, sans-serif;
+        margin: 20px;
     }
-
-    .navtop {
-      background: #fff;
-      padding: 15px 20px;
-      border-bottom: 1px solid #ddd;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      position: fixed;
-      top: 0;
-      width: 100%;
-      z-index: 1000;
-    }
-
-    .navtop h1 {
-      margin: 0;
-      font-size: 20px;
-      font-weight: 600;
-    }
-
-    .sidebar {
-      width: 200px;
-      position: fixed;
-      top: 60px;
-      left: 0;
-      background-color: #fff;
-      height: 100%;
-      padding: 20px 10px;
-      border-right: 1px solid #ddd;
-    }
-
-    .main-content {
-      margin-left: 220px;
-      padding: 100px 30px 30px 30px;
-    }
-
-    h2 {
-      margin-top: 0;
-    }
-
-    .search-bar {
-      padding: 12px 15px;
-      font-size: 16px;
-      width: 100%;
-      max-width: 500px;
-      margin-bottom: 20px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-    }
-
     table {
-      width: 100%;
-      border-collapse: collapse;
-      background: white;
-      box-shadow: 0 0 10px rgba(0,0,0,0.05);
-      border-radius: 8px;
-      overflow: hidden;
+        border-collapse: collapse;
+        width: 100%;
+        margin-top: 20px;
     }
-
     th, td {
-      padding: 12px 15px;
-      border-bottom: 1px solid #f0f0f0;
-      text-align: left;
+        border: 1px solid #ccc;
+        padding: 8px;
+        text-align: left;
     }
-
     th {
-      background-color: #f9f9f9;
-      font-weight: bold;
+        background: #f4f4f4;
     }
 
-    /* Row colors */
-    tr.not_claimed { background-color: #00ff15ff; }  /* Green */
-    tr.claimed { background-color: #ffecafff; }      /* Yellow */
-    tr.expired { background-color: #ffc1c1ff; }      /* Red */
-
-    .action-btn {
-      padding: 6px 12px;
-      background: #3498db;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      margin-right: 5px;
+    /* ✅ Fixed row colors */
+    tr.not_claimed td {
+        background-color: #b2ffb8;   /* Green */
     }
-
-    .action-btn:hover {
-      background: #2980b9;
+    tr.claimed td {
+        background-color: #ffecaf;   /* Yellow */
     }
-
-    .action-btn.disabled {
-      background: #ff9c9cff;
-      cursor: not-allowed;
+    tr.expired td {
+        background-color: #ffc1c1;   /* Red */
     }
-
-    @media (max-width: 768px) {
-      .sidebar {
-        display: none;
-      }
-
-      .main-content {
-        margin-left: 0;
-        padding: 80px 20px 20px;
-      }
-    }
-  </style>
+</style>
 </head>
 <body>
 
-<!-- Header -->
-<div class="navtop">
-  <div class="logo"><strong>LOGO</strong></div>
-  <h1>Best Mobile Insurance Software</h1>
-  <div></div>
-</div>
+<h2>Insurance Entries</h2>
 
-<!-- Sidebar -->
-<aside class="sidebar mobile-hidden" id="sidebarMenu">
-      <ul>
-        <a href="index.php"><li>Dashboard</li></a>
-        <a href="branch.php"><li>Branch Master</li></a>
-        <a href="brand.php"><li>Brand Master</li></a>
-        <a href="add_staff.php"><li>Staff Master</li></a>
-        <a href="Customer_Master.php"><li>Customer Master</li></a>
-        <a href="add_insurance.php"><li>Insurance Master</li></a>
-        <a href="add_defect.php"><li>Defect Master</li></a>
-        <a href="insuranceentry.php"><li>Insurance Entry</li></a>
-        <a href="serch.php" class="active"><li>Claim</li></a>
-      </ul>
-    </aside>
+<table>
+    <tr>
+        <th>ID</th>
+        <th>Customer</th>
+        <th>Contact</th>
+        <th>Branch</th>
+        <th>Brand</th>
+        <th>Insurance</th>
+        <th>Product</th>
+        <th>IMEI</th>
+        <th>Value</th>
+        <th>Start Date</th>
+        <th>End Date</th>
+        <th>Premium</th>
+        <th>Claim Count</th>
+        <th>Status</th>
+    </tr>
+    <?php while ($row = $result->fetch_assoc()): 
+        $today = date("Y-m-d");
+        $status_class = "";
 
-<!-- Main Content -->
-<div class="main-content">
-  <h2>Insurance & Claim History</h2>
+        if ($row['Insurance_End_Date'] < $today) {
+            $status = "Expired";
+            $status_class = "expired";
+        } elseif ($row['Claim_Count'] > 0) {
+            $status = "Claimed";
+            $status_class = "claimed";
+        } else {
+            $status = "Not Claimed";
+            $status_class = "not_claimed";
+        }
+    ?>
+    <tr class="<?php echo $status_class; ?>">
+        <td><?php echo $row['Ins_Entry_Id']; ?></td>
+        <td><?php echo $row['Cus_Name']; ?></td>
+        <td><?php echo $row['Cus_CNo']; ?></td>
+        <td><?php echo $row['Branch_Name']; ?></td>
+        <td><?php echo $row['Brand_Name']; ?></td>
+        <td><?php echo $row['Insurance_Name']; ?></td>
+        <td><?php echo $row['Product_Model_Name']; ?></td>
+        <td><?php echo $row['IMEI_1']; ?></td>
+        <td><?php echo $row['Product_Value']; ?></td>
+        <td><?php echo $row['Insurance_Start_Date']; ?></td>
+        <td><?php echo $row['Insurance_End_Date']; ?></td>
+        <td><?php echo $row['Premium_Amount']; ?></td>
+        <td><?php echo $row['Claim_Count']; ?></td>
+        <td><?php echo $status; ?></td>
+    </tr>
+    <?php endwhile; ?>
+</table>
 
-  <input type="text" id="search" class="search-bar" placeholder="Search by Name, Phone, or IMEI...">
-
-  <div style="overflow-x:auto;">
-    <table>
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Phone</th>
-          <th>Model</th>
-          <th>IMEI</th>
-          <th>Start Date</th>
-          <th>End Date</th>
-          <th>Claims</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody id="results">
-        <?php foreach ($allData as $item): ?>
-        <tr class="<?= $item['status'] ?>">
-          <td><?= $item['name'] ?></td>
-          <td><?= $item['phone'] ?></td>
-          <td><?= $item['model'] ?></td>
-          <td><?= $item['imei'] ?></td>
-          <td><?= $item['Insurance_Start_Date'] ?></td>
-          <td><?= $item['Insurance_End_Date'] ?></td>
-          <td><?= $item['claim_count'] ?></td>
-          <td>
-            <button class="action-btn" onclick="location.href='view_insurance.php?id=<?= $item['Insurance_Entry_Id'] ?>'">View</button>
-            <button 
-              class="action-btn <?= ($item['status'] === 'expired') ? 'disabled' : '' ?>" 
-              <?= ($item['status'] === 'expired') ? 'disabled' : '' ?>
-              onclick="if(!this.classList.contains('disabled')) location.href='clamentry-form.php?insurance_id=<?= $item['Insurance_Entry_Id'] ?>'">
-              Claim
-            </button>
-          </td>
-        </tr>
-        <?php endforeach; ?>
-      </tbody>
-    </table>
-  </div>
-</div>
-
-<script>
-document.getElementById('search').addEventListener('input', function () {
-  const query = this.value.trim();
-
-  fetch('?q=' + encodeURIComponent(query))
-    .then(res => res.json())
-    .then(data => {
-      const container = document.getElementById('results');
-      container.innerHTML = '';
-
-      data.forEach(item => {
-        let row = document.createElement('tr');
-        row.className = item.status;
-
-        let claimBtnDisabled = (item.status === 'expired') ? 'disabled' : '';
-        let claimBtnClass = (item.status === 'expired') ? 'action-btn disabled' : 'action-btn';
-
-        row.innerHTML = `
-          <td>${item.name}</td>
-          <td>${item.phone}</td>
-          <td>${item.model}</td>
-          <td>${item.imei}</td>
-          <td>${item.Insurance_Start_Date}</td>
-          <td>${item.Insurance_End_Date}</td>
-          <td>${item.claim_count}</td>
-          <td>
-            <button class="action-btn" onclick="location.href='view_insurance.php?id=${item.Insurance_Entry_Id}'">View</button>
-            <button class="${claimBtnClass}" ${claimBtnDisabled} onclick="if(!this.classList.contains('disabled')) location.href='clamentry-form.php?insurance_id=${item.Insurance_Entry_Id}'">Claim</button>
-          </td>
-        `;
-        container.appendChild(row);
-      });
-
-      if (data.length === 0) {
-        container.innerHTML = '<tr><td colspan="8">No insurance found.</td></tr>';
-      }
-    });
-});
-</script>
 </body>
 </html>
