@@ -28,7 +28,13 @@ function fetch_insurance_entries($conn, $q = '') {
   $data = [];
   $today = date('Y-m-d');
   while ($row = mysqli_fetch_assoc($res)) {
-    $row['status'] = ($today > $row['Insurance_End_Date']) ? 'expired' : ($row['claim_count'] > 0 ? 'claimed' : 'not_claimed');
+    if ($today > $row['Insurance_End_Date']) {
+      $row['status'] = 'expired'; // Red
+    } elseif ($row['claim_count'] > 0) {
+      $row['status'] = 'claimed'; // Yellow
+    } else {
+      $row['status'] = 'not_claimed'; // Green
+    }
     $data[] = $row;
   }
   return $data;
@@ -84,22 +90,6 @@ $allData = fetch_insurance_entries($conn);
       border-right: 1px solid #ddd;
     }
 
-    .sidebar a {
-      display: block;
-      
-      
-       
-     
-       
-       
-    }
-
-    .sidebar a:hover,
-    .sidebar a.active {
-   
-      c 
-    }
-
     .main-content {
       margin-left: 220px;
       padding: 100px 30px 30px 30px;
@@ -140,9 +130,10 @@ $allData = fetch_insurance_entries($conn);
       font-weight: bold;
     }
 
-    tr.expired { background-color: #ffe6e6; }
-    tr.claimed { background-color: #fff8e1; }
-    tr.not_claimed { background-color: #e8f5e9; }
+    /* Row colors */
+    tr.not_claimed { background-color: #e8f5e9; }  /* Green */
+    tr.claimed { background-color: #fff8e1; }      /* Yellow */
+    tr.expired { background-color: #ffe6e6; }      /* Red */
 
     .action-btn {
       padding: 6px 12px;
@@ -158,6 +149,11 @@ $allData = fetch_insurance_entries($conn);
       background: #2980b9;
     }
 
+    .action-btn.disabled {
+      background: #aaa;
+      cursor: not-allowed;
+    }
+
     @media (max-width: 768px) {
       .sidebar {
         display: none;
@@ -166,10 +162,6 @@ $allData = fetch_insurance_entries($conn);
       .main-content {
         margin-left: 0;
         padding: 80px 20px 20px;
-      }
-
-      .search-bar {
-        width: 100%;
       }
     }
   </style>
@@ -187,14 +179,14 @@ $allData = fetch_insurance_entries($conn);
 <aside class="sidebar mobile-hidden" id="sidebarMenu">
       <ul>
         <a href="index.php"><li>Dashboard</li></a>
-        <a href="branch.php" class="active"><li>Branch Master</li></a>
+        <a href="branch.php"><li>Branch Master</li></a>
         <a href="brand.php"><li>Brand Master</li></a>
         <a href="add_staff.php"><li>Staff Master</li></a>
         <a href="Customer_Master.php"><li>Customer Master</li></a>
         <a href="add_insurance.php"><li>Insurance Master</li></a>
         <a href="add_defect.php"><li>Defect Master</li></a>
         <a href="insuranceentry.php"><li>Insurance Entry</li></a>
-        <a href="serch.php"><li>Claim</li></a>
+        <a href="serch.php" class="active"><li>Claim</li></a>
       </ul>
     </aside>
 
@@ -230,7 +222,12 @@ $allData = fetch_insurance_entries($conn);
           <td><?= $item['claim_count'] ?></td>
           <td>
             <button class="action-btn" onclick="location.href='view_insurance.php?id=<?= $item['Insurance_Entry_Id'] ?>'">View</button>
-            <button class="action-btn" onclick="location.href='clamentry-form.php?insurance_id=<?= $item['Insurance_Entry_Id'] ?>'">Claim</button>
+            <button 
+              class="action-btn <?= ($item['status'] === 'expired') ? 'disabled' : '' ?>" 
+              <?= ($item['status'] === 'expired') ? 'disabled' : '' ?>
+              onclick="if(!this.classList.contains('disabled')) location.href='clamentry-form.php?insurance_id=<?= $item['Insurance_Entry_Id'] ?>'">
+              Claim
+            </button>
           </td>
         </tr>
         <?php endforeach; ?>
@@ -253,6 +250,9 @@ document.getElementById('search').addEventListener('input', function () {
         let row = document.createElement('tr');
         row.className = item.status;
 
+        let claimBtnDisabled = (item.status === 'expired') ? 'disabled' : '';
+        let claimBtnClass = (item.status === 'expired') ? 'action-btn disabled' : 'action-btn';
+
         row.innerHTML = `
           <td>${item.name}</td>
           <td>${item.phone}</td>
@@ -263,7 +263,7 @@ document.getElementById('search').addEventListener('input', function () {
           <td>${item.claim_count}</td>
           <td>
             <button class="action-btn" onclick="location.href='view_insurance.php?id=${item.Insurance_Entry_Id}'">View</button>
-            <button class="action-btn" onclick="location.href='clamentry-form.php?insurance_id=${item.Insurance_Entry_Id}'">Claim</button>
+            <button class="${claimBtnClass}" ${claimBtnDisabled} onclick="if(!this.classList.contains('disabled')) location.href='clamentry-form.php?insurance_id=${item.Insurance_Entry_Id}'">Claim</button>
           </td>
         `;
         container.appendChild(row);
