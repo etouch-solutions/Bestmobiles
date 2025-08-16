@@ -46,6 +46,44 @@ if (isset($_GET['edit'])) {
 
 
 
+/ =================== EXPORT TO EXCEL ===================
+if (isset($_GET['export']) && $_GET['export'] == 'excel') {
+    require 'vendor/autoload.php'; // PhpSpreadsheet required
+
+    use PhpOffice\PhpSpreadsheet\Spreadsheet;
+    use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+
+    $spreadsheet = new Spreadsheet();
+    $sheet = $spreadsheet->getActiveSheet();
+
+    // Headers
+    $sheet->setCellValue('A1', 'Branch Name');
+    $sheet->setCellValue('B1', 'Branch Head');
+    $sheet->setCellValue('C1', 'Address');
+    $sheet->setCellValue('D1', 'Contact No');
+    $sheet->setCellValue('E1', 'Status');
+
+    // Fetch Data
+    $result = mysqli_query($conn, "SELECT * FROM Branch_Master ORDER BY Branch_Id DESC");
+    $rowCount = 2;
+    while ($row = mysqli_fetch_assoc($result)) {
+        $sheet->setCellValue("A$rowCount", $row['Branch_Name']);
+        $sheet->setCellValue("B$rowCount", $row['Branch_Head_Name']);
+        $sheet->setCellValue("C$rowCount", $row['Branch_Address']);
+        $sheet->setCellValue("D$rowCount", $row['Branch_CNo']);
+        $sheet->setCellValue("E$rowCount", $row['Branch_Status'] ? "Active" : "Inactive");
+        $rowCount++;
+    }
+
+    // Output File
+    $writer = new Xlsx($spreadsheet);
+    $filename = "branches.xlsx";
+
+    header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    header("Content-Disposition: attachment; filename=\"$filename\"");
+    $writer->save("php://output");
+    exit;
+}
 ?>
 
 <!DOCTYPE html>
@@ -90,6 +128,9 @@ if (isset($_GET['edit'])) {
     <div class="logo">LOGO</div>
     <h1> Best Mobile Insurance Software</h1>
     <div class="hamburger" onclick="toggleSidebar()">☰</div>
+     <a href="?export=excel" class="btn" style="background:#28a745;color:white;padding:8px 12px;border-radius:5px;text-decoration:none;">
+      ⬇ Download Excel
+    </a>
   </div>
 
   <div class="container">
