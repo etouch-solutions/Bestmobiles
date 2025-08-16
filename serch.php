@@ -2,7 +2,7 @@
 // serch.php
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
- include 'db.php';
+include 'db.php';
 
 $conn = new mysqli($host, $user, $pass, $db);
 if ($conn->connect_error) {
@@ -15,34 +15,30 @@ function fetch_insurance_entries($conn, $search = "")
     $search_sql = "";
     if (!empty($search)) {
         $search = $conn->real_escape_string($search);
-        $search_sql = " AND (cm.Cus_Name LIKE '%$search%' 
-                        OR cm.Cus_CNo LIKE '%$search%' 
+        $search_sql = " AND (c.Cus_Name LIKE '%$search%' 
+                        OR c.Cus_CNo LIKE '%$search%' 
                         OR ie.IMEI_1 LIKE '%$search%')";
     }
 
- $sql = "
-    SELECT 
-        ie.Ins_Entry_Id,
-        c.Cus_Id, c.Cus_Name, c.Cus_CNo, c.Cus_Address,
-        b.Brand_Name,
-        i.Insurance_Name, i.Duration_Months, i.Premium_Percentage,
-        ie.Product_Model_Name, ie.IMEI_1, ie.IMEI_2, ie.Product_Value,
-        ie.Bill_Copy_Path, ie.Product_Photo_Path,
-        ie.Bill_Date, ie.Insurance_Start_Date, ie.Insurance_End_Date,
-        ie.Premium_Amount,
-        ie.Is_Product_Covered, ie.Is_Insurance_Active,
-        ie.Created_At
-    FROM Insurance_Entry ie
-    JOIN Customer_Master c ON ie.Cus_Id = c.Cus_Id
-    JOIN Brand_Master b ON ie.Brand_Id = b.Brand_Id
-    JOIN Insurance_Master i ON ie.Insurance_Id = i.Insurance_Id
-    WHERE c.Cus_Name LIKE '%$search%' 
-       OR c.Cus_CNo LIKE '%$search%' 
-       OR ie.IMEI_1 LIKE '%$search%'
-";
+    $sql = "
+        SELECT 
+            ce.Claim_Id,
+            c.Cus_Name, c.Cus_CNo, c.Cus_Address,
+            ie.IMEI_1,
+            d.Defect_Name,
+            cdv.Defect_Value,
+            ce.Claim_Remarks AS Remarks,
+            ce.Created_At
+        FROM Claim_Entry ce
+        JOIN Insurance_Entry ie ON ce.Insurance_Entry_Id = ie.Ins_Entry_Id
+        JOIN Customer_Master c ON ie.Cus_Id = c.Cus_Id
+        LEFT JOIN Claim_Defect_Value cdv ON ce.Claim_Id = cdv.Claim_Id
+        LEFT JOIN Defect_Master d ON cdv.Defect_Id = d.Defect_Id
+        WHERE 1=1 $search_sql
+        ORDER BY ce.Created_At DESC
+    ";
 
-$result = $conn->query($sql);
-
+    return $conn->query($sql);
 }
 
 // Handle search input
@@ -110,7 +106,7 @@ $result = fetch_insurance_entries($conn, $search);
                     <td><?= htmlspecialchars($row['IMEI_1']) ?></td>
                     <td><?= htmlspecialchars($row['Defect_Name'] ?? 'N/A') ?></td>
                     <td><?= htmlspecialchars($row['Defect_Value'] ?? '-') ?></td>
-                    <td><?= htmlspecialchars($row['Remarks']) ?></td>
+                    <td><?= htmlspecialchars($row['Remarks'] ?? '-') ?></td>
                     <td><?= $row['Created_At'] ?></td>
                 </tr>
             <?php endwhile; ?>
