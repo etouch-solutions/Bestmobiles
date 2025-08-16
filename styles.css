@@ -268,7 +268,8 @@ table {
 table th,
 table td {
   padding: 10px;
-  text-align: center;
+  text-align: left;
+  font-weight: bold;
 }
 
 table th {
