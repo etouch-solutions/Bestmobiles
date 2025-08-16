@@ -1,7 +1,5 @@
 <?php
 include 'db.php';
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
 
 if (!isset($_GET['id']) || !is_numeric($_GET['id'])) {
   die("Invalid insurance ID.");
@@ -28,13 +26,12 @@ if (!$row = mysqli_fetch_assoc($res)) {
   die("Insurance record not found.");
 }
 
-// Fetch Claim History + Claim Images
+// Fetch Claim History
 $claims = mysqli_query($conn, "
   SELECT 
     ce.Claim_Id,
     ce.Claim_Date,
     ce.Defect_Value,
-    ce.Claim_Image,  -- Assuming you store image path here
     d.Defect_Name
   FROM Claim_Entry ce
   JOIN Defect_Master d ON ce.Defect_Id = d.Defect_Id
@@ -50,25 +47,20 @@ $claims = mysqli_query($conn, "
   <style>
     body {
       font-family: 'Segoe UI', sans-serif;
-      background: #eef2f7;
+      background: #f4f6f9;
       margin: 0;
       padding: 30px;
-      color: #333;
     }
     .container {
-      max-width: 1100px;
+      max-width: 1000px;
       margin: auto;
     }
     .card {
       background: white;
-      padding: 25px;
-      margin-bottom: 25px;
-      border-radius: 14px;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
-      transition: transform 0.2s;
-    }
-    .card:hover {
-      transform: translateY(-3px);
+      padding: 20px;
+      margin-bottom: 20px;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
     }
     h2, h3 {
       margin-top: 0;
@@ -86,11 +78,6 @@ $claims = mysqli_query($conn, "
       border: 1px solid #ddd;
       border-radius: 8px;
       margin-top: 8px;
-      transition: 0.3s;
-      cursor: pointer;
-    }
-    .image-preview:hover {
-      transform: scale(1.05);
     }
     table {
       width: 100%;
@@ -98,27 +85,22 @@ $claims = mysqli_query($conn, "
       margin-top: 10px;
     }
     table th, table td {
-      padding: 12px;
+      padding: 10px;
       border: 1px solid #eee;
-      text-align: center;
+      text-align: left;
     }
     table th {
-      background: #3498db;
-      color: white;
-    }
-    table tr:nth-child(even) {
-      background: #f9fbfd;
+      background: #f8f9fb;
     }
     .btn-back {
       display: inline-block;
-      margin-top: 20px;
-      padding: 12px 18px;
+      margin-top: 15px;
+      padding: 10px 16px;
       background: #3498db;
       color: white;
       text-decoration: none;
-      border-radius: 8px;
+      border-radius: 6px;
       transition: 0.2s;
-      font-weight: bold;
     }
     .btn-back:hover {
       background: #2980b9;
@@ -135,6 +117,7 @@ $claims = mysqli_query($conn, "
 
     <div class="card">
       <h2>Insurance & Customer Details</h2>
+
       <div class="info">
         <h3>👤 Customer Info</h3>
         <p><span class="label">Name:</span> <?= $row['Cus_Name'] ?></p>
@@ -153,8 +136,8 @@ $claims = mysqli_query($conn, "
       <p><span class="label">Model:</span> <?= $row['Product_Model_Name'] ?></p>
       <p><span class="label">Product Value:</span> ₹<?= $row['Product_Value'] ?></p>
       <p><span class="label">Premium:</span> ₹<?= $row['Premium_Amount'] ?></p>
-      <p><span class="label">Coverage:</span> <?= $row['Is_Product_Covered'] ? '✅ Yes' : '❌ No' ?></p>
-      <p><span class="label">Status:</span> <?= $row['Is_Insurance_Active'] ? '<span style="color:green;">Active ✅</span>' : '<span style="color:red;">Inactive ❌</span>' ?></p>
+      <p><span class="label">Coverage:</span> <?= $row['Is_Product_Covered'] ? 'Yes' : 'No' ?></p>
+      <p><span class="label">Status:</span> <?= $row['Is_Insurance_Active'] ? 'Active ✅' : 'Inactive ❌' ?></p>
       <p><span class="label">Start Date:</span> <?= $row['Insurance_Start_Date'] ?> | 
          <b>End Date:</b> <?= $row['Insurance_End_Date'] ?></p>
     </div>
@@ -187,7 +170,6 @@ $claims = mysqli_query($conn, "
               <th>Claim Date</th>
               <th>Defect</th>
               <th>Defect Value (₹)</th>
-              <th>Image</th>
             </tr>
           </thead>
           <tbody>
@@ -197,13 +179,6 @@ $claims = mysqli_query($conn, "
                 <td><?= $c['Claim_Date'] ?></td>
                 <td><?= $c['Defect_Name'] ?></td>
                 <td>₹<?= $c['Defect_Value'] ?></td>
-                <td>
-                  <?php if (!empty($c['Claim_Image'])): ?>
-                    <img src="<?= $c['Claim_Image'] ?>" class="image-preview" style="max-width:100px;">
-                  <?php else: ?>
-                    ❌ No image
-                  <?php endif; ?>
-                </td>
               </tr>
             <?php endwhile; ?>
           </tbody>
