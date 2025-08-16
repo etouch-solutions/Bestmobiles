@@ -44,7 +44,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   ";
 
   if (mysqli_query($conn, $query)) {
-    echo "<script>alert('Claim Submitted Successfully'); location.href='insurance_history.php';</script>";
+    echo "<script>alert('Claim Submitted Successfully'); location.href='serch.php';</script>";
     exit;
   } else {
     echo "<p style='color:red;'>Error: " . mysqli_error($conn) . "</p>";
