@@ -51,7 +51,7 @@ $allData = fetch_insurance_entries($conn);
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Insurance & Claim History</title>
+  <title>Insurance  Claim History</title>
   <link rel="stylesheet" href="styles.css">
   <style>
     body {
