@@ -228,7 +228,9 @@ $allData = fetch_insurance_entries($conn);
           <td><?= $item['Insurance_Start_Date'] ?></td>
           <td><?= $item['Insurance_End_Date'] ?></td>
           <td><?= $item['claim_count'] ?></td>
-           <td><?= $item['Defect_Value'] ?></td>
+          
+          <td>₹<?= number_format($item['Defect_Value'], 2) ?></td>
+
           <td>
             <button class="action-btn" onclick="location.href='view_insurance.php?id=<?= $item['Insurance_Entry_Id'] ?>'">View</button>
             <button class="action-btn" onclick="location.href='clamentry-form.php?insurance_id=<?= $item['Insurance_Entry_Id'] ?>'">Claim</button>
@@ -262,6 +264,7 @@ document.getElementById('search').addEventListener('input', function () {
           <td>${item.Insurance_Start_Date}</td>
           <td>${item.Insurance_End_Date}</td>
           <td>${item.claim_count}</td>
+          <td>${item.Defect_Value}</td>
           <td>
             <button class="action-btn" onclick="location.href='view_insurance.php?id=${item.Insurance_Entry_Id}'">View</button>
             <button class="action-btn" onclick="location.href='clamentry-form.php?insurance_id=${item.Insurance_Entry_Id}'">Claim</button>
