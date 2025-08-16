@@ -176,9 +176,17 @@ $claims = mysqli_query($conn, "
             <?php $i = 1; while ($c = mysqli_fetch_assoc($claims)): ?>
               <tr>
                 <td><?= $i++ ?></td>
-                <td><?= $c['Claim_Date'] ?></td>
+                <td>
+                  <?php 
+                    if (!empty($c['Claim_Date']) && $c['Claim_Date'] != '0000-00-00') {
+                      echo date("d-M-Y", strtotime($c['Claim_Date']));
+                    } else {
+                      echo "N/A";
+                    }
+                  ?>
+                </td>
                 <td><?= $c['Defect_Name'] ?></td>
-                <td>₹<?= $c['Defect_Value'] ?></td>
+                <td>₹<?= number_format($c['Defect_Value'], 2) ?></td>
               </tr>
             <?php endwhile; ?>
           </tbody>
