@@ -116,8 +116,8 @@ $branches = $conn->query("SELECT Branch_Id, Branch_Name FROM Branch_Master");
             <?php endif; ?>
             <input type="text" name="cus_name" placeholder="Customer Name" required value="<?= $editData['Cus_Name'] ?? '' ?>">
             <input type="number" name="cus_cno" placeholder="Contact Number" required value="<?= $editData['Cus_CNo'] ?? '' ?>">
-            <input type="email" name="cus_email" placeholder="Email" required value="<?= $editData['Cus_Email'] ?? '' ?>">
-            <textarea name="cus_address" placeholder="Address" required><?= $editData['Cus_Address'] ?? '' ?></textarea>
+            <input type="email" name="cus_email" placeholder="Email"   value="<?= $editData['Cus_Email'] ?? '' ?>">
+            <textarea name="cus_address" placeholder="Address"  ><?= $editData['Cus_Address'] ?? '' ?></textarea>
             <input type="text" name="cus_ref" placeholder="Reference Name" value="<?= $editData['Cus_Ref_Name'] ?? '' ?>">
             <input type="number" name="cus_ref_cno" placeholder="Reference Number" value="<?= $editData['Cus_Ref_CNo'] ?? '' ?>">
 
