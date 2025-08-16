@@ -2,15 +2,7 @@
 include 'db.php';
 $conn = mysqli_connect($host, $user, $pass, $db);
 
-ini_set('display_errors', 1);
-error_reporting(E_ALL);
-
-// Load PhpSpreadsheet
-require 'vendor/autoload.php';
-use PhpOffice\PhpSpreadsheet\Spreadsheet;
-use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
-
-// =================== INSERT / UPDATE ===================
+// Insert or Update
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['branch_name'])) {
     $name = mysqli_real_escape_string($conn, $_POST['branch_name']);
     $head = mysqli_real_escape_string($conn, $_POST['branch_head_name']);
@@ -33,7 +25,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['branch_name'])) {
     exit();
 }
 
-// =================== DELETE ===================
+// Delete
 if (isset($_GET['delete'])) {
     $delId = intval($_GET['delete']);
     $conn->query("DELETE FROM Branch_Master WHERE Branch_Id = $delId");
@@ -41,7 +33,7 @@ if (isset($_GET['delete'])) {
     exit();
 }
 
-// =================== FETCH FOR EDIT ===================
+// Fetch for edit
 $editBranch = null;
 if (isset($_GET['edit'])) {
     $editId = intval($_GET['edit']);
@@ -50,41 +42,8 @@ if (isset($_GET['edit'])) {
         $editBranch = $res->fetch_assoc();
     }
 }
-
-// =================== EXPORT TO EXCEL ===================
-if (isset($_GET['export']) && $_GET['export'] == 'excel') {
-    $spreadsheet = new Spreadsheet();
-    $sheet = $spreadsheet->getActiveSheet();
-
-    // Headers
-    $sheet->setCellValue('A1', 'Branch Name');
-    $sheet->setCellValue('B1', 'Branch Head');
-    $sheet->setCellValue('C1', 'Address');
-    $sheet->setCellValue('D1', 'Contact No');
-    $sheet->setCellValue('E1', 'Status');
-
-    // Fetch Data
-    $result = mysqli_query($conn, "SELECT * FROM Branch_Master ORDER BY Branch_Id DESC");
-    $rowCount = 2;
-    while ($row = mysqli_fetch_assoc($result)) {
-        $sheet->setCellValue("A$rowCount", $row['Branch_Name']);
-        $sheet->setCellValue("B$rowCount", $row['Branch_Head_Name']);
-        $sheet->setCellValue("C$rowCount", $row['Branch_Address']);
-        $sheet->setCellValue("D$rowCount", $row['Branch_CNo']);
-        $sheet->setCellValue("E$rowCount", $row['Branch_Status'] ? "Active" : "Inactive");
-        $rowCount++;
-    }
-
-    // Output File
-    $writer = new Xlsx($spreadsheet);
-    $filename = "branches.xlsx";
-
-    header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
-    header("Content-Disposition: attachment; filename=\"$filename\"");
-    $writer->save("php://output");
-    exit;
-}
 ?>
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -92,20 +51,41 @@ if (isset($_GET['export']) && $_GET['export'] == 'excel') {
   <link rel="stylesheet" href="styles.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
   <style>
-    .modal { display:none; position:fixed; z-index:1000; padding-top:60px; left:0; top:0; width:100%; height:100%; background-color:rgba(0,0,0,0.6);}
-    .modal-content { background:#fff; margin:auto; padding:20px; border-radius:10px; width:400px; position:relative;}
-    .close { position:absolute; top:10px; right:15px; font-size:22px; color:red; cursor:pointer;}
-    .modal-content h4 { margin-top:0;}
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      padding-top: 60px;
+      left: 0; top: 0;
+      width: 100%; height: 100%;
+      overflow: auto;
+      background-color: rgba(0,0,0,0.6);
+    }
+    .modal-content {
+      background-color: #fff;
+      margin: auto;
+      padding: 20px;
+      border-radius: 10px;
+      width: 400px;
+      position: relative;
+    }
+    .close {
+      position: absolute;
+      top: 10px; right: 15px;
+      font-size: 22px;
+      color: red;
+      cursor: pointer;
+    }
+    .modal-content h4 {
+      margin-top: 0;
+    }
   </style>
 </head>
 <body>
   <div class="navtop">
     <div class="logo">LOGO</div>
-    <h1>Best Mobile Insurance Software</h1>
+    <h1> Best Mobile Insurance Software</h1>
     <div class="hamburger" onclick="toggleSidebar()">☰</div>
-    <a href="?export=excel" class="btn" style="background:#28a745;color:white;padding:8px 12px;border-radius:5px;text-decoration:none;">
-      ⬇ Download Excel
-    </a>
   </div>
 
   <div class="container">
@@ -126,7 +106,7 @@ if (isset($_GET['export']) && $_GET['export'] == 'excel') {
     <main class="main-content">
       <div class="content-area">
 
-        <!-- Add/Edit Branch -->
+        <!-- Add/Edit Branch Section -->
         <section class="add-branch">
           <h3><?= $editBranch ? 'Edit Branch' : 'Add Branch' ?></h3>
           <form method="POST">
@@ -139,6 +119,7 @@ if (isset($_GET['export']) && $_GET['export'] == 'excel') {
             <textarea name="branch_address" placeholder="Branch Address" required><?= $editBranch['Branch_Address'] ?? '' ?></textarea>
             <input type="number" name="branch_cno" placeholder="Contact Number" required value="<?= $editBranch['Branch_CNo'] ?? '' ?>">
             <select name="branch_status" required>
+             
               <option value="1" <?= (isset($editBranch['Branch_Status']) && $editBranch['Branch_Status'] == 1) ? 'selected' : '' ?>>Active</option>
               <option value="0" <?= (isset($editBranch['Branch_Status']) && $editBranch['Branch_Status'] == 0) ? 'selected' : '' ?>>Inactive</option>
             </select>
@@ -146,7 +127,7 @@ if (isset($_GET['export']) && $_GET['export'] == 'excel') {
           </form>
         </section>
 
-        <!-- Branch Overview -->
+        <!-- Branch Overview Section -->
         <section class="overview">
           <h3>Branch Overview</h3>
           <div class="search-container">
@@ -177,6 +158,7 @@ if (isset($_GET['export']) && $_GET['export'] == 'excel') {
                           <td class='action-btns'>
                             <a href='javascript:void(0)' onclick='viewBranch($json)'><i class='fa fa-eye'></i></a>
                             <a href='?edit={$row['Branch_Id']}'><i class='fa fa-pen'></i></a>
+                           
                           </td>
                         </tr>";
                 }
