@@ -29,6 +29,11 @@ while ($row = $res->fetch_assoc()) {
     <title>Insurance Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
+        .chart-box canvas {
+    width: 100% !important;
+    height: 300px !important;
+}
+
         body { margin:0; font-family: Arial, sans-serif; background:#f4f6f9; }
         header { background:#2d3436; color:white; padding:15px; text-align:center; font-size:20px; }
         .container { display:flex; }
@@ -47,6 +52,13 @@ while ($row = $res->fetch_assoc()) {
         th { background:#2d3436; color:white; }
     </style>
 </head>
+<?php
+// Debug claims data
+echo "<pre>";
+print_r($claimsData);
+echo "</pre>";
+?>
+
 <body>
 <header>📊 Insurance Management Dashboard</header>
 <div class="container">
@@ -126,6 +138,48 @@ while ($row = $res->fetch_assoc()) {
                 backgroundColor: ['#00b894', '#d63031']
             }]
         }
+    });
+
+
+        // ✅ Claims per Month Chart
+    const claimsCtx = document.getElementById('claimsChart').getContext('2d');
+    const claimsLabels = <?= json_encode(array_map(function($m){ 
+        return date("F", mktime(0, 0, 0, $m, 1)); 
+    }, array_keys($claimsData))) ?>; // Month names
+    const claimsData = <?= json_encode(array_values($claimsData), JSON_NUMERIC_CHECK) ?>;
+
+    new Chart(claimsCtx, {
+        type: 'bar',
+        data: {
+            labels: claimsLabels,
+            datasets: [{
+                label: 'Claims',
+                data: claimsData,
+                backgroundColor: '#0984e3'
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true } }
+        }
+    });
+
+    // ✅ Insurance Distribution Pie Chart
+    const insuranceCtx = document.getElementById('insuranceChart').getContext('2d');
+    new Chart(insuranceCtx, {
+        type: 'pie',
+        data: {
+            labels: ['Active', 'Expired'],
+            datasets: [{
+                data: [
+                    <?= (int)$conn->query("SELECT COUNT(*) as c FROM Insurance_Entry WHERE Is_Insurance_Active=1")->fetch_assoc()['c'] ?>,
+                    <?= (int)$conn->query("SELECT COUNT(*) as c FROM Insurance_Entry WHERE Is_Insurance_Active=0")->fetch_assoc()['c'] ?>
+                ],
+                backgroundColor: ['#00b894', '#d63031']
+            }]
+        },
+        options: { responsive: true }
     });
 </script>
 </body>
