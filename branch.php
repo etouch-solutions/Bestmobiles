@@ -1,11 +1,12 @@
 <?php
 
-ini_set('display_errors', 1);
-error_reporting(E_ALL);
+
 
 include 'db.php';
 $conn = mysqli_connect($host, $user, $pass, $db);
 
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
 // Insert or Update
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['branch_name'])) {
     $name = mysqli_real_escape_string($conn, $_POST['branch_name']);
