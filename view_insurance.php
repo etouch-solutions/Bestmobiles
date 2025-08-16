@@ -1,163 +1,148 @@
 <?php
 include 'db.php';
-
-// Get Insurance Entry Id from URL
-if (!isset($_GET['id']) || empty($_GET['id'])) {
-    die("Invalid Insurance Entry ID.");
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+if (!isset($_GET['id'])) {
+    die("No insurance entry selected.");
 }
+
 $insurance_entry_id = intval($_GET['id']);
 
-// Fetch Insurance Entry Details
+// Fetch Insurance Entry with Customer & Plan Details
 $sql = "
 SELECT 
-    ie.Insurance_Entry_Id,
-    ie.Product_Model_Name,
-    ie.IMEI_1,
-    ie.IMEI_2,
-    ie.Product_Value,
-    ie.Bill_Copy_Path,
-    ie.Product_Photo_Path,
-    ie.Bill_Date,
-    ie.Insurance_Start_Date,
-    ie.Insurance_End_Date,
-    ie.Premium_Amount,
-    ie.Is_Product_Covered,
-    ie.Is_Insurance_Active,
-    ie.Created_At,
-    
-    c.Cus_Name,
-    c.Cus_CNo,
-    c.Cus_Address,
-    c.Cus_Email,
-    c.Cus_Ref_Name,
-    c.Cus_Ref_CNo,
-    c.Cus_Photo_Path,
-    c.Cus_Id_Copy_Path,
-    
-    b.Brand_Name,
-    br.Branch_Name,
-    s.Staff_Name,
-    i.Insurance_Name,
-    i.Duration_Months,
-    i.Premium_Percentage
-
-FROM insurance_entry ie
-LEFT JOIN customer_master c ON ie.Cus_Id = c.Cus_Id
-LEFT JOIN brand_master b ON ie.Brand_Id = b.Brand_Id
-LEFT JOIN branch_master br ON c.Branch_Id = br.Branch_Id
-LEFT JOIN staff_master s ON ie.Staff_Id = s.Staff_Id
-LEFT JOIN insurance_master i ON ie.Insurance_Id = i.Insurance_Id
+    ie.*, 
+    c.Cus_Name, c.Cus_CNo, c.Cus_Address, c.Cus_Email, c.Cus_Photo_Path, 
+    b.Branch_Name,
+    br.Brand_Name,
+    ip.Insurance_Name, ip.Duration_Months, ip.Premium_Percentage,
+    s.Staff_Name
+FROM Insurance_Entry ie
+LEFT JOIN Customer_Master c ON ie.Cus_Id = c.Cus_Id
+LEFT JOIN Branch_Master b ON c.Branch_Id = b.Branch_Id
+LEFT JOIN Brand_Master br ON ie.Brand_Id = br.Brand_Id
+LEFT JOIN Insurance_Master ip ON ie.Insurance_Id = ip.Insurance_Id
+LEFT JOIN Staff_Master s ON ie.Staff_Id = s.Staff_Id
 WHERE ie.Insurance_Entry_Id = '$insurance_entry_id'
 ";
 
 $result = mysqli_query($conn, $sql);
-
 if (!$result || mysqli_num_rows($result) == 0) {
-    die("No insurance entry found.");
+    die("Insurance entry not found.");
 }
+$insurance = mysqli_fetch_assoc($result);
 
-$data = mysqli_fetch_assoc($result);
-
-// Fetch Claim History for this insurance
-$claims_sql = "
+// Fetch Claim History
+$sql_claims = "
 SELECT 
-    ce.Claim_Id,
-    ce.Claim_Date,
-    ce.Remarks,
+    ce.Claim_Id, 
+    ce.Claim_Date, 
+    ce.Claim_Status, 
+    ce.Remarks, 
+    ce.Defect_Value,
+    ce.Uploaded_Image_Path,
     ce.Claim_Image_Path,
+    ce.Claim_Remarks,
     d.Defect_Name
-FROM claim_entry ce
-LEFT JOIN claim_defects d ON ce.Defect_Id = d.Defect_Id
+FROM Claim_Entry ce
+LEFT JOIN Claim_Defects d ON ce.Defect_Id = d.Defect_Id
 WHERE ce.Insurance_Entry_Id = '$insurance_entry_id'
 ORDER BY ce.Claim_Date DESC
 ";
-$claims_result = mysqli_query($conn, $claims_sql);
+
+$claims_result = mysqli_query($conn, $sql_claims);
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Insurance Details</title>
-    <link rel="stylesheet" href="styles.css">
+    <title>Insurance & Claim Details</title>
     <style>
-        .details-container {
-            display: flex;
-            gap: 20px;
-            margin: 20px;
-        }
-        .panel {
-            flex: 1;
-            padding: 15px;
-            background: #fff;
-            border-radius: 8px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
-        }
-        .panel h2 { margin-bottom: 10px; }
-        .details-table { width: 100%; border-collapse: collapse; }
-        .details-table td { padding: 6px; border-bottom: 1px solid #eee; }
-        .claims-list { margin-top: 15px; }
-        .claims-list li { padding: 5px; border-bottom: 1px solid #ddd; }
+        body { font-family: Arial, sans-serif; margin:20px; background:#f9f9f9; }
+        .card { background:#fff; padding:20px; margin-bottom:20px; border-radius:8px; box-shadow:0 2px 6px rgba(0,0,0,0.1); }
+        h2 { margin-top:0; }
+        img { border-radius:6px; margin:5px 0; }
+        .claims { margin-top:20px; }
+        table { width:100%; border-collapse:collapse; background:#fff; }
+        th, td { padding:10px; border:1px solid #ddd; text-align:left; }
+        th { background:#f0f0f0; }
     </style>
 </head>
 <body>
 
-<h1 style="text-align:center;">Insurance & Claim Details</h1>
+<div class="card">
+    <h2>Customer Details</h2>
+    <p><strong>Name:</strong> <?= htmlspecialchars($insurance['Cus_Name']) ?></p>
+    <p><strong>Contact:</strong> <?= htmlspecialchars($insurance['Cus_CNo']) ?></p>
+    <p><strong>Email:</strong> <?= htmlspecialchars($insurance['Cus_Email']) ?></p>
+    <p><strong>Address:</strong> <?= htmlspecialchars($insurance['Cus_Address']) ?></p>
+    <?php if (!empty($insurance['Cus_Photo_Path'])): ?>
+        <img src="<?= $insurance['Cus_Photo_Path'] ?>" width="120">
+    <?php endif; ?>
+</div>
 
-<div class="details-container">
-    <!-- Customer & Product Info -->
-    <div class="panel">
-        <h2>Customer Details</h2>
-        <table class="details-table">
-            <tr><td>Name</td><td><?= $data['Cus_Name'] ?></td></tr>
-            <tr><td>Contact</td><td><?= $data['Cus_CNo'] ?></td></tr>
-            <tr><td>Email</td><td><?= $data['Cus_Email'] ?></td></tr>
-            <tr><td>Address</td><td><?= $data['Cus_Address'] ?></td></tr>
-            <tr><td>Reference</td><td><?= $data['Cus_Ref_Name'] ?> (<?= $data['Cus_Ref_CNo'] ?>)</td></tr>
-        </table>
-        <h2>Product Details</h2>
-        <table class="details-table">
-            <tr><td>Brand</td><td><?= $data['Brand_Name'] ?></td></tr>
-            <tr><td>Model</td><td><?= $data['Product_Model_Name'] ?></td></tr>
-            <tr><td>IMEI 1</td><td><?= $data['IMEI_1'] ?></td></tr>
-            <tr><td>IMEI 2</td><td><?= $data['IMEI_2'] ?></td></tr>
-            <tr><td>Value</td><td>₹<?= $data['Product_Value'] ?></td></tr>
-        </table>
-    </div>
+<div class="card">
+    <h2>Insurance Details</h2>
+    <p><strong>Insurance Plan:</strong> <?= htmlspecialchars($insurance['Insurance_Name']) ?></p>
+    <p><strong>Duration:</strong> <?= htmlspecialchars($insurance['Duration_Months']) ?> months</p>
+    <p><strong>Premium %:</strong> <?= htmlspecialchars($insurance['Premium_Percentage']) ?>%</p>
+    <p><strong>Premium Amount:</strong> ₹<?= htmlspecialchars($insurance['Premium_Amount']) ?></p>
+    <p><strong>Start Date:</strong> <?= htmlspecialchars($insurance['Insurance_Start_Date']) ?></p>
+    <p><strong>End Date:</strong> <?= htmlspecialchars($insurance['Insurance_End_Date']) ?></p>
+</div>
 
-    <!-- Insurance Info -->
-    <div class="panel">
-        <h2>Insurance Details</h2>
-        <table class="details-table">
-            <tr><td>Plan</td><td><?= $data['Insurance_Name'] ?></td></tr>
-            <tr><td>Duration</td><td><?= $data['Duration_Months'] ?> months</td></tr>
-            <tr><td>Premium %</td><td><?= $data['Premium_Percentage'] ?>%</td></tr>
-            <tr><td>Premium Amount</td><td>₹<?= $data['Premium_Amount'] ?></td></tr>
-            <tr><td>Start Date</td><td><?= $data['Insurance_Start_Date'] ?></td></tr>
-            <tr><td>End Date</td><td><?= $data['Insurance_End_Date'] ?></td></tr>
-            <tr><td>Status</td><td><?= $data['Is_Insurance_Active'] ? 'Active' : 'Expired' ?></td></tr>
-        </table>
-        <h2>Files</h2>
-        <p>Bill Copy: <a href="<?= $data['Bill_Copy_Path'] ?>" target="_blank">View</a></p>
-        <p>Product Photo: <a href="<?= $data['Product_Photo_Path'] ?>" target="_blank">View</a></p>
-    </div>
+<div class="card">
+    <h2>Product Details</h2>
+    <p><strong>Brand:</strong> <?= htmlspecialchars($insurance['Brand_Name']) ?></p>
+    <p><strong>Model:</strong> <?= htmlspecialchars($insurance['Product_Model_Name']) ?></p>
+    <p><strong>IMEI 1:</strong> <?= htmlspecialchars($insurance['IMEI_1']) ?></p>
+    <p><strong>IMEI 2:</strong> <?= htmlspecialchars($insurance['IMEI_2']) ?></p>
+    <p><strong>Product Value:</strong> ₹<?= htmlspecialchars($insurance['Product_Value']) ?></p>
+    <p><strong>Bill Date:</strong> <?= htmlspecialchars($insurance['Bill_Date']) ?></p>
+    <?php if (!empty($insurance['Bill_Copy_Path'])): ?>
+        <p><strong>Bill Copy:</strong><br><img src="<?= $insurance['Bill_Copy_Path'] ?>" width="200"></p>
+    <?php endif; ?>
+    <?php if (!empty($insurance['Product_Photo_Path'])): ?>
+        <p><strong>Product Photo:</strong><br><img src="<?= $insurance['Product_Photo_Path'] ?>" width="200"></p>
+    <?php endif; ?>
+</div>
 
-    <!-- Claim History -->
-    <div class="panel">
-        <h2>Claim History</h2>
-        <ul class="claims-list">
-            <?php if ($claims_result && mysqli_num_rows($claims_result) > 0) {
-                while ($claim = mysqli_fetch_assoc($claims_result)) { ?>
-                    <li>
-                        <strong><?= $claim['Claim_Date'] ?></strong> - <?= $claim['Defect_Name'] ?><br>
-                        <?= $claim['Remarks'] ?><br>
-                        <?php if ($claim['Claim_Image_Path']) { ?>
-                            <a href="<?= $claim['Claim_Image_Path'] ?>" target="_blank">View Image</a>
-                        <?php } ?>
-                    </li>
-            <?php } } else { echo "<li>No claims filed yet.</li>"; } ?>
-        </ul>
-    </div>
+<div class="card claims">
+    <h2>Claim History</h2>
+    <?php if (mysqli_num_rows($claims_result) > 0): ?>
+        <table>
+            <tr>
+                <th>Date</th>
+                <th>Status</th>
+                <th>Defect</th>
+                <th>Defect Value</th>
+                <th>Remarks</th>
+                <th>Claim Remarks</th>
+                <th>Images</th>
+            </tr>
+            <?php while ($claim = mysqli_fetch_assoc($claims_result)): ?>
+                <tr>
+                    <td><?= htmlspecialchars($claim['Claim_Date']) ?></td>
+                    <td><?= htmlspecialchars($claim['Claim_Status']) ?></td>
+                    <td><?= htmlspecialchars($claim['Defect_Name']) ?></td>
+                    <td>₹<?= htmlspecialchars($claim['Defect_Value']) ?></td>
+                    <td><?= htmlspecialchars($claim['Remarks']) ?></td>
+                    <td><?= htmlspecialchars($claim['Claim_Remarks']) ?></td>
+                    <td>
+                        <?php if (!empty($claim['Uploaded_Image_Path'])): ?>
+                            <img src="<?= $claim['Uploaded_Image_Path'] ?>" width="80">
+                        <?php endif; ?>
+                        <?php if (!empty($claim['Claim_Image_Path'])): ?>
+                            <img src="<?= $claim['Claim_Image_Path'] ?>" width="80">
+                        <?php endif; ?>
+                    </td>
+                </tr>
+            <?php endwhile; ?>
+        </table>
+    <?php else: ?>
+        <p>No claims filed for this insurance.</p>
+    <?php endif; ?>
 </div>
 
 </body>
