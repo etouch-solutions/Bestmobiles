@@ -22,22 +22,22 @@ function fetch_insurance_entries($conn, $search = "")
 
   $sql = "
     SELECT 
-        ce.Claim_Id,
-        ce.Remarks,
-        ce.Created_At AS Claim_Date,
-        ie.InsuranceEntry_Id,
-        ie.Product_Model_Name,
-        ie.IMEI_1,
-        c.Cus_Id,
-        c.Cus_Name,
-        c.Cus_CNo,
-        c.Cus_Address
-    FROM Claim_Entry ce
-    JOIN Insurance_Entry ie ON ce.InsuranceEntry_Id = ie.InsuranceEntry_Id
-    JOIN Customer_Master c ON ie.Cus_Id = c.Cus_Id
-    WHERE c.Cus_Name LIKE '%$search%' 
-       OR c.Cus_CNo LIKE '%$search%' 
-       OR ie.IMEI_1 LIKE '%$search%'
+    ce.Claim_Id,
+    ce.Remarks,
+    ce.Created_At AS Claim_Date,
+    ie.Entry_Id AS InsuranceEntry_Id,  -- renamed for clarity
+    ie.Product_Model_Name,
+    ie.IMEI_1,
+    c.Cus_Id,
+    c.Cus_Name,
+    c.Cus_CNo,
+    c.Cus_Address
+FROM Claim_Entry ce
+JOIN Insurance_Entry ie ON ce.Entry_Id = ie.Entry_Id
+JOIN Customer_Master c ON ie.Cus_Id = c.Cus_Id
+WHERE c.Cus_Name LIKE '%$search%' 
+   OR c.Cus_CNo LIKE '%$search%' 
+   OR ie.IMEI_1 LIKE '%$search%';
 ";
 $result = $conn->query($sql);
 
