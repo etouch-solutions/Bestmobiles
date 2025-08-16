@@ -7,6 +7,10 @@ $conn = mysqli_connect($host, $user, $pass, $db);
 
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
+
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
+
 // Insert or Update
 if ($_SERVER["REQUEST_METHOD"] == "POST" && isset($_POST['branch_name'])) {
     $name = mysqli_real_escape_string($conn, $_POST['branch_name']);
