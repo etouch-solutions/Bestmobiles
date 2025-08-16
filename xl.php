@@ -1,85 +1,57 @@
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-include 'db.php';
-
-$conn = new mysqli($servername, $username, $password, $dbname);
+// Database connection
+$host = 'localhost';  
+$user = 'u520351775_etouch';
+$pass = '!@#Admin@4321';  
+$db   = 'u520351775_bestmobiles';  
+$conn = new mysqli($host, $user, $pass, $db);
 
 // Check connection
 if ($conn->connect_error) {
     die("Connection failed: " . $conn->connect_error);
 }
 
-// If "Download Excel" is clicked
-if (isset($_POST['download_excel'])) {
-    header("Content-Type: application/vnd.ms-excel");
-    header("Content-Disposition: attachment; filename=branch_list.xls");
-    header("Pragma: no-cache");
-    header("Expires: 0");
+require 'vendor/autoload.php';  // Make sure composer is installed
 
-    $result = $conn->query("SELECT Branch_Id, Branch_Name, Branch_Code, Is_Active, Created_At FROM Branch_Master");
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
-    echo "Branch ID\tBranch Name\tBranch Code\tStatus\tCreated At\n";
-    while ($row = $result->fetch_assoc()) {
-        echo $row['Branch_Id'] . "\t" . 
-             $row['Branch_Name'] . "\t" . 
-             $row['Branch_Code'] . "\t" . 
-             ($row['Is_Active'] ? "Active" : "Inactive") . "\t" . 
-             $row['Created_At'] . "\n";
+// Create spreadsheet
+$spreadsheet = new Spreadsheet();
+$sheet = $spreadsheet->getActiveSheet();
+
+// Fetch data
+$sql = "SELECT * FROM Branch_Master";
+$result = $conn->query($sql);
+
+if ($result->num_rows > 0) {
+    $rowIndex = 1;
+
+    // Set header
+    $fields = $result->fetch_fields();
+    $col = 'A';
+    foreach ($fields as $field) {
+        $sheet->setCellValue($col.$rowIndex, $field->name);
+        $col++;
     }
-    exit;
+
+    // Data rows
+    while($row = $result->fetch_assoc()) {
+        $rowIndex++;
+        $col = 'A';
+        foreach ($row as $value) {
+            $sheet->setCellValue($col.$rowIndex, $value);
+            $col++;
+        }
+    }
 }
 
-// Fetch data to display in table
-$result = $conn->query("SELECT * FROM Branch_Master");
+// Output Excel file
+$writer = new Xlsx($spreadsheet);
+$filename = "branch_data.xlsx";
+
+header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+header("Content-Disposition: attachment; filename=\"$filename\"");
+$writer->save("php://output");
+exit;
 ?>
-
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Branch Master</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 20px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        th, td { padding: 10px; border: 1px solid #ccc; text-align: left; }
-        th { background-color: #007BFF; color: white; }
-        .btn-download {
-            background: green; 
-            color: white; 
-            padding: 10px 15px; 
-            border: none; 
-            cursor: pointer; 
-            border-radius: 5px;
-            margin-top: 15px;
-        }
-    </style>
-</head>
-<body>
-    <h2>Branch Master</h2>
-
-    <!-- Download Excel Button -->
-    <form method="post">
-        <button type="submit" name="download_excel" class="btn-download">⬇ Download Excel</button>
-    </form>
-
-    <!-- Display Branch Table -->
-    <table>
-        <tr>
-            <th>Branch ID</th>
-            <th>Branch Name</th>
-            <th>Branch Code</th>
-            <th>Status</th>
-            <th>Created At</th>
-        </tr>
-        <?php while ($row = $result->fetch_assoc()) { ?>
-            <tr>
-                <td><?= $row['Branch_Id'] ?></td>
-                <td><?= $row['Branch_Name'] ?></td>
-                <td><?= $row['Branch_Code'] ?></td>
-                <td><?= $row['Is_Active'] ? "Active" : "Inactive" ?></td>
-                <td><?= $row['Created_At'] ?></td>
-            </tr>
-        <?php } ?>
-    </table>
-</body>
-</html>
