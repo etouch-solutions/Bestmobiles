@@ -269,7 +269,7 @@ table th,
 table td {
   padding: 10px;
   text-align: left;
-  font-weight: 600;
+  
 }
 
 table th {
@@ -310,7 +310,7 @@ table td {
 }
 
 .action-btns .fa-trash {
-  color: #ff2b41;
+  color: #e65362ad;
 }
 
 .action-btns i:hover {
@@ -319,12 +319,12 @@ table td {
 /* Style for active rows */
 .active-row {
   background-color: #f3f3f3 !important;  
-  color: #118b0d !important;   
+  color: #2dce28 !important;   
 
 }
 .inactive-row {
   background-color: #f3f3f3 !important;  
-  color: #ff0d05 !important;             
+  color: #e02b25 !important;             
 }
 
 
