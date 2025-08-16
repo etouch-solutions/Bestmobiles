@@ -103,13 +103,16 @@
           <input type="file" name="bill_photo" accept="image/*" onchange="previewImage(this,'previewBillPhoto')">
 
           <label>Bill Date</label>
-          <input type="date" name="bill_date" onchange="updatePreview('bill', this)" required>
+<input type="date" name="bill_date" id="bill_date" 
+       onchange="setStartDateFromBill(this.value)" required>
 
-          <label>Insurance Start</label>
-          <input type="date" name="insurance_start" id="insurance_start" onchange="calculatePremiumAndEndDate(); updatePreview('start', this)" required>
+<label>Insurance Start</label>
+<input type="date" name="insurance_start" id="insurance_start" 
+       onchange="calculatePremiumAndEndDate(); updatePreview('start', this)" required>
 
-          <label>Insurance End</label>
-          <input type="date" name="insurance_end" id="insurance_end" readonly>
+<label>Insurance End</label>
+<input type="date" name="insurance_end" id="insurance_end" 
+       onchange="updatePreview('end', this)">
 
           <label>Insurance Status</label>
           <select name="insurance_status" onchange="updatePreview('insStatus', this)">
@@ -175,6 +178,48 @@ function loadInsuranceDetails(id){ if(!id)return document.getElementById('insura
 document.getElementById('insurance_id').addEventListener('change', calculatePremiumAndEndDate);
 document.getElementById('product_value').addEventListener('input', calculatePremiumAndEndDate);
 document.getElementById('insurance_start').addEventListener('change', calculatePremiumAndEndDate);
+
+
+
+
+
+// Auto set Insurance Start when Bill Date is selected
+function setStartDateFromBill(billDate) {
+  if (!billDate) return;
+  document.getElementById('insurance_start').value = billDate;
+  updatePreview('start', document.getElementById('insurance_start'));
+  calculatePremiumAndEndDate();
+}
+
+// Auto-calc Premium & End Date
+function calculatePremiumAndEndDate() {
+  const ins = document.getElementById('insurance_id');
+  const opt = ins.options[ins.selectedIndex];
+  if (!opt) return;
+
+  const premium = opt.getAttribute('data-premium');
+  const duration = opt.getAttribute('data-duration');
+  const productValue = parseFloat(document.getElementById('product_value').value) || 0;
+
+  // Premium Calculation
+  if (premium && productValue) {
+    const pr = (productValue * parseFloat(premium)) / 100;
+    document.getElementById('premium_amount').value = pr.toFixed(2);
+    document.getElementById('previewPremium').innerText = '₹' + pr.toFixed(2);
+  }
+
+  // Insurance End Date Calculation
+  const startDate = document.getElementById('insurance_start').value;
+  if (startDate && duration) {
+    const dt = new Date(startDate);
+    dt.setMonth(dt.getMonth() + parseInt(duration));
+
+    const iso = dt.toISOString().split('T')[0];
+    document.getElementById('insurance_end').value = iso;
+    document.getElementById('previewEnd').innerText = iso;
+  }
+}
+
 </script>
 
 </body>
