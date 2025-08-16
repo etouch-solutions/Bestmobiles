@@ -1,10 +1,11 @@
 <?php
 // Database connection
-$host = 'localhost';  
-$user = 'u520351775_etouch';
-$pass = '!@#Admin@4321';  
-$db   = 'u520351775_bestmobiles';  
-$conn = new mysqli($host, $user, $pass, $db);
+$servername = "localhost"; // or your host
+$username   = "u520351775_etouch"; // your DB username
+$password   = "!@#Admin@4321";  // your DB password
+$dbname     = "u520351775_bestmobiles"; // your DB name
+
+$conn = new mysqli($servername, $username, $password, $dbname);
 
 // Check connection
 if ($conn->connect_error) {
