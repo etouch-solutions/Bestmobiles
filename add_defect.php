@@ -134,7 +134,7 @@ $defects = $conn->query("SELECT * FROM Defect_Master $searchSql ORDER BY Defect_
                     <td class="action-btns">
                       <i class='fas fa-eye' onclick='viewDetails(<?= $jsonRow ?>)'></i>
                       <a href='?edit=<?= $row['Defect_Id'] ?>'><i class='fas fa-pen'></i></a>
-                      <a href='javascript:void(0)' onclick='deleteDefect(<?= $row['Defect_Id'] ?>)'><i class='fas fa-trash text-danger'></i></a>
+                       
                     </td>
                   </tr>
                 <?php endwhile; ?>
