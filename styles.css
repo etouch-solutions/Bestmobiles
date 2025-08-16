@@ -319,12 +319,12 @@ table td {
 /* Style for active rows */
 .active-row {
   background-color: #f3f3f3 !important;  
-  color: #096306 !important;   
+  color: #118b0d !important;   
 
 }
 .inactive-row {
   background-color: #f3f3f3 !important;  
-  color: #680804 !important;             
+  color: #9c1713 !important;             
 }
 
 
