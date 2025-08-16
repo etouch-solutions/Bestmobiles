@@ -184,17 +184,19 @@ $allData = fetch_insurance_entries($conn);
 </div>
 
 <!-- Sidebar -->
-<aside class="sidebar">
-  <a href="index.php">Dashboard</a>
-  <a href="branch.php">Branch Master</a>
-  <a href="brand.php">Brand Master</a>
-  <a href="add_staff.php">Staff Master</a>
-  <a href="Customer_Master.php">Customer Master</a>
-  <a href="add_insurance.php">Insurance Master</a>
-  <a href="add_defect.php">Defect Master</a>
-  <a href="insuranceentry.php">Insurance Entry</a>
-  <a href="serch.php" class="active">Claim</a>
-</aside>
+<aside class="sidebar mobile-hidden" id="sidebarMenu">
+      <ul>
+        <a href="index.php"><li>Dashboard</li></a>
+        <a href="branch.php" class="active"><li>Branch Master</li></a>
+        <a href="brand.php"><li>Brand Master</li></a>
+        <a href="add_staff.php"><li>Staff Master</li></a>
+        <a href="Customer_Master.php"><li>Customer Master</li></a>
+        <a href="add_insurance.php"><li>Insurance Master</li></a>
+        <a href="add_defect.php"><li>Defect Master</li></a>
+        <a href="insuranceentry.php"><li>Insurance Entry</li></a>
+        <a href="serch.php"><li>Claim</li></a>
+      </ul>
+    </aside>
 
 <!-- Main Content -->
 <div class="main-content">
