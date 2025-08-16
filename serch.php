@@ -16,6 +16,12 @@ function fetch_insurance_entries($conn, $q = '') {
       i.Insurance_Start_Date,
       i.Insurance_End_Date,
       (
+        SELECT IFNULL(SUM(d.Defect_Value), 0)
+        FROM Claim_Entry ce
+        JOIN Claim_Defects d ON ce.Defect_Id = d.Defect_Id
+        WHERE ce.Insurance_Entry_Id = i.Insurance_Entry_Id
+      ) AS Defect_Value,
+      (
         SELECT COUNT(*) FROM Claim_Entry ce 
         WHERE ce.Insurance_Entry_Id = i.Insurance_Entry_Id
       ) AS claim_count
@@ -23,7 +29,7 @@ function fetch_insurance_entries($conn, $q = '') {
     JOIN Customer_Master c ON c.Cus_Id = i.Cus_Id
     $where
     ORDER BY i.Insurance_Entry_Id DESC
-  ");
+");
 
   $data = [];
   $today = date('Y-m-d');
