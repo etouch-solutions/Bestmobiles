@@ -42,6 +42,10 @@ if (isset($_GET['edit'])) {
         $editBranch = $res->fetch_assoc();
     }
 }
+
+
+
+
 ?>
 
 <!DOCTYPE html>
