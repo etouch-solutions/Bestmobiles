@@ -131,9 +131,9 @@ $allData = fetch_insurance_entries($conn);
     }
 
     /* ✅ Fixed Row colors – apply to cells */
-    tr.not_claimed td { background-color: #b2ffb8; }  /* Green */
-    tr.claimed td { background-color: #ffecaf; }      /* Yellow */
-    tr.expired td { background-color: #ffc1c1; }      /* Red */
+    tr.not_claimed td { background-color: #c8ffcdff; }  /* Green */
+    tr.claimed td { background-color: #fff4d1ff; }      /* Yellow */
+    tr.expired td { background-color: #fcb8b8ff; }      /* Red */
 
     .action-btn {
       padding: 6px 12px;
