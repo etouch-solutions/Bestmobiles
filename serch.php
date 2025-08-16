@@ -130,10 +130,10 @@ $allData = fetch_insurance_entries($conn);
       font-weight: bold;
     }
 
-    /* Row colors */
-    tr.not_claimed { background-color: #b2ffb8ff; }  /* Green */
-    tr.claimed { background-color: #ffecafff; }      /* Yellow */
-    tr.expired { background-color: #ffc1c1ff; }      /* Red */
+    /* ✅ Fixed Row colors – apply to cells */
+    tr.not_claimed td { background-color: #b2ffb8; }  /* Green */
+    tr.claimed td { background-color: #ffecaf; }      /* Yellow */
+    tr.expired td { background-color: #ffc1c1; }      /* Red */
 
     .action-btn {
       padding: 6px 12px;
@@ -150,7 +150,7 @@ $allData = fetch_insurance_entries($conn);
     }
 
     .action-btn.disabled {
-      background: #ff9c9cff;
+      background: #ff9c9c;
       cursor: not-allowed;
     }
 
@@ -177,18 +177,18 @@ $allData = fetch_insurance_entries($conn);
 
 <!-- Sidebar -->
 <aside class="sidebar mobile-hidden" id="sidebarMenu">
-      <ul>
-        <a href="index.php"><li>Dashboard</li></a>
-        <a href="branch.php"><li>Branch Master</li></a>
-        <a href="brand.php"><li>Brand Master</li></a>
-        <a href="add_staff.php"><li>Staff Master</li></a>
-        <a href="Customer_Master.php"><li>Customer Master</li></a>
-        <a href="add_insurance.php"><li>Insurance Master</li></a>
-        <a href="add_defect.php"><li>Defect Master</li></a>
-        <a href="insuranceentry.php"><li>Insurance Entry</li></a>
-        <a href="serch.php" class="active"><li>Claim</li></a>
-      </ul>
-    </aside>
+  <ul>
+    <a href="index.php"><li>Dashboard</li></a>
+    <a href="branch.php"><li>Branch Master</li></a>
+    <a href="brand.php"><li>Brand Master</li></a>
+    <a href="add_staff.php"><li>Staff Master</li></a>
+    <a href="Customer_Master.php"><li>Customer Master</li></a>
+    <a href="add_insurance.php"><li>Insurance Master</li></a>
+    <a href="add_defect.php"><li>Defect Master</li></a>
+    <a href="insuranceentry.php"><li>Insurance Entry</li></a>
+    <a href="serch.php" class="active"><li>Claim</li></a>
+  </ul>
+</aside>
 
 <!-- Main Content -->
 <div class="main-content">
