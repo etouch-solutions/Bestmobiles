@@ -541,3 +541,58 @@ table td {
     overflow-y: auto;
   }
 }
+
+
+
+/* Dashboard */
+.dashboard-container {
+    flex: 1;
+    padding: 20px;
+}
+
+/* Cards */
+.cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px,1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+.card {
+    background: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+    text-align: center;
+    transition: 0.3s;
+}
+.card:hover {
+    transform: translateY(-5px);
+}
+.card h2 {
+    font-size: 28px;
+    margin: 10px 0;
+    color: #144d30;
+}
+.card p {
+    font-size: 14px;
+    color: #555;
+}
+
+/* Charts */
+.chart-section {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px,1fr));
+    gap: 20px;
+}
+.chart-box {
+    background: #fff;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+}
+.chart-box h3 {
+    margin-bottom: 15px;
+    font-size: 16px;
+    font-weight: 600;
+    color: #144d30;
+}

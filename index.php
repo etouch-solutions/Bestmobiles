@@ -2,28 +2,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Dashboard - Best Mobile Insurance</title>
+    <title>Dashboard - Mobile Insurance</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <style>
-        .dashboard-container { padding:20px; }
-        .cards { display:grid; grid-template-columns:repeat(4,1fr); gap:20px; margin-bottom:30px; }
-        .card {
-            background:#fff; padding:20px; border-radius:12px; 
-            box-shadow:0 4px 10px rgba(0,0,0,0.1);
-            text-align:center; transition:0.3s;
-        }
-        .card:hover { transform:translateY(-5px); }
-        .card h2 { font-size:28px; margin:10px 0; color:#144d30ff; }
-        .card p { font-size:14px; color:#555; }
-        .chart-section { display:flex; gap:30px; margin-bottom:40px; }
-        .chart-box { background:#fff; padding:20px; border-radius:12px; flex:1; box-shadow:0 4px 10px rgba(0,0,0,0.1); }
-        .recent-table { background:#fff; padding:20px; border-radius:12px; box-shadow:0 4px 10px rgba(0,0,0,0.1); }
-        table { width:100%; border-collapse:collapse; }
-        table th, table td { border-bottom:1px solid #eee; padding:10px; text-align:left; font-size:14px; }
-        table th { background:#f5f5f5; }
-    </style>
 </head>
 <body>
 <div class="navtop">
@@ -33,7 +15,8 @@
 </div>
 
 <div class="container">
-    <aside class="sidebar mobile-hidden" id="sidebarMenu">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebarMenu">
       <ul>
         <a href="index.php" class="active"><li>Dashboard</li></a>
         <a href="branch.php"><li>Branch Master</li></a>
@@ -47,6 +30,7 @@
       </ul>
     </aside>
 
+    <!-- Main -->
     <main class="dashboard-container">
         <?php
         // Fetch counts
@@ -60,7 +44,7 @@
         $claimCount = $conn->query("SELECT COUNT(*) as c FROM Claim_Entry")->fetch_assoc()['c'];
         ?>
 
-        <!-- Dashboard Cards -->
+        <!-- Cards -->
         <div class="cards">
             <div class="card"><i class="fa-solid fa-building fa-2x"></i><h2><?php echo $branchCount; ?></h2><p>Branches</p></div>
             <div class="card"><i class="fa-solid fa-mobile fa-2x"></i><h2><?php echo $brandCount; ?></h2><p>Brands</p></div>
@@ -83,36 +67,6 @@
                 <canvas id="customerChart"></canvas>
             </div>
         </div>
-
-        <!-- Recent Claims -->
-        <div class="recent-table">
-            <h3>Recent Claims</h3>
-            <table>
-                <tr>
-                    <th>Claim ID</th>
-                    <th>Customer</th>
-                    <th>IMEI</th>
-                    <th>Date</th>
-                    <th>Status</th>
-                </tr>
-                <?php
-                $recentClaims = $conn->query("SELECT c.Claim_Id, cm.Cus_Name, ie.IMEI_1, c.Created_At, c.Status 
-                                              FROM Claim_Entry c 
-                                              JOIN Insurance_Entry ie ON c.Ins_Entry_Id=ie.Ins_Entry_Id
-                                              JOIN Customer_Master cm ON ie.Cus_Id=cm.Cus_Id
-                                              ORDER BY c.Created_At DESC LIMIT 5");
-                while ($row = $recentClaims->fetch_assoc()) {
-                    echo "<tr>
-                            <td>".$row['Claim_Id']."</td>
-                            <td>".$row['Cus_Name']."</td>
-                            <td>".$row['IMEI_1']."</td>
-                            <td>".$row['Created_At']."</td>
-                            <td>".$row['Status']."</td>
-                          </tr>";
-                }
-                ?>
-            </table>
-        </div>
     </main>
 </div>
 
@@ -129,7 +83,7 @@
         }
     });
 
-    // Customer Growth (dummy month-wise for now)
+    // Customer Growth (sample with last count)
     new Chart(document.getElementById("customerChart"), {
         type: "line",
         data: {
@@ -138,7 +92,9 @@
                 label:"Customers",
                 data:[5,10,15,20,30,40,<?php echo $customerCount; ?>],
                 borderColor:"#144d30",
-                fill:false
+                borderWidth:2,
+                fill:false,
+                tension:0.3
             }]
         }
     });
