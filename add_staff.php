@@ -169,7 +169,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <td class="action-btns">
                       <i class='fas fa-eye' onclick='viewDetails(<?= $jsonRow ?>)'></i>
                       <a href='?edit=<?= $row['Staff_Id'] ?>'><i class='fas fa-pen'></i></a>
-                      <a href='javascript:void(0)' onclick='deleteStaff(<?= $row['Staff_Id'] ?>)'><i class='fas fa-trash'></i></a>
+                       
                     </td>
                   </tr>
                 <?php endwhile; ?>
