@@ -310,7 +310,7 @@ table td {
 }
 
 .action-btns .fa-trash {
-  color: #e65362ad;
+  color: #ff2b41;
 }
 
 .action-btns i:hover {
@@ -324,7 +324,7 @@ table td {
 }
 .inactive-row {
   background-color: #f3f3f3 !important;  
-  color: #9c1713 !important;             
+  color: #ff0d05 !important;             
 }
 
 
