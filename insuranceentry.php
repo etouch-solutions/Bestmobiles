@@ -17,8 +17,6 @@
 </div>
 
 <div class="container">
-  
-
  <aside class="sidebar mobile-hidden" id="sidebarMenu">
       <ul>
         <a href="index.php"><li>Dashboard</li></a>
@@ -32,8 +30,6 @@
         <a href="serch.php"><li>Claim</li></a>
       </ul>
     </aside>
-
-
 
   <main class="main-content">
     <div class="content-area">
@@ -94,10 +90,10 @@
           <input type="text" name="imei_2" oninput="updatePreview('imei2', this)">
 
           <label>Product Value (₹)</label>
-          <input type="number" name="product_value" id="product_value" oninput="calculatePremiumAndEndDate(); updatePreview('value', this)" required>
+          <input type="number" name="product_value" id="product_value" oninput="premiumEditedManually=false; calculatePremiumAndEndDate(); updatePreview('value', this)" required>
 
           <label>Calculated Premium (₹)</label>
-          <input type="number" name="premium_amount" id="premium_amount"  >
+          <input type="number" name="premium_amount" id="premium_amount" oninput="manualPremiumEdit(this)">
 
           <label>Upload Product Photo</label>
           <input type="file" name="product_photo" accept="image/*" onchange="previewImage(this,'previewProductPhoto')">
@@ -106,16 +102,13 @@
           <input type="file" name="bill_photo" accept="image/*" onchange="previewImage(this,'previewBillPhoto')">
 
           <label>Bill Date</label>
-<input type="date" name="bill_date" id="bill_date" 
-       onchange="setStartDateFromBill(this.value)" required>
+          <input type="date" name="bill_date" id="bill_date" onchange="setStartDateFromBill(this.value)" required>
 
-<label>Insurance Start</label>
-<input type="date" name="insurance_start" id="insurance_start" 
-       onchange="calculatePremiumAndEndDate(); updatePreview('start', this)" required>
+          <label>Insurance Start</label>
+          <input type="date" name="insurance_start" id="insurance_start" onchange="premiumEditedManually=false; calculatePremiumAndEndDate(); updatePreview('start', this)" required>
 
-<label>Insurance End</label>
-<input type="date" name="insurance_end" id="insurance_end" 
-       onchange="updatePreview('end', this)">
+          <label>Insurance End</label>
+          <input type="date" name="insurance_end" id="insurance_end" onchange="updatePreview('end', this)">
 
           <label>Insurance Status</label>
           <select name="insurance_status" onchange="updatePreview('insStatus', this)">
@@ -161,7 +154,7 @@
 function toggleSidebar(){document.getElementById('sidebarMenu').classList.toggle('mobile-hidden');}
 function updatePreview(type, el){
   const val = el.value || '-';
-  const map = {model:'previewModel', imei1:'previewIMEI1', imei2:'previewIMEI2', value:'previewValue', bill:'previewBillDate', start:'previewStart', insStatus:'previewInsStatus', prodStatus:'previewProdStatus'};
+  const map = {model:'previewModel', imei1:'previewIMEI1', imei2:'previewIMEI2', value:'previewValue', bill:'previewBillDate', start:'previewStart', end:'previewEnd', insStatus:'previewInsStatus', prodStatus:'previewProdStatus'};
   document.getElementById(map[type]).innerText = (type==='insStatus'||type==='prodStatus') ? el.options[el.selectedIndex].text : val;
 }
 function previewImage(inp, id){
@@ -170,27 +163,22 @@ function previewImage(inp, id){
   r.onload=e=>document.getElementById(id).src=e.target.result;
   r.readAsDataURL(inp.files[0]);
 }
-function calculatePremiumAndEndDate(){
-  const ins=document.getElementById('insurance_id'),opt=ins.options[ins.selectedIndex],p=opt.getAttribute('data-premium'),d=opt.getAttribute('data-duration'),val=parseFloat(document.getElementById('product_value').value)||0;
-  if(p&&val){const pr=(val*parseFloat(p))/100;document.getElementById('premium_amount').value=pr.toFixed(2);document.getElementById('previewPremium').innerText='₹'+pr.toFixed(2);}
-  const sd=document.getElementById('insurance_start').value; if(sd){const dt=new Date(sd);dt.setMonth(dt.getMonth()+parseInt(d));const iso=dt.toISOString().split('T')[0];document.getElementById('insurance_end').value=iso;document.getElementById('previewEnd').innerText=iso;}
+
+// --- Premium Logic ---
+let premiumEditedManually = false;
+
+// If user edits premium manually
+function manualPremiumEdit(el) {
+  premiumEditedManually = true;
+  document.getElementById('previewPremium').innerText = '₹' + (el.value || 0);
 }
-function loadCustomerDetails(id){ if(!id)return document.getElementById('customerDetails').innerText="Select a customer to view details.";fetch(`fetch_customer.php?cus_id=${id}`).then(r=>r.text()).then(d=>document.getElementById('customerDetails').innerHTML=d);}
-function loadBrandDetails(id){ if(!id)return document.getElementById('brandDetails').innerText="Select a brand to view details.";fetch(`fetch_brand.php?brand_id=${id}`).then(r=>r.text()).then(d=>document.getElementById('brandDetails').innerHTML=d);}
-function loadInsuranceDetails(id){ if(!id)return document.getElementById('insuranceDetails').innerText="Select a plan to view details.";fetch(`fetch_insurance.php?insurance_id=${id}`).then(r=>r.text()).then(d=>document.getElementById('insuranceDetails').innerHTML=d);}
-document.getElementById('insurance_id').addEventListener('change', calculatePremiumAndEndDate);
-document.getElementById('product_value').addEventListener('input', calculatePremiumAndEndDate);
-document.getElementById('insurance_start').addEventListener('change', calculatePremiumAndEndDate);
-
-
-
-
 
 // Auto set Insurance Start when Bill Date is selected
 function setStartDateFromBill(billDate) {
   if (!billDate) return;
   document.getElementById('insurance_start').value = billDate;
   updatePreview('start', document.getElementById('insurance_start'));
+  premiumEditedManually = false;
   calculatePremiumAndEndDate();
 }
 
@@ -204,8 +192,8 @@ function calculatePremiumAndEndDate() {
   const duration = opt.getAttribute('data-duration');
   const productValue = parseFloat(document.getElementById('product_value').value) || 0;
 
-  // Premium Calculation
-  if (premium && productValue) {
+  // Premium Calculation (only if not edited manually)
+  if (!premiumEditedManually && premium && productValue) {
     const pr = (productValue * parseFloat(premium)) / 100;
     document.getElementById('premium_amount').value = pr.toFixed(2);
     document.getElementById('previewPremium').innerText = '₹' + pr.toFixed(2);
@@ -223,6 +211,9 @@ function calculatePremiumAndEndDate() {
   }
 }
 
+function loadCustomerDetails(id){ if(!id)return document.getElementById('customerDetails').innerText="Select a customer to view details.";fetch(`fetch_customer.php?cus_id=${id}`).then(r=>r.text()).then(d=>document.getElementById('customerDetails').innerHTML=d);}
+function loadBrandDetails(id){ if(!id)return document.getElementById('brandDetails').innerText="Select a brand to view details.";fetch(`fetch_brand.php?brand_id=${id}`).then(r=>r.text()).then(d=>document.getElementById('brandDetails').innerHTML=d);}
+function loadInsuranceDetails(id){ if(!id)return document.getElementById('insuranceDetails').innerText="Select a plan to view details.";fetch(`fetch_insurance.php?insurance_id=${id}`).then(r=>r.text()).then(d=>document.getElementById('insuranceDetails').innerHTML=d);}
 </script>
 
 </body>
