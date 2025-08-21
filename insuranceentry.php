@@ -214,7 +214,9 @@ function calculatePremiumAndEndDate() {
 function loadCustomerDetails(id){ if(!id)return document.getElementById('customerDetails').innerText="Select a customer to view details.";fetch(`fetch_customer.php?cus_id=${id}`).then(r=>r.text()).then(d=>document.getElementById('customerDetails').innerHTML=d);}
 function loadBrandDetails(id){ if(!id)return document.getElementById('brandDetails').innerText="Select a brand to view details.";fetch(`fetch_brand.php?brand_id=${id}`).then(r=>r.text()).then(d=>document.getElementById('brandDetails').innerHTML=d);}
 function loadInsuranceDetails(id){ if(!id)return document.getElementById('insuranceDetails').innerText="Select a plan to view details.";fetch(`fetch_insurance.php?insurance_id=${id}`).then(r=>r.text()).then(d=>document.getElementById('insuranceDetails').innerHTML=d);}
+
 </script>
 
 </body>
 </html>
+ 
