@@ -97,7 +97,7 @@
           <input type="number" name="product_value" id="product_value" oninput="calculatePremiumAndEndDate(); updatePreview('value', this)" required>
 
           <label>Calculated Premium (₹)</label>
-          <input type="number" name="premium_amount" id="premium_amount" readonly>
+          <input type="number" name="premium_amount" id="premium_amount"  >
 
           <label>Upload Product Photo</label>
           <input type="file" name="product_photo" accept="image/*" onchange="previewImage(this,'previewProductPhoto')">
