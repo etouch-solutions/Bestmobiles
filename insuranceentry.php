@@ -1,6 +1,7 @@
 <?php include 'db.php'; $conn = mysqli_connect($host, $user, $pass, $db); ?>
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -216,7 +217,6 @@ function loadBrandDetails(id){ if(!id)return document.getElementById('brandDetai
 function loadInsuranceDetails(id){ if(!id)return document.getElementById('insuranceDetails').innerText="Select a plan to view details.";fetch(`fetch_insurance.php?insurance_id=${id}`).then(r=>r.text()).then(d=>document.getElementById('insuranceDetails').innerHTML=d);}
 
 </script>
-
 </body>
 </html>
  
