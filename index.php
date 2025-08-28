@@ -1,109 +1,183 @@
-<?php
-// dashboard.php
-
-include 'db_connect.php'; // <-- make sure this has $conn = new mysqli(...);
-
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-// ===== Fetch Insurance Entries by Month =====
-$insuranceData = [];
-$insuranceLabels = [];
-$sql = "SELECT DATE_FORMAT(Insurance_Start_Date, '%Y-%m') as month, COUNT(*) as total 
-        FROM Insurance_Entry 
-        GROUP BY DATE_FORMAT(Insurance_Start_Date, '%Y-%m') 
-        ORDER BY month ASC";
-$result = $conn->query($sql);
-while($row = $result->fetch_assoc()){
-    $insuranceLabels[] = $row['month'];
-    $insuranceData[] = $row['total'];
-}
-
-// ===== Fetch Claim Status (Approved, Pending, Rejected etc.) =====
-$claimLabels = [];
-$claimData = [];
-$sql2 = "SELECT Status, COUNT(*) as total FROM Claim_Entry GROUP BY Status";
-$result2 = $conn->query($sql2);
-while($row = $result2->fetch_assoc()){
-    $claimLabels[] = $row['Status'];
-    $claimData[] = $row['total'];
-}
-
-// ===== Total Stats for Cards =====
-$totalCustomers = $conn->query("SELECT COUNT(*) as c FROM Customer_Master")->fetch_assoc()['c'];
-$totalInsurance = $conn->query("SELECT COUNT(*) as c FROM Insurance_Entry")->fetch_assoc()['c'];
-$totalClaims = $conn->query("SELECT COUNT(*) as c FROM Claim_Entry")->fetch_assoc()['c'];
-$totalStaff = $conn->query("SELECT COUNT(*) as c FROM Staff_Master")->fetch_assoc()['c'];
-
-?>
+<?php include 'db.php'; ?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Insurance Dashboard</title>
+  <title>Dashboard - Best Mobile Insurance Software</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    body { font-family: Arial, sans-serif; margin: 0; background: #f4f6f9; }
-    .header { background: #2c3e50; color: #fff; padding: 20px; text-align: center; }
-    .cards { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; margin: 20px; }
-    .card { flex: 1 1 200px; background: white; border-radius: 10px; padding: 20px; box-shadow: 0 3px 6px rgba(0,0,0,0.1); text-align: center; }
-    .card h2 { margin: 0; font-size: 2em; color: #2c3e50; }
-    .card p { margin: 5px 0 0; color: #7f8c8d; }
-    .charts { display: flex; flex-wrap: wrap; gap: 20px; justify-content: center; margin: 20px; }
-    .chart-box { background: #fff; border-radius: 10px; padding: 20px; box-shadow: 0 3px 6px rgba(0,0,0,0.1); flex: 1 1 400px; }
-    canvas { max-width: 100%; }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f5f6fa;
+    }
+
+    /* Dashboard Cards */
+    .dashboard {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      margin: 20px;
+    }
+    .card {
+      background: #fff;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+      text-align: center;
+      transition: all 0.3s ease;
+    }
+    .card:hover { transform: translateY(-5px); }
+    .card i {
+      font-size: 28px;
+      color: #144d30;
+      margin-bottom: 10px;
+    }
+    .card h2 {
+      font-size: 28px;
+      margin: 5px 0;
+      color: #144d30;
+    }
+    .card p {
+      font-size: 14px;
+      color: #555;
+    }
+
+    /* Charts Section */
+    .charts {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 20px;
+      margin: 20px;
+    }
+    .chart-card {
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    }
+    canvas {
+      width: 100% !important;
+      height: 300px !important;
+    }
+
+    /* Responsive */
+    @media(max-width: 900px){
+      .dashboard { grid-template-columns: repeat(2, 1fr); }
+      .charts { grid-template-columns: 1fr; }
+    }
+    @media(max-width: 600px){
+      .dashboard { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
-  <div class="header"><h1>📊 Insurance Management Dashboard</h1></div>
+  <!-- Top Nav -->
+  <div class="navtop">
+    <div class="logo">LOGO</div>
+    <h1> Best Mobile Insurance Software</h1>
+    <div class="hamburger" onclick="toggleSidebar()">☰</div>
+  </div>
 
-  <!-- Cards -->
-  <div class="cards">
-    <div class="card"><h2><?php echo $totalCustomers; ?></h2><p>Customers</p></div>
-    <div class="card"><h2><?php echo $totalInsurance; ?></h2><p>Insurance Entries</p></div>
-    <div class="card"><h2><?php echo $totalClaims; ?></h2><p>Total Claims</p></div>
-    <div class="card"><h2><?php echo $totalStaff; ?></h2><p>Staff</p></div>
+  <div class="container">
+    <!-- Sidebar -->
+    <aside class="sidebar mobile-hidden" id="sidebarMenu">
+      <ul>
+        <a href="index.php"><li class="active">Dashboard</li></a>
+        <a href="branch.php"><li>Branch Master</li></a>
+        <a href="brand.php"><li>Brand Master</li></a>
+        <a href="add_staff.php"><li>Staff Master</li></a>
+        <a href="Customer_Master.php"><li>Customer Master</li></a>
+        <a href="add_insurance.php"><li>Insurance Master</li></a>
+        <a href="add_defect.php"><li>Defect Master</li></a>
+        <a href="insuranceentry.php"><li>Insurance Entry</li></a>
+        <a href="serch.php"><li>Claim</li></a>
+      </ul>
+    </aside>
+
+    <!-- Main Dashboard -->
+    <main style="flex:1; padding:20px;">
+      <h2 style="color:#144d30; margin-bottom:20px;">📊 Dashboard Overview</h2>
+
+      <!-- Stats Cards -->
+      <div class="dashboard">
+        <div class="card">
+          <i class="fa fa-users"></i>
+          <h2>
+            <?php $r = $conn->query("SELECT COUNT(*) AS c FROM Customer_Master"); echo $r->fetch_assoc()['c']; ?>
+          </h2>
+          <p>Total Customers</p>
+        </div>
+        <div class="card">
+          <i class="fa fa-shield-alt"></i>
+          <h2>
+            <?php $r = $conn->query("SELECT COUNT(*) AS c FROM Insurance_Entry"); echo $r->fetch_assoc()['c']; ?>
+          </h2>
+          <p>Total Insurances</p>
+        </div>
+        <div class="card">
+          <i class="fa fa-file-contract"></i>
+          <h2>
+            <?php $r = $conn->query("SELECT COUNT(*) AS c FROM Claim_Entry"); echo $r->fetch_assoc()['c']; ?>
+          </h2>
+          <p>Total Claims</p>
+        </div>
+        <div class="card">
+          <i class="fa fa-user-tie"></i>
+          <h2>
+            <?php $r = $conn->query("SELECT COUNT(*) AS c FROM Staff_Master"); echo $r->fetch_assoc()['c']; ?>
+          </h2>
+          <p>Total Staff</p>
+        </div>
+      </div>
+
+      <!-- Charts -->
+      <div class="charts">
+        <div class="chart-card">
+          <h3 style="color:#144d30;">Insurance Entries by Month</h3>
+          <canvas id="insuranceChart"></canvas>
+        </div>
+        <div class="chart-card">
+          <h3 style="color:#144d30;">Claims Status</h3>
+          <canvas id="claimsChart"></canvas>
+        </div>
+      </div>
+    </main>
   </div>
 
   <!-- Charts -->
-  <div class="charts">
-    <div class="chart-box">
-      <h3>Insurance Entries by Month</h3>
-      <canvas id="insuranceChart"></canvas>
-    </div>
-    <div class="chart-box">
-      <h3>Claims Status</h3>
-      <canvas id="claimChart"></canvas>
-    </div>
-  </div>
-
   <script>
-    // Insurance Entries by Month
-    new Chart(document.getElementById("insuranceChart"), {
-      type: "line",
+    const ctx1 = document.getElementById('insuranceChart').getContext('2d');
+    new Chart(ctx1, {
+      type: 'bar',
       data: {
-        labels: <?php echo json_encode($insuranceLabels); ?>,
+        labels: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
         datasets: [{
-          label: "Insurance Entries",
-          data: <?php echo json_encode($insuranceData); ?>,
-          borderColor: "#2980b9",
-          backgroundColor: "rgba(41,128,185,0.2)",
-          fill: true,
-          tension: 0.3
+          label: 'Insurance Entries',
+          data: [12, 19, 3, 5, 2, 3, 10, 15, 8, 6, 12, 9], // replace later with PHP
+          backgroundColor: '#144d30'
         }]
-      }
+      },
+      options: { responsive: true, maintainAspectRatio: false }
     });
 
-    // Claim Status Pie
-    new Chart(document.getElementById("claimChart"), {
-      type: "pie",
+    const ctx2 = document.getElementById('claimsChart').getContext('2d');
+    new Chart(ctx2, {
+      type: 'pie',
       data: {
-        labels: <?php echo json_encode($claimLabels); ?>,
+        labels: ['Approved','Pending','Rejected'],
         datasets: [{
-          data: <?php echo json_encode($claimData); ?>,
-          backgroundColor: ["#27ae60", "#f39c12", "#e74c3c", "#8e44ad", "#3498db"]
+          label: 'Claims Status',
+          data: [10, 5, 2], // replace later with PHP
+          backgroundColor: ['#2ecc71','#f1c40f','#e74c3c']
         }]
-      }
+      },
+      options: { responsive: true, maintainAspectRatio: false }
     });
   </script>
+
+  <script src="script.js"></script>
 </body>
 </html>
