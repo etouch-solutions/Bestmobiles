@@ -1,11 +1,10 @@
 <?php
 // dashboard.php
 
-include 'db.php';  // <-- db.php must have $conn = new mysqli(...);
+include 'db_connect.php'; // <-- make sure this has $conn = new mysqli(...);
 
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
-
 // ===== Fetch Insurance Entries by Month =====
 $insuranceData = [];
 $insuranceLabels = [];
@@ -22,10 +21,10 @@ while($row = $result->fetch_assoc()){
 // ===== Fetch Claim Status (Approved, Pending, Rejected etc.) =====
 $claimLabels = [];
 $claimData = [];
-$sql2 = "SELECT Claim_Status, COUNT(*) as total FROM Claim_Entry GROUP BY Claim_Status";
+$sql2 = "SELECT Status, COUNT(*) as total FROM Claim_Entry GROUP BY Status";
 $result2 = $conn->query($sql2);
 while($row = $result2->fetch_assoc()){
-    $claimLabels[] = $row['Claim_Status'];
+    $claimLabels[] = $row['Status'];
     $claimData[] = $row['total'];
 }
 
