@@ -1,7 +1,7 @@
 <?php
 // dashboard.php
 
-include 'db_connect.php'; // <-- make sure this has $conn = new mysqli(...);
+include 'db.php';  // <-- make sure this has $conn = new mysqli(...);
 
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
