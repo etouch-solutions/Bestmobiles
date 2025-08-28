@@ -133,17 +133,7 @@
         </div>
       </div>
 
-      <!-- Charts -->
-      <div class="charts">
-        <div class="chart-card">
-          <h3 style="color:#144d30;">Insurance Entries by Month</h3>
-          <canvas id="insuranceChart"></canvas>
-        </div>
-        <div class="chart-card">
-          <h3 style="color:#144d30;">Claims Status</h3>
-          <canvas id="claimsChart"></canvas>
-        </div>
-      </div>
+      
     </main>
   </div>
 
