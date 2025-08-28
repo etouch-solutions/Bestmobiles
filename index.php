@@ -8,36 +8,68 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    /* Dashboard Layout */
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f5f6fa;
+    }
+
+    /* Dashboard Cards */
     .dashboard {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      grid-template-columns: repeat(4, 1fr);
       gap: 20px;
       margin: 20px;
     }
     .card {
       background: #fff;
-      padding: 20px;
+      padding: 25px;
       border-radius: 12px;
-      box-shadow: 0px 4px 12px rgba(0,0,0,0.1);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.08);
       text-align: center;
-      transition: transform 0.2s;
+      transition: all 0.3s ease;
     }
     .card:hover { transform: translateY(-5px); }
-    .card h2 { font-size: 22px; margin: 10px 0; color:#144d30; }
-    .card p { font-size: 14px; color: #666; }
+    .card i {
+      font-size: 28px;
+      color: #144d30;
+      margin-bottom: 10px;
+    }
+    .card h2 {
+      font-size: 28px;
+      margin: 5px 0;
+      color: #144d30;
+    }
+    .card p {
+      font-size: 14px;
+      color: #555;
+    }
 
+    /* Charts Section */
     .charts {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      grid-template-columns: 2fr 1fr;
       gap: 20px;
       margin: 20px;
     }
-    canvas {
+    .chart-card {
       background: #fff;
-      padding: 15px;
+      padding: 20px;
       border-radius: 12px;
-      box-shadow: 0px 4px 12px rgba(0,0,0,0.1);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.08);
+    }
+    canvas {
+      width: 100% !important;
+      height: 300px !important;
+    }
+
+    /* Responsive */
+    @media(max-width: 900px){
+      .dashboard { grid-template-columns: repeat(2, 1fr); }
+      .charts { grid-template-columns: 1fr; }
+    }
+    @media(max-width: 600px){
+      .dashboard { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -49,7 +81,6 @@
     <div class="hamburger" onclick="toggleSidebar()">☰</div>
   </div>
 
-  <!-- Layout -->
   <div class="container">
     <!-- Sidebar -->
     <aside class="sidebar mobile-hidden" id="sidebarMenu">
@@ -66,53 +97,37 @@
       </ul>
     </aside>
 
-    <!-- Main Content -->
+    <!-- Main Dashboard -->
     <main style="flex:1; padding:20px;">
-      <h2 style="color:#144d30;">📊 Dashboard Overview</h2>
+      <h2 style="color:#144d30; margin-bottom:20px;">📊 Dashboard Overview</h2>
 
-      <!-- Cards -->
+      <!-- Stats Cards -->
       <div class="dashboard">
         <div class="card">
-          <i class="fa fa-users fa-2x" style="color:#144d30;"></i>
+          <i class="fa fa-users"></i>
           <h2>
-            <?php
-              $result = $conn->query("SELECT COUNT(*) AS total FROM Customer_Master");
-              $row = $result->fetch_assoc();
-              echo $row['total'];
-            ?>
+            <?php $r = $conn->query("SELECT COUNT(*) AS c FROM Customer_Master"); echo $r->fetch_assoc()['c']; ?>
           </h2>
           <p>Total Customers</p>
         </div>
         <div class="card">
-          <i class="fa fa-shield-alt fa-2x" style="color:#144d30;"></i>
+          <i class="fa fa-shield-alt"></i>
           <h2>
-            <?php
-              $result = $conn->query("SELECT COUNT(*) AS total FROM Insurance_Entry");
-              $row = $result->fetch_assoc();
-              echo $row['total'];
-            ?>
+            <?php $r = $conn->query("SELECT COUNT(*) AS c FROM Insurance_Entry"); echo $r->fetch_assoc()['c']; ?>
           </h2>
           <p>Total Insurances</p>
         </div>
         <div class="card">
-          <i class="fa fa-file-contract fa-2x" style="color:#144d30;"></i>
+          <i class="fa fa-file-contract"></i>
           <h2>
-            <?php
-              $result = $conn->query("SELECT COUNT(*) AS total FROM Claim_Entry");
-              $row = $result->fetch_assoc();
-              echo $row['total'];
-            ?>
+            <?php $r = $conn->query("SELECT COUNT(*) AS c FROM Claim_Entry"); echo $r->fetch_assoc()['c']; ?>
           </h2>
           <p>Total Claims</p>
         </div>
         <div class="card">
-          <i class="fa fa-user-tie fa-2x" style="color:#144d30;"></i>
+          <i class="fa fa-user-tie"></i>
           <h2>
-            <?php
-              $result = $conn->query("SELECT COUNT(*) AS total FROM Staff_Master");
-              $row = $result->fetch_assoc();
-              echo $row['total'];
-            ?>
+            <?php $r = $conn->query("SELECT COUNT(*) AS c FROM Staff_Master"); echo $r->fetch_assoc()['c']; ?>
           </h2>
           <p>Total Staff</p>
         </div>
@@ -120,14 +135,20 @@
 
       <!-- Charts -->
       <div class="charts">
-        <canvas id="insuranceChart"></canvas>
-        <canvas id="claimsChart"></canvas>
+        <div class="chart-card">
+          <h3 style="color:#144d30;">Insurance Entries by Month</h3>
+          <canvas id="insuranceChart"></canvas>
+        </div>
+        <div class="chart-card">
+          <h3 style="color:#144d30;">Claims Status</h3>
+          <canvas id="claimsChart"></canvas>
+        </div>
       </div>
     </main>
   </div>
 
+  <!-- Charts -->
   <script>
-    // Insurance by Month
     const ctx1 = document.getElementById('insuranceChart').getContext('2d');
     new Chart(ctx1, {
       type: 'bar',
@@ -135,13 +156,13 @@
         labels: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
         datasets: [{
           label: 'Insurance Entries',
-          data: [12, 19, 3, 5, 2, 3, 10, 15, 8, 6, 12, 9], // Replace with PHP later
+          data: [12, 19, 3, 5, 2, 3, 10, 15, 8, 6, 12, 9], // replace later with PHP
           backgroundColor: '#144d30'
         }]
-      }
+      },
+      options: { responsive: true, maintainAspectRatio: false }
     });
 
-    // Claims Pie
     const ctx2 = document.getElementById('claimsChart').getContext('2d');
     new Chart(ctx2, {
       type: 'pie',
@@ -149,10 +170,11 @@
         labels: ['Approved','Pending','Rejected'],
         datasets: [{
           label: 'Claims Status',
-          data: [10, 5, 2], // Replace with PHP later
+          data: [10, 5, 2], // replace later with PHP
           backgroundColor: ['#2ecc71','#f1c40f','#e74c3c']
         }]
-      }
+      },
+      options: { responsive: true, maintainAspectRatio: false }
     });
   </script>
 
