@@ -1,3 +1,13 @@
+
+<?php
+session_start();
+if (!isset($_SESSION['user'])) {
+    header("Location: login.php");
+    exit;
+}
+?>
+
+
 <?php
 
 error_reporting(E_ALL);
