@@ -1,7 +1,8 @@
-<?php include 'db.php'; $conn = mysqli_connect($host, $user, $pass, $db); ?>
+<?php include 'db.php'; 
+$conn = mysqli_connect($host, $user, $pass, $db); 
+?>
 <!DOCTYPE html> 
 <html lang="en">
-
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -40,7 +41,7 @@
         <form action="insert_insurance_entry.php" method="POST" enctype="multipart/form-data">
           
           <label>Select Customer</label>
-          <select name="cus_id" onchange="loadCustomerDetails(this.value)" required>
+          <select name="cus_id" required>
             <option value="">-- Select --</option>
             <?php
               $res = mysqli_query($conn, "SELECT Cus_Id, Cus_Name FROM Customer_Master WHERE Is_Active=1");
@@ -50,7 +51,7 @@
           </select>
 
           <label>Select Brand</label>
-          <select name="brand_id" onchange="loadBrandDetails(this.value)" required>
+          <select name="brand_id" required>
             <option value="">-- Select --</option>
             <?php
               $res = mysqli_query($conn, "SELECT Brand_Id, Brand_Name FROM Brands_Master WHERE Is_Active=1");
@@ -60,13 +61,12 @@
           </select>
 
           <label>Select Insurance Plan</label>
-          <select name="insurance_id" id="insurance_id" onchange="calculatePremiumAndEndDate(); loadInsuranceDetails(this.value)" required>
+          <select name="insurance_id" id="insurance_id" onchange="premiumEditedManually=false; calculatePremiumAndEndDate();" required>
             <option value="">-- Select --</option>
             <?php
              $res = mysqli_query($conn, "SELECT Insurance_Id, Insurance_Name, Premium_Percentage, Duration_Months 
                             FROM Insurance_Master 
                             WHERE Insurance_Status=1");
-
               while($r = mysqli_fetch_assoc($res))
                 echo "<option value='{$r['Insurance_Id']}' data-premium='{$r['Premium_Percentage']}' data-duration='{$r['Duration_Months']}'>{$r['Insurance_Name']}</option>";
             ?>
@@ -110,7 +110,7 @@
           <input type="date" name="insurance_start" id="insurance_start" onchange="premiumEditedManually=false; calculatePremiumAndEndDate();" required>
 
           <label>Insurance End</label>
-          <input type="date" name="insurance_end" id="insurance_end">
+          <input type="date" name="insurance_end" id="insurance_end" readonly>
 
           <label>Insurance Status</label>
           <select name="insurance_status">
@@ -133,9 +133,10 @@
 
 <!-- JS -->
 <script>
-function toggleSidebar(){document.getElementById('sidebarMenu').classList.toggle('mobile-hidden');}
+function toggleSidebar(){
+  document.getElementById('sidebarMenu').classList.toggle('mobile-hidden');
+}
 
-// --- Premium Logic ---
 let premiumEditedManually = false;
 
 // If user edits premium manually
