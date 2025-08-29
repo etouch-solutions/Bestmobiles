@@ -1,50 +1,53 @@
-<?php
-session_start();
-include 'db.php';
-
-if (isset($_SESSION['user'])) {
-    header("Location: index.php");
-    exit;
-}
-
-if (isset($_POST['login'])) {
-    $email = mysqli_real_escape_string($conn, $_POST['email']);
-    $pass  = $_POST['password'];
-
-    $res = mysqli_query($conn, "SELECT * FROM users WHERE email='$email'");
-    $row = mysqli_fetch_assoc($res);
-
-    if ($row && password_verify($pass, $row['password'])) {
-        $_SESSION['user'] = $row['id'];
-        header("Location: index.php");
-        exit;
-    } else {
-        $error = "Invalid Email or Password!";
-    }
-}
-?>
+<?php require_once 'config.php'; ?>
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Login</title>
-  <style>
-    body {font-family: Arial, sans-serif; background:#f4f4f4; display:flex; height:100vh; align-items:center; justify-content:center;}
-    .box {background:#fff; padding:30px; border-radius:10px; box-shadow:0 0 10px rgba(0,0,0,0.2);}
-    input {width:100%; padding:10px; margin:10px 0; border:1px solid #ccc; border-radius:5px;}
-    button {width:100%; padding:10px; background:#28a745; color:#fff; border:none; border-radius:5px; cursor:pointer;}
-    button:hover {background:#218838;}
-    p {text-align:center; color:red;}
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Login | IMS</title>
+<style>
+  :root { --bg:#f6f7fb; --card:#fff; --text:#222; --muted:#666; --primary:#2563eb; }
+  body{margin:0;font-family:system-ui,Segoe UI,Roboto,Arial;background:var(--bg);color:var(--text);}
+  .wrap{min-height:100dvh;display:grid;place-items:center;padding:24px;}
+  .card{background:var(--card);width:100%;max-width:420px;border-radius:16px;box-shadow:0 10px 30px rgba(0,0,0,.08);padding:28px;}
+  h1{margin:0 0 12px;font-size:22px}
+  p{margin:0 0 20px;color:var(--muted)}
+  label{display:block;font-size:14px;margin:12px 0 6px}
+  input{width:100%;padding:12px 14px;border:1px solid #e5e7eb;border-radius:10px;font-size:16px;outline:none}
+  input:focus{border-color:var(--primary);box-shadow:0 0 0 4px rgba(37,99,235,.12)}
+  .row{display:flex;align-items:center;justify-content:space-between;margin:14px 0}
+  .btn{width:100%;padding:12px 16px;background:var(--primary);color:#fff;border:none;border-radius:12px;font-weight:600;cursor:pointer}
+  .btn:hover{filter:brightness(.95)}
+  .error{background:#fee2e2;color:#991b1b;border:1px solid #fecaca;padding:10px 12px;border-radius:10px;margin-bottom:14px}
+  .note{font-size:12px;color:var(--muted);margin-top:12px;text-align:center}
+</style>
 </head>
 <body>
-  <div class="box">
-    <h2>Login</h2>
-    <form method="POST">
-      <input type="email" name="email" placeholder="Enter Email" required>
-      <input type="password" name="password" placeholder="Enter Password" required>
-      <button type="submit" name="login">Login</button>
-    </form>
-    <?php if(isset($error)) echo "<p>$error</p>"; ?>
-  </div>
+<div class="wrap">
+  <form class="card" action="login_process.php" method="post" autocomplete="on">
+    <h1>Sign in</h1>
+    <p>Login to access your dashboard.</p>
+
+    <?php if (!empty($_SESSION['flash_error'])): ?>
+      <div class="error"><?= htmlspecialchars($_SESSION['flash_error']); unset($_SESSION['flash_error']); ?></div>
+    <?php endif; ?>
+
+    <label for="email">Email</label>
+    <input id="email" name="email" type="email" required placeholder="you@example.com">
+
+    <label for="password">Password</label>
+    <input id="password" name="password" type="password" required placeholder="••••••••">
+
+    <div class="row">
+      <label style="display:flex;gap:8px;align-items:center;font-size:14px">
+        <input type="checkbox" name="remember" value="1" style="width:16px;height:16px"> Remember me
+      </label>
+      <a href="#" style="font-size:14px;color:var(--primary);text-decoration:none" onclick="alert('Ask admin to reset password.')">Forgot?</a>
+    </div>
+
+    <button class="btn" type="submit">Login</button>
+    <div class="note">Don’t have an account? Ask your admin to create one.</div>
+  </form>
+</div>
 </body>
 </html>
